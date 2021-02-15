@@ -7,6 +7,7 @@ import RadioGroup from '@material-ui/core/RadioGroup';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import FormControl from '@material-ui/core/FormControl';
 import FormLabel from '@material-ui/core/FormLabel';
+import Frequency from  '../Frequency/Frequency'
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -80,13 +81,6 @@ const useStyles = makeStyles((theme) => ({
   },
   form_btn_space : {
     marginRight: '20px'
-  },
-  frequency_box : {
-    width: '95%',
-    height: '200px',
-    border: '1px solid lightgray',
-    padding: '16px',
-    marginBottom: '16px'
   }
 }));
 
@@ -162,12 +156,9 @@ function AddFile() {
               </div>
             </Grid>
           </div>
-          <div className={classes.frequency_box}>
-            Frquency #1
-           </div>
-           <div className={classes.frequency_box}>
-            Frquency #2
-           </div>
+            <Frequency/>
+            <Frequency/>
+            <Button className={classes.form_btn_space} variant="outlined">+ Add Frequency</Button>
         </div>
       </div>
     </div>
