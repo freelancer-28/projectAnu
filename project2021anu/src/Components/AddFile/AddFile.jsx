@@ -1,3 +1,5 @@
+import react, {useEffect, useState} from 'react';
+import { useSelector, useDispatch } from "react-redux";
 import { makeStyles } from '@material-ui/core/styles';
 import Button from '@material-ui/core/Button';
 // import TextField from '@material-ui/core/TextField';
@@ -10,6 +12,16 @@ import FormLabel from '@material-ui/core/FormLabel';
 import Frequency from '../Frequency/Frequency'
 import Select from '../Select'
 import TextField from '../TextField'
+import {
+  updateProducer,
+  updateProducerOptions,
+  updateFileMask,
+  submitFile
+} from "../../actions";
+import filtersAPIs from "../../apis/FileObserver/filters";
+import addFileAPIs from "../../apis/AdminTools/addFile";
+
+import { selectProducer, selectProducerOptions } from "../../reducers/producer";
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -80,9 +92,108 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
-function AddFile() {
+const directionOptions = [
+  {
+    "value": "LEFT",
+    "label": "LEFT"
+  },
+  {
+    "value": "RIGHT",
+    "label": "RIGHT"
+  }
+]
+const routeOptions= [
+  {
+    "value": "route1",
+    "label": "route1"
+  },
+  {
+    "value": "route2",
+    "label": "route2"
+  }
+]
 
+function AddFile(props) {
+
+  const [addFileData, setAddFileData] = useState({
+    producer: null,
+    sftAccountName: "",
+    direction: null,
+    fileMask: "",
+    prefix: "",
+    siffux: "",
+    dateMask: "",
+    dateTimeMask: "",
+    route: null,
+    frequency: {
+      occurence: null,
+      hopId: null,
+      fileCount: null,
+      frequencies: [
+        {
+          days: [],
+          startTime: null,
+          sla: null,
+          endTime: null
+        }
+      ]
+
+    }
+  })
+
+  const dispatch = useDispatch();
   const classes = useStyles();
+  const producer = useSelector(selectProducer);
+  const producerOptions = useSelector(selectProducerOptions);
+
+  useEffect(() => {
+    fetchProducerFiltersFromServer();
+    return () => { console.log('useEffectProps', props) }
+  }, []);
+
+  const handleProducerChange = (data) => {
+    // setProducer(data);
+    dispatch(updateProducer(data));
+    dispatch(updateFileMask(''));
+  };
+
+  const fetchProducerFiltersFromServer = async () => {
+    dispatch(updateProducerOptions([]));
+    const producerOptions = await filtersAPIs.fetchProducerOptions();
+    console.log(producerOptions)
+    dispatch(updateProducerOptions(producerOptions));
+  };
+
+  const handleInputChange = event => {
+    const {name, value} =  event.target
+    setAddFileData({
+      ...addFileData,
+      [name]: value
+    })
+  }
+
+  const handleDirectionChange = data => {
+    setAddFileData({
+      ...addFileData,
+      direction: data.value
+    })
+  }
+
+  const handleRouteChange = data => {
+    setAddFileData({
+      ...addFileData,
+      route: data.value
+    })
+  }
+  
+  const onAddFileSubmit = async () => {
+    console.log("+++++++++++++++++++++++++++++++++++++")
+    // dispatch(submitFile(addFileData));
+    await addFileAPIs.addFile(addFileData)
+  }
+
+  // console.log(addFileData)
+  console.log(props)
   return (
     <div className={classes.container}>
       <div className={classes.container}>
@@ -94,63 +205,61 @@ function AddFile() {
               <Grid container>
                 <div className={classes.flex}>
                   <span className={classes.label}>Producer</span>
-                  <Select value="A"
-                    options={{
-                      "A": "a"
-                    }}
-                    // onChange={}
-                    // isLoading={}
-                    placeHolder=""
+                  <Select 
+                    value={producer}
+                    options={producerOptions}
+                    onChange={handleProducerChange}
+                    isLoading={!(producerOptions && producerOptions.length)}
+                    placeholder="Producer"
                   />
                 </div>
                 <div className={classes.flex}>
                   <span className={classes.label}>SFT Account Name</span>
-                  <TextField />
+                  <TextField name="sftAccountName" onChange={handleInputChange} value={addFileData.sftAccountName} />
                 </div>
                 <div className={classes.flex}>
                   <span className={classes.label}>Direction</span>
-                  <Select value="A"
-                    options={{
-                      "A": "a"
-                    }}
-                    // onChange={}
-                    // isLoading={}
-                    placeHolder=""
+                  <Select
+                   value={addFileData.direction}
+                   options={directionOptions}
+                   onChange={handleDirectionChange}
+                   isLoading={!(directionOptions && directionOptions.length)}
+                   placeholder="Direction"
                   />
                 </div>
                 <div className={classes.flex}>
                   <span className={classes.label}>File Mask</span>
-                  <TextField />
+                  <TextField name="fileMask" onChange={handleInputChange} value={addFileData.fileMask} />
                 </div>
               </Grid>
               <Grid container>
                 <div className={classes.flex}>
                   <span className={classes.label}>Prefix</span>
-                  <TextField />
+                  <TextField name="prefix" onChange={handleInputChange} value={addFileData.prefix}/>
                 </div>
                 <div className={classes.flex}>
                   <span className={classes.label}>Suffix</span>
-                  <TextField />
+                  <TextField name="suffix" onChange={handleInputChange} value={addFileData.suffix}/>
                 </div>
                 <div className={classes.flex}>
                   <span className={classes.label}>Date Mask</span>
-                  <TextField />
+                  <TextField name="dateMask" onChange={handleInputChange} value={addFileData.dateMask}/>
                 </div>
                 <div className={classes.flex}>
                   <span className={classes.label}>Date Time Mask</span>
-                  <TextField />
+                  <TextField name="dateTimeMask" onChange={handleInputChange} value={addFileData.dateTimeMask}/>
                 </div>
               </Grid>
               <Grid container>
                 <div className={classes.flex}>
                   <span className={classes.label}>Route</span>
-                  <Select value="A"
-                    options={{
-                      "A": "a"
-                    }}
-                    // onChange={}
-                    // isLoading={}
-                    placeHolder=""
+                  <Select
+                   name="route"
+                   value={addFileData.route}
+                   options={routeOptions}
+                   onChange={handleRouteChange}
+                   isLoading={!(routeOptions && routeOptions.length)}
+                   placeholder="Route"
                   />
                 </div>
               </Grid>
@@ -187,7 +296,7 @@ function AddFile() {
         <Button className={classes.form_btn_space} variant="outlined" color="primary">
           Cancel
       </Button>
-        <Button variant="contained">Submit</Button>
+        <Button onClick={onAddFileSubmit} variant="contained">Submit</Button>
       </div>
     </div>
   );

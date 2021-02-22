@@ -2,7 +2,7 @@ import { styled } from "@material-ui/core/styles";
 import TextField from '@material-ui/core/TextField';
 
 const ReactTextField = styled(TextField)({
-  zIndex: 1000,
+  // zIndex: 1000,
   backgroundColor: "#fff",
   border: "none !important",
   '& .MuiOutlinedInput-root': {
