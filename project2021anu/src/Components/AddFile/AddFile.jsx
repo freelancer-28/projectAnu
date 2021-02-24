@@ -16,12 +16,15 @@ import {
   updateProducer,
   updateProducerOptions,
   updateFileMask,
-  submitFile
+  submitFile,
+  updateRoute,
+  updateRouteOptions
 } from "../../actions";
 import filtersAPIs from "../../apis/FileObserver/filters";
 import addFileAPIs from "../../apis/AdminTools/addFile";
 
 import { selectProducer, selectProducerOptions } from "../../reducers/producer";
+import { selectRoute, selectRouteOptions } from '../../reducers/route';
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -102,16 +105,16 @@ const directionOptions = [
     "label": "RIGHT"
   }
 ]
-const routeOptions= [
-  {
-    "value": "route1",
-    "label": "route1"
-  },
-  {
-    "value": "route2",
-    "label": "route2"
-  }
-]
+// const routeOptions= [
+//   {
+//     "value": "route1",
+//     "label": "route1"
+//   },
+//   {
+//     "value": "route2",
+//     "label": "route2"
+//   }
+// ]
 
 function AddFile(props) {
 
@@ -144,7 +147,9 @@ function AddFile(props) {
   const dispatch = useDispatch();
   const classes = useStyles();
   const producer = useSelector(selectProducer);
+  const route = useSelector(selectRoute);
   const producerOptions = useSelector(selectProducerOptions);
+  const routeOptions = useSelector(selectRouteOptions);
 
   useEffect(() => {
     fetchProducerFiltersFromServer();
@@ -158,10 +163,22 @@ function AddFile(props) {
   };
 
   const fetchProducerFiltersFromServer = async () => {
-    dispatch(updateProducerOptions([]));
-    const producerOptions = await filtersAPIs.fetchProducerOptions();
+    dispatch(updateProducerOptions([]))
+    dispatch(updateRouteOptions([]));
+    const data = await filtersAPIs.fetchProducerOptions();
+    const producerOptions = data.name.map(d=>({
+        value: d,
+        label: d
+      }))
     console.log(producerOptions)
+    const routeOptions = data.route.map(d=>({
+      value: d.routeId,
+      label: d.displayName
+    }))
+    console.log(routeOptions)
+
     dispatch(updateProducerOptions(producerOptions));
+    dispatch(updateRouteOptions(routeOptions))
   };
 
   const handleInputChange = event => {
@@ -180,6 +197,7 @@ function AddFile(props) {
   }
 
   const handleRouteChange = data => {
+    dispatch(updateRoute(data));
     setAddFileData({
       ...addFileData,
       route: data.value
@@ -255,7 +273,7 @@ function AddFile(props) {
                   <span className={classes.label}>Route</span>
                   <Select
                    name="route"
-                   value={addFileData.route}
+                   value={route}
                    options={routeOptions}
                    onChange={handleRouteChange}
                    isLoading={!(routeOptions && routeOptions.length)}

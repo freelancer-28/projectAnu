@@ -5,6 +5,8 @@ import { updateFileData } from "./fileData";
 import { reset } from "./reset";
 import { updateAdminFileData } from "./adminFileData";
 import { submitFile } from "./addFile"
+import { updateRoute, updateRouteOptions } from "./route";
+
 export {
   updateProducer,
   updateFileMask,
@@ -14,5 +16,7 @@ export {
   updateFileData,
   reset,
   updateAdminFileData,
-  submitFile
+  submitFile,
+  updateRoute,
+  updateRouteOptions
 };

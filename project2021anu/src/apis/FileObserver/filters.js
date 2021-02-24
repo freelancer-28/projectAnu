@@ -16,12 +16,35 @@ const fetchProducerOptions = async () => {
         "Salesconnect",
         "Incomm"
       ],
+      "route": [
+        {
+          "routeId": 1,
+          "displayName": "PSP",
+          "hopId": [ 2,3 ]
+        },
+        {
+          "routeId": 2,
+          "displayName": "RBMS",
+          "hopId": [ 5, 6 ]
+        },
+        {
+          "routeId": 3,
+          "displayName": "SAPHIRE",
+          "hopId": [ 8, 9 ]
+        },
+        {
+          "routeId": 4,
+          "displayName": "CIP",
+          "hopId": [ 11, 12 ]
+        }
+      ],
       "status": "Success"
     }
-      return data.name.map(d=>({
-        value: d,
-        label: d
-      }))
+      return data
+      // return data.name.map(d=>({
+      //   value: d,
+      //   label: d
+      // }))
   } catch (err) {
     console.error(err && err.message);
   }

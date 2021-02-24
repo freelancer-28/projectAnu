@@ -1,4 +1,5 @@
 import { producer, producerOptions } from "./producer";
+import { route, routeOptions } from "./route";
 import { fileMask, fileMaskOptions } from "./fileMask";
 // import { userInfo } from "./userInfo";
 import { fileData } from "./fileData";
@@ -14,7 +15,9 @@ const rootReducer = combineReducers({
   // userInfo,
   fileData,
   adminFileData,
-  addFile
+  addFile,
+  route,
+  routeOptions
 });
 
 export default rootReducer;
