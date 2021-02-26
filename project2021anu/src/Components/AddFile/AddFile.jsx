@@ -146,7 +146,7 @@ function AddFile(props) {
 
   const dispatch = useDispatch();
   const classes = useStyles();
-  const producer = useSelector(selectProducer);
+  // const producer = useSelector(selectProducer);
   const route = useSelector(selectRoute);
   const producerOptions = useSelector(selectProducerOptions);
   const routeOptions = useSelector(selectRouteOptions);
@@ -158,8 +158,12 @@ function AddFile(props) {
 
   const handleProducerChange = (data) => {
     // setProducer(data);
-    dispatch(updateProducer(data));
-    dispatch(updateFileMask(''));
+    // dispatch(updateProducer(data));
+    // dispatch(updateFileMask(''));
+    setAddFileData({
+      ...addFileData,
+      producer: { value: data.value, label: data.label }
+    })
   };
 
   const fetchProducerFiltersFromServer = async () => {
@@ -224,7 +228,7 @@ function AddFile(props) {
                 <div className={classes.flex}>
                   <span className={classes.label}>Producer</span>
                   <Select 
-                    value={producer}
+                    value={addFileData.producer}
                     options={producerOptions}
                     onChange={handleProducerChange}
                     isLoading={!(producerOptions && producerOptions.length)}
