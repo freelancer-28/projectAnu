@@ -1,6 +1,7 @@
 import { makeStyles } from '@material-ui/core/styles';
 import AddFile from './AddFile/AddFile.jsx'
 import Button from '@material-ui/core/Button';
+import FileDetails from './FileDetails/FileDetails';
 
 const useStyles = makeStyles((theme) => ({
   container : {
@@ -24,15 +25,8 @@ function DashBoard() {
   return (
     <div className="App">
       DashBoard
-      {/* <div className={classes.container}> */}
         <AddFile/>
-        {/* <div className={classes.formaddfile}>
-          <Button className={classes.form_btn_space} variant="outlined" color="primary">
-            Cancel
-          </Button>
-          <Button variant="contained">Submit</Button>
-        </div> */}
-      {/* </div> */}
+       {/* <FileDetails/> */}
     </div>
   );
 }

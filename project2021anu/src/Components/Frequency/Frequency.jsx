@@ -82,15 +82,18 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
-function Frequency() {
+function Frequency(props) {
 
+  const {id, startTime, sla, endTime, days} = props.data
+  const weekdays = [ 'S', 'M', 'T', 'W', 'T', 'F', 'S'];
+  console.log(days)
   const classes = useStyles();
   return (
     <div>
       <div className={classes.frequency_box}>
       <div className={classes.frequency_header}>
-        <div>Frequency#1</div>
-        <div>
+        <div>Frequency#{id}</div>
+        <div onClick={()=>props.deleteFrequency(id)}>
           D
           {/* <FontAwesomeIcon icon="fa-trash-o" /> */}
           {/* <i class="fa fa-trash-o" aria-hidden="true"></i> */}
@@ -100,27 +103,11 @@ function Frequency() {
         <div className={classes.flexrow}>
           <div className={classes.frequency_header1}>Day(s)</div>
           <div>
-          <Button className={classes.weekdays_unselected_btn} variant="contained" color="primary">
-            S
-          </Button>
-          <Button className={classes.weekdays_btn} variant="contained" color="primary">
-            M
-          </Button>
-          <Button className={classes.weekdays_btn} variant="contained" color="primary">
-            T
-          </Button>
-          <Button className={classes.weekdays_btn} variant="contained" color="primary">
-            W
-          </Button>
-          <Button className={classes.weekdays_btn} variant="contained" color="primary">
-            T
-          </Button>
-          <Button className={classes.weekdays_btn} variant="contained" color="primary">
-            F
-          </Button>
-          <Button className={classes.weekdays_unselected_btn} variant="contained" color="primary">
-            S
-          </Button>
+            {[0,1,2,3,4,5,6].map((day, i) =>
+              <Button className={days.includes(day) ? classes.weekdays_btn : classes.weekdays_unselected_btn} variant="contained" color="primary">
+              {weekdays[i]}
+            </Button>
+            )}
           </div>
         </div>
         <div className={classes.divider}></div>
@@ -128,15 +115,15 @@ function Frequency() {
         <Grid container>
               <div className={classes.flex}>
                 <span className={classes.label}>Start Time</span>
-                <TextField className={classes.root} label="" variant="outlined" />
+                <TextField className={classes.root} value={startTime} label="" variant="outlined" />
               </div>
               <div className={classes.flex}>
                 <span className={classes.label}>SLA</span>
-                <TextField className={classes.root} label="" variant="outlined" />
+                <TextField className={classes.root} value={sla} label="" variant="outlined" />
               </div>
               <div className={classes.flex}>
                 <span className={classes.label}>End Time</span>
-                <TextField className={classes.root} label="" variant="outlined" />
+                <TextField className={classes.root} value={endTime} label="" variant="outlined" />
               </div>
             </Grid>
         </div>

@@ -134,10 +134,11 @@ function AddFile(props) {
       fileCount: null,
       frequencies: [
         {
-          days: [],
-          startTime: null,
-          sla: null,
-          endTime: null
+          id: 1,
+          days: [1,2,3,4,5],
+          startTime: "",
+          sla: "",
+          endTime: ""
         }
       ]
 
@@ -177,7 +178,8 @@ function AddFile(props) {
     console.log(producerOptions)
     const routeOptions = data.route.map(d=>({
       value: d.routeId,
-      label: d.displayName
+      label: d.displayName,
+      hopId: d.hopId
     }))
     console.log(routeOptions)
 
@@ -204,7 +206,11 @@ function AddFile(props) {
     dispatch(updateRoute(data));
     setAddFileData({
       ...addFileData,
-      route: data.value
+      route: data.value,
+      frequency: {
+        ...addFileData.frequency,
+        hopId: data.hopId
+      }
     })
   }
   
@@ -214,7 +220,32 @@ function AddFile(props) {
     await addFileAPIs.addFile(addFileData)
   }
 
-  // console.log(addFileData)
+  const addFrequency = () => {
+    let freqs = addFileData.frequency.frequencies
+    freqs.push({
+      id: freqs.length+1,
+      days: [0,1,2,3,4,5,6],
+      startTime: "",
+      sla: "",
+      endTime: ""
+    })
+    setAddFileData({
+      frequency: {
+        ...addFileData.frequency,
+        frequencies : [...freqs]     }
+    })
+  }
+
+  const deleteFrequency = (id) => {
+    let freqs = addFileData.frequency.frequencies.filter(fre => fre.id !== id)
+    setAddFileData({
+      frequency: {
+        ...addFileData.frequency,
+        frequencies : [...freqs]     }
+    })
+  }
+
+  console.log(addFileData)
   console.log(props)
   return (
     <div className={classes.container}>
@@ -300,7 +331,7 @@ function AddFile(props) {
                 </div>
                 <div className={classes.flex}>
                   <span className={classes.label}>Hop ID</span>
-                  <TextField />
+                  <TextField value={addFileData.frequency.hopId}/>
                 </div>
                 <div className={classes.flex}>
                   <span className={classes.label}>File count</span>
@@ -308,9 +339,12 @@ function AddFile(props) {
                 </div>
               </Grid>
             </div>
-            <Frequency />
-            <Frequency />
-            <Button className={classes.form_btn_space} variant="outlined">+ Add Frequency</Button>
+            {
+              addFileData.frequency.frequencies.map((freq,i) => <Frequency data={freq} deleteFrequency={deleteFrequency}/>)
+            }
+            {/* <Frequency />
+            <Frequency /> */}
+            <Button className={classes.form_btn_space} variant="outlined" onClick={addFrequency}>+ Add Frequency</Button>
           </div>
         </div>
       </div>
