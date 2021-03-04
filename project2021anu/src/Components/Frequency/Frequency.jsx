@@ -3,6 +3,9 @@ import Button from '@material-ui/core/Button';
 // import TextField from '@material-ui/core/TextField';
 import Grid from '@material-ui/core/Grid';
 import TextField from '../TextField';
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faTrashAlt } from '@fortawesome/free-solid-svg-icons'
+// import { faFileExport } from "fa5-pro-light";
 
 const useStyles = makeStyles((theme) => ({
   divider_alt: {
@@ -94,7 +97,7 @@ function Frequency(props) {
       <div className={classes.frequency_header}>
         <div>Frequency#{id}</div>
         <div onClick={()=>props.deleteFrequency(id)}>
-          D
+        <FontAwesomeIcon icon={faTrashAlt} />
           {/* <FontAwesomeIcon icon="fa-trash-o" /> */}
           {/* <i class="fa fa-trash-o" aria-hidden="true"></i> */}
         </div>
@@ -104,7 +107,8 @@ function Frequency(props) {
           <div className={classes.frequency_header1}>Day(s)</div>
           <div>
             {[0,1,2,3,4,5,6].map((day, i) =>
-              <Button className={days.includes(day) ? classes.weekdays_btn : classes.weekdays_unselected_btn} variant="contained" color="primary">
+              <Button className={days.includes(day) ? classes.weekdays_btn : classes.weekdays_unselected_btn} variant="contained" color="primary"
+              onClick={()=>props.updateFrequencyDay(id, day)}>
               {weekdays[i]}
             </Button>
             )}
@@ -115,15 +119,15 @@ function Frequency(props) {
         <Grid container>
               <div className={classes.flex}>
                 <span className={classes.label}>Start Time</span>
-                <TextField className={classes.root} value={startTime} label="" variant="outlined" />
+                <TextField className={classes.root} value={startTime} label="" variant="outlined" icon={faTrashAlt} onChange={(event)=>props.updateFrqStartTime("startTime", event.target.value, id)}/>
               </div>
               <div className={classes.flex}>
                 <span className={classes.label}>SLA</span>
-                <TextField className={classes.root} value={sla} label="" variant="outlined" />
+                <TextField className={classes.root} value={sla} label="" variant="outlined" onChange={(event)=>props.updateFrqStartTime("sla", event.target.value, id)}/>
               </div>
               <div className={classes.flex}>
                 <span className={classes.label}>End Time</span>
-                <TextField className={classes.root} value={endTime} label="" variant="outlined" />
+                <TextField className={classes.root} value={endTime} label="" variant="outlined" icon={faTrashAlt} onChange={(event)=>props.updateFrqStartTime("endTime", event.target.value, id)}/>
               </div>
             </Grid>
         </div>

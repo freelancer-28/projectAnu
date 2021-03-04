@@ -1,7 +1,9 @@
 import { makeStyles } from '@material-ui/core/styles';
 import AddFile from './AddFile/AddFile.jsx'
+import EditFile from './EditFile/EditFile.jsx'
 import Button from '@material-ui/core/Button';
 import FileDetails from './FileDetails/FileDetails';
+import { useState } from 'react';
 
 const useStyles = makeStyles((theme) => ({
   container : {
@@ -22,10 +24,57 @@ const useStyles = makeStyles((theme) => ({
 function DashBoard() {
   const classes = useStyles();
 
+  const [addFileFlag, setAddFileFlag] = useState(false)
+  const [editFileFlag, setEditFileFlag] = useState(false)
+
+  const editData = {
+    producer: "NEB",
+    sftAccountName: "TEST",
+    direction: "In Bound",
+    fileMask: "fm",
+    prefix: "prefix",
+    siffux: "suffix",
+    dateMask: "dm",
+    dateTimeMask: "dtm",
+    route: "CIP",
+    frequency: {
+      occurence: null,
+      hopId: null,
+      fileCount: null,
+      frequencies: [
+        {
+          id: 1,
+          days: [1,2,3,4,5],
+          startTime: "ff",
+          sla: "asda",
+          endTime: "ddddd"
+        }
+      ]
+
+    }
+  }
+
   return (
     <div className="App">
       DashBoard
-        <AddFile/>
+      <div className="App">
+      <Button onClick={()=>setAddFileFlag(!addFileFlag)} variant="outlined" color="primary">
+          Add File
+      </Button>
+      <table lassName="App">
+        <tr>
+          <td>view1</td>
+        </tr>
+        <tr>
+          <td>view2</td>
+        </tr>
+        <tr>
+          <td>view3</td>
+        </tr>
+      </table>
+      </div>
+        {addFileFlag ? <AddFile/> : <EditFile data={editData}/>}
+        {/* {editFileFlag && <AddFile edit={true} tittle={"Edit File"}/>} */}
        {/* <FileDetails/> */}
     </div>
   );

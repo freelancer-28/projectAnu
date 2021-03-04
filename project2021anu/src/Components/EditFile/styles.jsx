@@ -61,16 +61,21 @@ control: (provided) => ({
   })
 };
 const ReactSelect = styled(Select)({
-  // zIndex: 1000,
+  zIndex: 1000,
   backgroundColor: "#fff",
   border: "none !important",
-  width: '262px',
-  height: '36px',
-  backGround: '#FFFFFF 0% 0% no-repeat padding-box',
-  boxShadow: '0px 2px 2px #3E474D26',
-  border: '1px solid #D1D5D9',
-  borderRadius: '3px',
 });
 
 export { ReactSelect, ReactSelectStyles, Box };
 
+
+// Index.jsx:
+// import React, { Component } from "react";
+// import { ReactSelect, ReactSelectStyles } from "./styles";
+
+// const Select = (props) => (
+//   <ReactSelect
+//     styles={ReactSelectStyles}
+//     {...props}
+//   />
+// );

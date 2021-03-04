@@ -22,7 +22,7 @@ import {
 } from "../../actions";
 import filtersAPIs from "../../apis/FileObserver/filters";
 import addFileAPIs from "../../apis/AdminTools/addFile";
-import { selectProducer, selectProducerOptions } from "../../reducers/producer";
+import { producer, selectProducer, selectProducerOptions } from "../../reducers/producer";
 import { selectRoute, selectRouteOptions } from '../../reducers/route';
 // import { faFileExport } from "fa5-pro-light";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -94,35 +94,38 @@ const useStyles = makeStyles((theme) => ({
   },
   form_btn_space: {
     marginRight: '20px'
+  },
+  read_textFileds: {
+    width: '262px',
+    // border: '1px solid #D1D5D9',
+    height: '36px',
+    background: '#EFF0F1 0% 0% no-repeat padding-box',
+    borderRadius: '3px',
+    display: 'flex',
+    justifyContent: 'flex-start',
+    alignItems: 'center',
+    color: '#687681'
+  },
+  readValue: {
+    paddingLeft: '10px'
   }
 }));
 
-const directionOptions = [
-  {
-    "value": "LEFT",
-    "label": "LEFT"
-  },
-  {
-    "value": "RIGHT",
-    "label": "RIGHT"
-  }
-]
-
-function AddFile(props) {
+function EditFile(props) {
 
   const [addFileData, setAddFileData] = useState({
-    producer: null,
-    sftAccountName: "",
-    direction: null,
-    fileMask: "",
-    prefix: "",
-    siffux: "",
-    dateMask: "",
-    dateTimeMask: "",
-    route: null,
+    // producer: null,
+    // sftAccountName: "",
+    // direction: null,
+    // fileMask: "",
+    // prefix: "",
+    // siffux: "",
+    // dateMask: "",
+    // dateTimeMask: "",
+    // route: null,
     frequency: {
       occurence: null,
-      hopId: "1",
+      hopId: null,
       fileCount: null,
       frequencies: [
         {
@@ -150,16 +153,6 @@ function AddFile(props) {
     return () => { console.log('useEffectProps', props) }
   }, []);
 
-  const handleProducerChange = (data) => {
-    // setProducer(data);
-    // dispatch(updateProducer(data));
-    // dispatch(updateFileMask(''));
-    setAddFileData({
-      ...addFileData,
-      producer: { value: data.value, label: data.label }
-    })
-  };
-
   const fetchProducerFiltersFromServer = async () => {
     dispatch(updateProducerOptions([]))
     dispatch(updateRouteOptions([]));
@@ -180,21 +173,6 @@ function AddFile(props) {
     dispatch(updateRouteOptions(routeOptions))
   };
 
-  const handleInputChange = event => {
-    const {name, value} =  event.target
-    setAddFileData({
-      ...addFileData,
-      [name]: value
-    })
-  }
-
-  const handleDirectionChange = data => {
-    setAddFileData({
-      ...addFileData,
-      direction: { value: data.value, label: data.label }
-    })
-  }
-
   const handleHopIdChange = data => {
     setAddFileData({
       ...addFileData,
@@ -202,19 +180,6 @@ function AddFile(props) {
         ...addFileData.frequency,
         hopId: { value: data.value, label: data.value }
       }
-    })
-  }
-
-  const handleRouteChange = data => {
-    dispatch(updateRoute(data));
-    // const hopeIdOptions = data.hopId.map(id => ({ "value": id, "label": id }))
-    setAddFileData({
-      ...addFileData,
-      route: data.value,
-      // frequency: {
-      //   ...addFileData.frequency,
-      //   hopId: { value: data.hopId, label: data.hopId }
-      // }
     })
   }
   
@@ -284,75 +249,77 @@ function AddFile(props) {
     })
   }
   console.log(addFileData)
+
+  const { producer, sftAccountName, direction, fileMask, prefix, siffux, dateMask, dateTimeMask } = props.data;
+  const { hopId } = props.data.frequency
   // console.log(routeOptions)
   // console.log(route)
   return (
     <div className={classes.container}>
       <div className={classes.container}>
         <div className={classes.allign}>
-          <div className={classes.header}>Add File</div>
+          <div className={classes.header}>Edit File</div>
           <div className={classes.content}>
             <div className={classes.subheader}>File Information</div>
             <div className={classes.display}>
               <Grid container>
                 <div className={classes.flex}>
                   <span className={classes.label}>Producer</span>
-                  <Select 
-                    value={addFileData.producer}
-                    options={producerOptions}
-                    onChange={handleProducerChange}
-                    isLoading={!(producerOptions && producerOptions.length)}
-                    placeholder="Producer"
-                  />
+                  <div className={classes.read_textFileds}>
+                    <span className={classes.readValue}>{producer}</span>
+                  </div>
                 </div>
                 <div className={classes.flex}>
                   <span className={classes.label}>SFT Account Name</span>
-                  <TextField name="sftAccountName" onChange={handleInputChange} value={addFileData.sftAccountName} />
+                  <div className={classes.read_textFileds}>
+                    <span className={classes.readValue}>{sftAccountName}</span>
+                  </div>
                 </div>
                 <div className={classes.flex}>
                   <span className={classes.label}>Direction</span>
-                  <Select
-                   value={addFileData.direction}
-                   options={directionOptions}
-                   onChange={handleDirectionChange}
-                   isLoading={!(directionOptions && directionOptions.length)}
-                   placeholder="Direction"
-                  />
+                  <div className={classes.read_textFileds}>
+                    <span className={classes.readValue}>{direction}</span>
+                  </div>
                 </div>
                 <div className={classes.flex}>
                   <span className={classes.label}>File Mask</span>
-                  <TextField name="fileMask" onChange={handleInputChange} value={addFileData.fileMask} />
+                  <div className={classes.read_textFileds}>
+                    <span className={classes.readValue}>{fileMask}</span>
+                  </div>
                 </div>
               </Grid>
               <Grid container>
                 <div className={classes.flex}>
                   <span className={classes.label}>Prefix</span>
-                  <TextField name="prefix" onChange={handleInputChange} value={addFileData.prefix}/>
+                  <div className={classes.read_textFileds}>
+                    <span className={classes.readValue}>{prefix}</span>
+                  </div>
                 </div>
                 <div className={classes.flex}>
                   <span className={classes.label}>Suffix</span>
-                  <TextField name="suffix" onChange={handleInputChange} value={addFileData.suffix}/>
+                  <div className={classes.read_textFileds}>
+                    <span className={classes.readValue}>{siffux}</span>
+                  </div>
                 </div>
                 <div className={classes.flex}>
                   <span className={classes.label}>Date Mask</span>
-                  <TextField name="dateMask" onChange={handleInputChange} value={addFileData.dateMask}/>
+                  <div className={classes.read_textFileds}>
+                    <span className={classes.readValue}>{dateMask}</span>
+                  </div>
                 </div>
                 <div className={classes.flex}>
                   <span className={classes.label}>Date Time Mask</span>
-                  <TextField name="dateTimeMask" onChange={handleInputChange} value={addFileData.dateTimeMask}/>
+                  <div className={classes.read_textFileds}>
+                    <span className={classes.readValue}>Test</span>
+                  </div>
                 </div>
               </Grid>
               <Grid container>
                 <div className={classes.flex}>
                   <span className={classes.label}>Route</span>
-                  <Select
-                   name="route"
-                   value={route}
-                   options={routeOptions}
-                   onChange={handleRouteChange}
-                   isLoading={!(routeOptions && routeOptions.length)}
-                   placeholder="Route"
-                  />
+                  <div className={classes.read_textFileds}>
+                    <span className={classes.readValue}>{dateTimeMask}</span>
+                  </div>
                 </div>
               </Grid>
             </div>
@@ -370,14 +337,14 @@ function AddFile(props) {
                 </div>
                 <div className={classes.flex}>
                   <span className={classes.label}>Hop ID</span>
-                  <Select
+                  {/* <Select
                    value={addFileData.frequency.hopId}
                    options={hopIdsOptions}
                    onChange={handleHopIdChange}
                    isLoading={!(hopIdsOptions && hopIdsOptions.length)}
                    placeholder="HopIds"
-                  />
-                  {/* <TextField value={addFileData.frequency.hopId}/> */}
+                  /> */}
+                  <TextField />
                 </div>
                 <div className={classes.flex}>
                   <span className={classes.label}>File count</span>
@@ -407,4 +374,4 @@ function AddFile(props) {
   );
 }
 
-export default AddFile;
+export default EditFile;
