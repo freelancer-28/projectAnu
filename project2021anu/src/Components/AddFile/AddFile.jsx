@@ -122,7 +122,7 @@ function AddFile(props) {
     route: null,
     frequency: {
       occurence: null,
-      hopId: "1",
+      hopId: { value: 1, label: 1 },
       fileCount: null,
       frequencies: [
         {
@@ -283,6 +283,7 @@ function AddFile(props) {
         frequencies : [...freqs]     }
     })
   }
+  
   console.log(addFileData)
   // console.log(routeOptions)
   // console.log(route)

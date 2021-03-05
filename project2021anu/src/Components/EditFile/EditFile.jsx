@@ -10,6 +10,7 @@ import FormControlLabel from '@material-ui/core/FormControlLabel';
 import FormControl from '@material-ui/core/FormControl';
 import FormLabel from '@material-ui/core/FormLabel';
 import Frequency from '../Frequency/Frequency'
+import EditFrequency from '../EditFrequency/EditFrequency'
 import Select from '../Select'
 import TextField from '../TextField'
 import {
@@ -353,7 +354,7 @@ function EditFile(props) {
               </Grid>
             </div>
             {
-              addFileData.frequency.frequencies.map((freq,i) => <Frequency data={freq} deleteFrequency={deleteFrequency}
+              addFileData.frequency.frequencies.map((freq,i) => <EditFrequency data={freq} deleteFrequency={deleteFrequency}
               updateFrqStartTime={updateFrqStartTime}
               updateFrequencyDay={updateFrequencyDay}
               />)
