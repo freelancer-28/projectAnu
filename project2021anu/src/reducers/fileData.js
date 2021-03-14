@@ -1,4 +1,4 @@
-const defaultValue = []
+const defaultValue = null
 
 const fileData = (state = defaultValue, action) => {
   switch (action.type) {

@@ -224,6 +224,12 @@ function AddFile(props) {
     await addFileAPIs.addFile(addFileData)
   }
 
+  const onCancelAddFile = () => {
+    // dispatch(updateFileData(null));
+    props.history.push('/fileObserverAdmin')
+    // console.log('fileObserverAdmin')
+  }
+
   const addFrequency = () => {
     let freqs = addFileData.frequency.frequencies
     freqs.push({
@@ -382,7 +388,7 @@ function AddFile(props) {
                 </div>
                 <div className={classes.flex}>
                   <span className={classes.label}>File count</span>
-                  <TextField />
+                  <TextField type="number"/>
                 </div>
               </Grid>
             </div>
@@ -399,7 +405,7 @@ function AddFile(props) {
         </div>
       </div>
       <div className={classes.formaddfile}>
-        <Button className={classes.form_btn_space} variant="outlined" color="primary">
+        <Button onClick={() => onCancelAddFile()} className={classes.form_btn_space} variant="outlined" color="primary">
           Cancel
       </Button>
         <Button onClick={onAddFileSubmit} variant="contained">Submit</Button>

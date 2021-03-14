@@ -19,7 +19,8 @@ import {
   updateFileMask,
   submitFile,
   updateRoute,
-  updateRouteOptions
+  updateRouteOptions,
+  updateFileData
 } from "../../actions";
 import filtersAPIs from "../../apis/FileObserver/filters";
 import addFileAPIs from "../../apis/AdminTools/addFile";
@@ -112,6 +113,33 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
+const editData = {
+  producer: "NEB",
+  sftAccountName: "TEST",
+  direction: "In Bound",
+  fileMask: "fm",
+  prefix: "prefix",
+  siffux: "suffix",
+  dateMask: "dm",
+  dateTimeMask: "dtm",
+  route: "CIP",
+  frequency: {
+    occurence: "Monthly",
+    hopId: null,
+    fileCount: null,
+    frequencies: [
+      {
+        id: 1,
+        days: [1,2,3,4,5],
+        startTime: "ff",
+        sla: "asda",
+        endTime: "ddddd"
+      }
+    ]
+
+  }
+}
+
 function EditFile(props) {
 
   const [addFileData, setAddFileData] = useState({
@@ -132,6 +160,7 @@ function EditFile(props) {
         {
           id: 1,
           days: [1,2,3,4,5],
+          mdays: [2,3,5],
           startTime: "ff",
           sla: "asda",
           endTime: "ddddd"
@@ -188,6 +217,13 @@ function EditFile(props) {
     console.log("+++++++++++++++++++++++++++++++++++++")
     // dispatch(submitFile(addFileData));
     await addFileAPIs.addFile(addFileData)
+    props.history.push('/fileObserverAdmin')
+  }
+
+  const onCancelEditRow = () => {
+    dispatch(updateFileData(null));
+    props.history.push('/fileObserverAdmin')
+    console.log('fileObserverAdmin')
   }
 
   const addFrequency = () => {
@@ -195,6 +231,7 @@ function EditFile(props) {
     freqs.push({
       id: freqs.length+1,
       days: [0,1,2,3,4,5,6],
+      mdays: [0,1,2,3,4,5,6],
       startTime: "",
       sla: "",
       endTime: ""
@@ -249,12 +286,41 @@ function EditFile(props) {
         frequencies : [...freqs]     }
     })
   }
+
+  const updateFrequencyMDay = (id, day) => {
+    let freqs = addFileData.frequency.frequencies.map(fre => {
+      if(fre.id === id){
+        let days = [...fre.mdays]
+        if(days.includes(day)){
+          days = days.filter(d=> d!==day)
+        } else {
+          days.push(day)
+        }
+        fre.mdays = days
+      }
+      return fre;
+    })
+    setAddFileData({
+      frequency: {
+        ...addFileData.frequency,
+        frequencies : [...freqs]     }
+    })
+  }
+
+  const handleOccuranceChange = event => {
+    setAddFileData({
+      frequency: {
+        ...addFileData.frequency,
+        occurence: event.target.value
+        }
+    })
+  }
   console.log(addFileData)
 
-  const { producer, sftAccountName, direction, fileMask, prefix, siffux, dateMask, dateTimeMask } = props.data;
-  const { hopId } = props.data.frequency
+  const { producer, sftAccountName, direction, fileMask, prefix, siffux, dateMask, dateTimeMask } = editData // props.data;
+  // const { hopId } = props.data.frequency
   // console.log(routeOptions)
-  // console.log(route)
+  console.log(props)
   return (
     <div className={classes.container}>
       <div className={classes.container}>
@@ -331,7 +397,7 @@ function EditFile(props) {
               <Grid container>
                 <div className={classes.padding}>
                   <FormLabel classes={{ root: classes.label }} component="legend">Occurence</FormLabel>
-                  <RadioGroup row aria-label="position" name="position" defaultValue="top">
+                  <RadioGroup row aria-label="position" name="position" defaultValue="top" onChange={handleOccuranceChange} value={addFileData.frequency.occurence}>
                     <FormControlLabel classes={{ root: classes.label }} value="Weekly" control={<Radio color="primary" />} label="Weekly" />
                     <FormControlLabel classes={{ root: classes.label }} value="Monthly" control={<Radio color="primary" />} label="Monthly" />
                   </RadioGroup>
@@ -349,24 +415,32 @@ function EditFile(props) {
                 </div>
                 <div className={classes.flex}>
                   <span className={classes.label}>File count</span>
-                  <TextField />
+                  <TextField type = "number"/>
                 </div>
               </Grid>
             </div>
-            {
+            {addFileData.frequency.occurence === "Weekly" && 
+              addFileData.frequency.frequencies.map((freq,i) => <Frequency data={freq} deleteFrequency={deleteFrequency}
+              updateFrqStartTime={updateFrqStartTime}
+              updateFrequencyDay={updateFrequencyDay}
+              updateFrequencyMDay={updateFrequencyMDay}
+              />)
+            }
+            {addFileData.frequency.occurence === "Monthly" && 
               addFileData.frequency.frequencies.map((freq,i) => <EditFrequency data={freq} deleteFrequency={deleteFrequency}
               updateFrqStartTime={updateFrqStartTime}
               updateFrequencyDay={updateFrequencyDay}
+              updateFrequencyMDay={updateFrequencyMDay}
               />)
             }
             {/* <Frequency />
             <Frequency /> */}
-            <Button className={classes.form_btn_space} variant="outlined" onClick={addFrequency}>+ Add Frequency</Button>
+            {addFileData.frequency.occurence && <Button className={classes.form_btn_space} variant="outlined" onClick={addFrequency}>+ Add Frequency</Button>}
           </div>
         </div>
       </div>
       <div className={classes.formaddfile}>
-        <Button className={classes.form_btn_space} variant="outlined" color="primary">
+        <Button onClick={() => onCancelEditRow()} className={classes.form_btn_space} variant="outlined" color="primary">
           Cancel
       </Button>
         <Button onClick={onAddFileSubmit} variant="contained">Submit</Button>

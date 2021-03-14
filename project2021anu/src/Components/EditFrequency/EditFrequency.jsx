@@ -147,7 +147,7 @@ const editDysFrequency= [
 
 function Frequency(props) {
 
-  const {id, startTime, sla, endTime, days} = props.data
+  const {id, startTime, sla, endTime, days, mdays} = props.data
   const weekdays = [ 'S', 'M', 'T', 'W', 'T', 'F', 'S'];
   console.log(days)
   const classes = useStyles();
@@ -206,8 +206,8 @@ function Frequency(props) {
             <div className={classes.edit_fre_days_thirdtxt}><span>__________</span><span>When the 3rd day of the month falls on Saturday or Sunday. Choose the day of the week for the system to monitor below:</span></div>
             <div className={classes.edit_fre_days_third}>
               {[0,1,2,3,4,5,6].map((day, i) =>
-                <Button className={days.includes(day) ? classes.weekdays_btn : classes.weekdays_unselected_btn} variant="contained" color="primary"
-                onClick={()=>props.updateFrequencyDay(id, day)}>
+                <Button className={mdays.includes(day) ? classes.weekdays_btn : classes.weekdays_unselected_btn} variant="contained" color="primary"
+                onClick={()=>props.updateFrequencyMDay(id, day)}>
                 {weekdays[i]}
               </Button>
               )}
