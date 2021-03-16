@@ -99,30 +99,42 @@ const useStyles = makeStyles((theme) => ({
 
 const directionOptions = [
   {
-    "value": "LEFT",
-    "label": "LEFT"
+    "value": "InBound",
+    "label": "InBound"
   },
   {
-    "value": "RIGHT",
-    "label": "RIGHT"
+    "value": "OutBound",
+    "label": "OutBound"
   }
 ]
 
 function AddFile(props) {
 
   const [addFileData, setAddFileData] = useState({
-    producer: null,
-    sftAccountName: "",
-    direction: null,
-    fileMask: "",
-    prefix: "",
-    siffux: "",
-    dateMask: "",
-    dateTimeMask: "",
-    route: null,
+    producerId: null,
+    fileInformation: {
+      dateMask: null,
+      dateTimeMask: null,
+      fileMask: null,
+      filePrefix: null,
+      fileSuffix: null,
+      routeId: null,
+      sftAccountName: null,
+      direction: null
+    },
+    // producer: null,
+    // sftAccountName: "",
+    // direction: null,
+    // fileMask: "",
+    // prefix: "",
+    // siffux: "",
+    // dateMask: "",
+    // dateTimeMask: "",
+    // route: null,
     frequency: {
       occurence: null,
-      hopId: { value: 1, label: 1 },
+      hopName: "",
+      hopId: null,
       fileCount: null,
       frequencies: [
         {
@@ -139,16 +151,63 @@ function AddFile(props) {
 
   const dispatch = useDispatch();
   const classes = useStyles();
-  // const producer = useSelector(selectProducer);
-  const route = useSelector(selectRoute);
-  const producerOptions = useSelector(selectProducerOptions);
-  const routeOptions = useSelector(selectRouteOptions);
-  const hopIdsOptions = route ? route.hopId.map(id => ({ "value": id, "label": id })) : null
-  // const { tittle, edit } = props
+
   useEffect(() => {
     fetchProducerFiltersFromServer();
     return () => { console.log('useEffectProps', props) }
   }, []);
+
+  const fetchProducerFiltersFromServer = async () => {
+    dispatch(updateProducerOptions([]))
+    dispatch(updateRouteOptions([]));
+    const data = await filtersAPIs.fetchProducerOptions();
+    const producerOptions = data.producerNames.map(d=>({
+        value: d.producerId,
+        label: d.producerName,
+        sftAccountName:  d.sftAccountName
+      }))
+    // console.log(producerOptions)
+    let routeOptions = data.route.reduce((result,d) => {
+      let updated = false;
+        result.map(route => {
+          if(route.value === d.routeId){
+            route.hopId= [...route.hopId, d.hopId];
+            route.hopName= [...route.hopName, d.hopName]
+            updated = true;
+          }
+          return route
+        })
+        if(!updated){
+          result.push({
+            value: d.routeId,
+            label: d.routeName,
+            hopId: [d.hopId],
+            hopName: [d.hopName]
+          })
+        }     
+        return result
+      }, [])
+      // console.log(routeOptions)
+      
+    // const routeOptions = data.route.map(d=>({
+    //   value: d.routeId,
+    //   label: d.routeName,
+    //   hopId: d.hopId,
+    //   hopName: d.hopName
+    // }))
+    // console.log(routeOptions)
+
+    dispatch(updateProducerOptions(producerOptions));
+    dispatch(updateRouteOptions(routeOptions))
+  };
+
+  // const producer = useSelector(selectProducer);
+  const producerOptions = useSelector(selectProducerOptions);
+  const routeOptions = useSelector(selectRouteOptions);
+  const selectedRoute = routeOptions.length ? routeOptions.filter(r=> r.value === addFileData.fileInformation.routeId)[0] : null; // useSelector(selectRoute);
+  const hopNameOptions = selectedRoute ? selectedRoute.hopName.map((name, i) => ({ "value": selectedRoute.hopId[i], "label": name })) : null
+  // const hopIdsOptions =  selectedRoute ? selectedRoute.hopId.map(id => ({ "value": id, "label": id })) : null
+  // const { tittle, edit } = props
 
   const handleProducerChange = (data) => {
     // setProducer(data);
@@ -156,42 +215,44 @@ function AddFile(props) {
     // dispatch(updateFileMask(''));
     setAddFileData({
       ...addFileData,
-      producer: { value: data.value, label: data.label }
+      producerId: data.value,
+      fileInformation: {
+        ...addFileData.fileInformation,
+        sftAccountName: data.sftAccountName
+      }
     })
-  };
-
-  const fetchProducerFiltersFromServer = async () => {
-    dispatch(updateProducerOptions([]))
-    dispatch(updateRouteOptions([]));
-    const data = await filtersAPIs.fetchProducerOptions();
-    const producerOptions = data.name.map(d=>({
-        value: d,
-        label: d
-      }))
-    console.log(producerOptions)
-    const routeOptions = data.route.map(d=>({
-      value: d.routeId,
-      label: d.displayName,
-      hopId: d.hopId
-    }))
-    console.log(routeOptions)
-
-    dispatch(updateProducerOptions(producerOptions));
-    dispatch(updateRouteOptions(routeOptions))
   };
 
   const handleInputChange = event => {
     const {name, value} =  event.target
     setAddFileData({
       ...addFileData,
-      [name]: value
+      fileInformation: {
+        ...addFileData.fileInformation,
+        [name]: value
+      }
     })
   }
 
   const handleDirectionChange = data => {
     setAddFileData({
       ...addFileData,
-      direction: { value: data.value, label: data.label }
+      fileInformation: {
+        ...addFileData.fileInformation,
+        direction: { value: data.value, label: data.label }
+      }      
+    })
+  }
+
+  const handleRouteChange = data => {
+    // dispatch(updateRoute(data));
+    // const hopeIdOptions = data.hopId.map(id => ({ "value": id, "label": id }))
+    setAddFileData({
+      ...addFileData,
+      fileInformation: {
+        ...addFileData.fileInformation,
+        routeId: data.value
+      }
     })
   }
 
@@ -205,16 +266,14 @@ function AddFile(props) {
     })
   }
 
-  const handleRouteChange = data => {
-    dispatch(updateRoute(data));
-    // const hopeIdOptions = data.hopId.map(id => ({ "value": id, "label": id }))
+  const handleHopNameChange = data => {
     setAddFileData({
       ...addFileData,
-      route: data.value,
-      // frequency: {
-      //   ...addFileData.frequency,
-      //   hopId: { value: data.hopId, label: data.hopId }
-      // }
+      frequency: {
+        ...addFileData.frequency,
+        hopName: data.label, // { value: data.value, label: data.value }
+        hopId: data.value
+      }
     })
   }
   
@@ -292,7 +351,7 @@ function AddFile(props) {
   
   console.log(addFileData)
   // console.log(routeOptions)
-  // console.log(route)
+  // console.log(props)
   return (
     <div className={classes.container}>
       <div className={classes.container}>
@@ -305,7 +364,7 @@ function AddFile(props) {
                 <div className={classes.flex}>
                   <span className={classes.label}>Producer</span>
                   <Select 
-                    value={addFileData.producer}
+                    value={addFileData.producerId}
                     options={producerOptions}
                     onChange={handleProducerChange}
                     isLoading={!(producerOptions && producerOptions.length)}
@@ -314,12 +373,12 @@ function AddFile(props) {
                 </div>
                 <div className={classes.flex}>
                   <span className={classes.label}>SFT Account Name</span>
-                  <TextField name="sftAccountName" onChange={handleInputChange} value={addFileData.sftAccountName} />
+                  <TextField name="sftAccountName" onChange={handleInputChange} value={addFileData.fileInformation.sftAccountName} />
                 </div>
                 <div className={classes.flex}>
                   <span className={classes.label}>Direction</span>
                   <Select
-                   value={addFileData.direction}
+                   value={addFileData.fileInformation.direction}
                    options={directionOptions}
                    onChange={handleDirectionChange}
                    isLoading={!(directionOptions && directionOptions.length)}
@@ -328,25 +387,25 @@ function AddFile(props) {
                 </div>
                 <div className={classes.flex}>
                   <span className={classes.label}>File Mask</span>
-                  <TextField name="fileMask" onChange={handleInputChange} value={addFileData.fileMask} />
+                  <TextField name="fileMask" onChange={handleInputChange} value={addFileData.fileInformation.fileMask} />
                 </div>
               </Grid>
               <Grid container>
                 <div className={classes.flex}>
                   <span className={classes.label}>Prefix</span>
-                  <TextField name="prefix" onChange={handleInputChange} value={addFileData.prefix}/>
+                  <TextField name="filePrefix" onChange={handleInputChange} value={addFileData.fileInformation.prefix}/>
                 </div>
                 <div className={classes.flex}>
                   <span className={classes.label}>Suffix</span>
-                  <TextField name="suffix" onChange={handleInputChange} value={addFileData.suffix}/>
+                  <TextField name="fileSuffix" onChange={handleInputChange} value={addFileData.fileInformation.suffix}/>
                 </div>
                 <div className={classes.flex}>
                   <span className={classes.label}>Date Mask</span>
-                  <TextField name="dateMask" onChange={handleInputChange} value={addFileData.dateMask}/>
+                  <TextField name="dateMask" onChange={handleInputChange} value={addFileData.fileInformation.dateMask}/>
                 </div>
                 <div className={classes.flex}>
                   <span className={classes.label}>Date Time Mask</span>
-                  <TextField name="dateTimeMask" onChange={handleInputChange} value={addFileData.dateTimeMask}/>
+                  <TextField name="dateTimeMask" onChange={handleInputChange} value={addFileData.fileInformation.dateTimeMask}/>
                 </div>
               </Grid>
               <Grid container>
@@ -354,12 +413,23 @@ function AddFile(props) {
                   <span className={classes.label}>Route</span>
                   <Select
                    name="route"
-                   value={route}
+                   value={routeOptions.filter(r=> r.value === addFileData.fileInformation.routeId)}
                    options={routeOptions}
                    onChange={handleRouteChange}
                    isLoading={!(routeOptions && routeOptions.length)}
                    placeholder="Route"
                   />
+                </div>
+                <div className={classes.flex}>
+                  <span className={classes.label}>HopName</span>
+                  <Select
+                  //  value={addFileData.frequency.hopName}
+                   options={hopNameOptions}
+                   onChange={handleHopNameChange}
+                   isLoading={!(hopNameOptions && hopNameOptions.length)}
+                   placeholder="HopName"
+                  />
+                  {/* <TextField name="hopName" value={addFileData.hopName}/> */}
                 </div>
               </Grid>
             </div>
@@ -377,14 +447,14 @@ function AddFile(props) {
                 </div>
                 <div className={classes.flex}>
                   <span className={classes.label}>Hop ID</span>
-                  <Select
+                  {/* <Select
                    value={addFileData.frequency.hopId}
                    options={hopIdsOptions}
                    onChange={handleHopIdChange}
                    isLoading={!(hopIdsOptions && hopIdsOptions.length)}
                    placeholder="HopIds"
-                  />
-                  {/* <TextField value={addFileData.frequency.hopId}/> */}
+                  /> */}
+                  <TextField value={addFileData.frequency.hopId}/>
                 </div>
                 <div className={classes.flex}>
                   <span className={classes.label}>File count</span>
