@@ -1,4 +1,4 @@
-import react, {useEffect, useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import { useSelector, useDispatch } from "react-redux";
 import { makeStyles } from '@material-ui/core/styles';
 import Button from '@material-ui/core/Button';
@@ -318,6 +318,8 @@ function AddFile(props) {
       ]
     }
     await addFileAPIs.addFile(request)
+    // verify the response and then redirect to fileObserverAdmin page
+    props.history.push('/fileObserverAdmin')
   }
 
   const onCancelAddFile = () => {
@@ -427,7 +429,7 @@ function AddFile(props) {
                 <div className={classes.flex}>
                   <span className={classes.label}>Producer</span>
                   <Select 
-                    value={addFileData.producerId}
+                    value={producerOptions.filter(r=> r.value === addFileData.producerId)}
                     options={producerOptions}
                     onChange={handleProducerChange}
                     isLoading={!(producerOptions && producerOptions.length)}
