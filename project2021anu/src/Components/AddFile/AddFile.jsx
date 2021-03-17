@@ -10,6 +10,7 @@ import FormControlLabel from '@material-ui/core/FormControlLabel';
 import FormControl from '@material-ui/core/FormControl';
 import FormLabel from '@material-ui/core/FormLabel';
 import Frequency from '../Frequency/Frequency'
+import EditFrequency from '../EditFrequency/EditFrequency'
 import Select from '../Select'
 import TextField from '../TextField'
 import {
@@ -108,10 +109,27 @@ const directionOptions = [
   }
 ]
 
+const fqc = {
+  id: 1,
+  days: [1,2,3,4,5],
+  mdays: [1,2,3,4,5],
+  startTime: null,
+  sla: null,
+  endTime: null,
+  hopId: null,
+  hopName: null,
+  fileCount: null,
+  frequencyId: null
+}
+
 function AddFile(props) {
 
   const [addFileData, setAddFileData] = useState({
     producerId: null,
+    occurence: null,
+    hopId: null,
+    hopName: null,
+    fileCount: null,
     fileInformation: {
       dateMask: null,
       dateTimeMask: null,
@@ -122,36 +140,11 @@ function AddFile(props) {
       sftAccountName: null,
       direction: null
     },
-    // producer: null,
-    // sftAccountName: "",
-    // direction: null,
-    // fileMask: "",
-    // prefix: "",
-    // siffux: "",
-    // dateMask: "",
-    // dateTimeMask: "",
-    // route: null,
-    frequency: {
-      occurence: null,
-      hopName: "",
-      hopId: null,
-      fileCount: null,
-      frequencies: [
-        {
-          id: 1,
-          days: [1,2,3,4,5],
-          startTime: "ff",
-          sla: "asda",
-          endTime: "ddddd"
-        }
-      ]
-
-    }
+    frequency:[]
   })
 
   const dispatch = useDispatch();
   const classes = useStyles();
-
   useEffect(() => {
     fetchProducerFiltersFromServer();
     return () => { console.log('useEffectProps', props) }
@@ -205,7 +198,7 @@ function AddFile(props) {
   const producerOptions = useSelector(selectProducerOptions);
   const routeOptions = useSelector(selectRouteOptions);
   const selectedRoute = routeOptions.length ? routeOptions.filter(r=> r.value === addFileData.fileInformation.routeId)[0] : null; // useSelector(selectRoute);
-  const hopNameOptions = selectedRoute ? selectedRoute.hopName.map((name, i) => ({ "value": selectedRoute.hopId[i], "label": name })) : null
+  const hopNameOptions = selectedRoute ? selectedRoute.hopName.map((name, i) => ({ "value": selectedRoute.hopId[i], "label": name })) : []
   // const hopIdsOptions =  selectedRoute ? selectedRoute.hopId.map(id => ({ "value": id, "label": id })) : null
   // const { tittle, edit } = props
 
@@ -256,6 +249,42 @@ function AddFile(props) {
     })
   }
 
+  const handleHopNameChange = data => {
+    setAddFileData({
+      ...addFileData,
+      hopName: data.label, // { value: data.value, label: data.value }
+      hopId: data.value
+    })
+  }
+  const handleOccuranceChange = event => {
+    let firstFrequency = {...fqc}
+    if(event.target.value === "Weekly") {
+      delete firstFrequency.mdays;
+      firstFrequency.frequencyId= 1;
+    } else {
+      firstFrequency.frequencyId= 22;
+    }
+    setAddFileData({
+      ...addFileData,
+      occurence: event.target.value,
+      frequency:[
+        // ...addFileData.frequency, if we change from 2 weekly to monthly then we have to clean the weekly
+        firstFrequency
+      ]
+    })
+  }
+
+  const handleFileCountChange = event => {
+    const {name, value} =  event.target
+    let nonNegative = value >= 0
+    if(nonNegative){
+      setAddFileData({
+        ...addFileData,
+        fileCount: event.target.value
+      })
+    }
+  }
+
   const handleHopIdChange = data => {
     setAddFileData({
       ...addFileData,
@@ -265,22 +294,30 @@ function AddFile(props) {
       }
     })
   }
-
-  const handleHopNameChange = data => {
-    setAddFileData({
-      ...addFileData,
-      frequency: {
-        ...addFileData.frequency,
-        hopName: data.label, // { value: data.value, label: data.value }
-        hopId: data.value
-      }
-    })
-  }
   
   const onAddFileSubmit = async () => {
     console.log("+++++++++++++++++++++++++++++++++++++")
     // dispatch(submitFile(addFileData));
-    await addFileAPIs.addFile(addFileData)
+    // for the request for createFileConfiguration
+    let request = {
+      producerId: addFileData.producerId,
+      fileInformation: addFileData.fileInformation,
+      frequency: [
+        ...addFileData.frequency.map(f => {
+          return {
+                  startTime: f.startTime,
+                  sla: f.startTime,
+                  endTime: f.startTime,
+                  hopId: addFileData.hopId,
+                  hopName: addFileData.hopName,
+                  fileCount: addFileData.fileCount,
+                  frequencyId: f.frequencyId,
+                  frequencySpecifierId: [...f.days]
+                }
+        })
+      ]
+    }
+    await addFileAPIs.addFile(request)
   }
 
   const onCancelAddFile = () => {
@@ -290,32 +327,36 @@ function AddFile(props) {
   }
 
   const addFrequency = () => {
-    let freqs = addFileData.frequency.frequencies
-    freqs.push({
-      id: freqs.length+1,
-      days: [0,1,2,3,4,5,6],
-      startTime: "",
-      sla: "",
-      endTime: ""
-    })
+    let addFquency = {...fqc}
+    if(addFileData.occurence === "Weekly") {
+      delete addFquency.mdays;
+      addFquency.frequencyId= 1;
+      addFquency.id= addFileData.frequency.length+1
+    } else {
+      addFquency.frequencyId= 22;
+      addFquency.id= addFileData.frequency.length+1
+    }
     setAddFileData({
-      frequency: {
+      ...addFileData,
+      frequency:[
         ...addFileData.frequency,
-        frequencies : [...freqs]     }
+        addFquency
+      ]
     })
   }
 
   const deleteFrequency = (id) => {
-    let freqs = addFileData.frequency.frequencies.filter(fre => fre.id !== id)
+    let freqs = addFileData.frequency.filter(fre => fre.id !== id)
     setAddFileData({
-      frequency: {
-        ...addFileData.frequency,
-        frequencies : [...freqs]     }
+      ...addFileData,
+      frequency:[
+        ...freqs
+      ]
     })
   }
 
   const updateFrqStartTime  = (type, value, id) => {
-    let freqs = addFileData.frequency.frequencies.map(fre => {
+    let freqs = addFileData.frequency.map(fre => {
       if(fre.id === id){
         fre[`${type}`] = value
       }
@@ -323,14 +364,15 @@ function AddFile(props) {
     })
 
     setAddFileData({
-      frequency: {
-        ...addFileData.frequency,
-        frequencies : [...freqs]     }
+      ...addFileData,
+      frequency:[
+        ...freqs
+      ]
     })
   }
 
   const updateFrequencyDay = (id, day) => {
-    let freqs = addFileData.frequency.frequencies.map(fre => {
+    let freqs = addFileData.frequency.map(fre => {
       if(fre.id === id){
         let days = [...fre.days]
         if(days.includes(day)){
@@ -343,12 +385,33 @@ function AddFile(props) {
       return fre;
     })
     setAddFileData({
-      frequency: {
-        ...addFileData.frequency,
-        frequencies : [...freqs]     }
+      ...addFileData,
+      frequency:[
+        ...freqs
+      ]
     })
   }
   
+  const updateFrequencyMDay = (id, day) => {
+    let freqs = addFileData.frequency.map(fre => {
+      if(fre.id === id){
+        let days = [...fre.mdays]
+        if(days.includes(day)){
+          days = days.filter(d=> d!==day)
+        } else {
+          days.push(day)
+        }
+        fre.mdays = days
+      }
+      return fre;
+    })
+    setAddFileData({
+      ...addFileData,
+      frequency:[
+        ...freqs
+      ]
+    })
+  }
   console.log(addFileData)
   // console.log(routeOptions)
   // console.log(props)
@@ -423,7 +486,7 @@ function AddFile(props) {
                 <div className={classes.flex}>
                   <span className={classes.label}>HopName</span>
                   <Select
-                  //  value={addFileData.frequency.hopName}
+                   value={hopNameOptions.filter(h=> h.label === addFileData.hopName)}
                    options={hopNameOptions}
                    onChange={handleHopNameChange}
                    isLoading={!(hopNameOptions && hopNameOptions.length)}
@@ -440,7 +503,7 @@ function AddFile(props) {
               <Grid container>
                 <div className={classes.padding}>
                   <FormLabel classes={{ root: classes.label }} component="legend">Occurence</FormLabel>
-                  <RadioGroup row aria-label="position" name="position" defaultValue="top">
+                  <RadioGroup row aria-label="position" name="position" defaultValue="top" onChange={handleOccuranceChange} value={addFileData.occurence}>
                     <FormControlLabel classes={{ root: classes.label }} value="Weekly" control={<Radio color="primary" />} label="Weekly" />
                     <FormControlLabel classes={{ root: classes.label }} value="Monthly" control={<Radio color="primary" />} label="Monthly" />
                   </RadioGroup>
@@ -454,23 +517,30 @@ function AddFile(props) {
                    isLoading={!(hopIdsOptions && hopIdsOptions.length)}
                    placeholder="HopIds"
                   /> */}
-                  <TextField value={addFileData.frequency.hopId}/>
+                  <TextField value={addFileData.hopId}/>
                 </div>
                 <div className={classes.flex}>
                   <span className={classes.label}>File count</span>
-                  <TextField type="number"/>
+                  {/* <TextField type="number"/> */}
+                  <TextField type="number" name="fileCount" onChange={handleFileCountChange} value={addFileData.fileCount}/>
                 </div>
               </Grid>
             </div>
-            {
-              addFileData.frequency.frequencies.map((freq,i) => <Frequency data={freq} deleteFrequency={deleteFrequency}
+            {addFileData.occurence === "Weekly" && 
+              addFileData.frequency.map((freq,i) => <Frequency data={freq} deleteFrequency={deleteFrequency}
               updateFrqStartTime={updateFrqStartTime}
               updateFrequencyDay={updateFrequencyDay}
+              updateFrequencyMDay={updateFrequencyMDay}
               />)
             }
-            {/* <Frequency />
-            <Frequency /> */}
-            <Button className={classes.form_btn_space} variant="outlined" onClick={addFrequency}>+ Add Frequency</Button>
+            {addFileData.occurence === "Monthly" && 
+              addFileData.frequency.map((freq,i) => <EditFrequency data={freq} deleteFrequency={deleteFrequency}
+              updateFrqStartTime={updateFrqStartTime}
+              updateFrequencyDay={updateFrequencyDay}
+              updateFrequencyMDay={updateFrequencyMDay}
+              />)
+            }
+            {addFileData.occurence && <Button className={classes.form_btn_space} variant="outlined" onClick={addFrequency}>+ Add Frequency</Button>}
           </div>
         </div>
       </div>
