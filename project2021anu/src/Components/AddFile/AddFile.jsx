@@ -27,7 +27,13 @@ import { selectProducer, selectProducerOptions } from "../../reducers/producer";
 import { selectRoute, selectRouteOptions } from '../../reducers/route';
 // import { faFileExport } from "fa5-pro-light";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import AlertDialog from "../AlertDialog/index"
+import Snackbar from '@material-ui/core/Snackbar';
+import MuiAlert from '@material-ui/lab/Alert';
 
+function Alert(props) {
+  return <MuiAlert elevation={6} variant="filled" {...props} />;
+}
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -125,6 +131,8 @@ const fqc = {
 function AddFile(props) {
 
   const [addFileData, setAddFileData] = useState({
+    validationFlag: false,
+    errorDialog: true,
     producerId: null,
     occurence: null,
     hopId: null,
@@ -262,7 +270,8 @@ function AddFile(props) {
       delete firstFrequency.mdays;
       firstFrequency.frequencyId= 1;
     } else {
-      firstFrequency.frequencyId= 22;
+      firstFrequency.frequencyId= null;
+      firstFrequency.monthlyOn= null;
     }
     setAddFileData({
       ...addFileData,
@@ -297,29 +306,61 @@ function AddFile(props) {
   
   const onAddFileSubmit = async () => {
     console.log("+++++++++++++++++++++++++++++++++++++")
+    
     // dispatch(submitFile(addFileData));
     // for the request for createFileConfiguration
-    let request = {
-      producerId: addFileData.producerId,
-      fileInformation: addFileData.fileInformation,
-      frequency: [
-        ...addFileData.frequency.map(f => {
-          return {
-                  startTime: f.startTime,
-                  sla: f.startTime,
-                  endTime: f.startTime,
-                  hopId: addFileData.hopId,
-                  hopName: addFileData.hopName,
-                  fileCount: addFileData.fileCount,
-                  frequencyId: f.frequencyId,
-                  frequencySpecifierId: [...f.days]
-                }
-        })
-      ]
+    // if(true){
+    if(validateTheForm()){
+      let request = {
+        producerId: addFileData.producerId,
+        fileInformation: addFileData.fileInformation,
+        frequency: [
+          ...addFileData.frequency.map(f => {
+            if(addFileData.occurence === "Weekly"){
+              return {
+                    startTime: f.startTime,
+                    sla: f.sla,
+                    endTime: f.startTime,
+                    hopId: addFileData.hopId,
+                    hopName: addFileData.hopName,
+                    fileCount: addFileData.fileCount,
+                    // frequencyId: f.frequencyId,
+                    frequencySpecifierId: [...f.days]
+                  }
+            } else if (addFileData.occurence === "Monthly"){
+                      return {
+                              startTime: f.startTime,
+                              sla: f.sla,
+                              endTime: f.startTime,
+                              hopId: addFileData.hopId,
+                              hopName: addFileData.hopName,
+                              fileCount: addFileData.fileCount,
+                              frequencyId: f.frequencyId,
+                              frequencySpecifierId: [...f.days],
+                              monthlyOn: f.monthlyOn,
+                              exceptionDay: f.exceptionDay
+                            }
+                    }
+          })
+        ]
+      }
+      await addFileAPIs.addFile(request)
+      // verify the response and then redirect to fileObserverAdmin page
+      props.history.push('/fileObserverAdmin')
     }
-    await addFileAPIs.addFile(request)
-    // verify the response and then redirect to fileObserverAdmin page
-    props.history.push('/fileObserverAdmin')
+    
+  }
+
+  const validateTheForm = () => {
+    let validation_error = false;
+    const { producerId, fileCount, occurence, hopName, hopId } = addFileData
+    const { sftAccountName, direction, fileMask, filePrefix, fileSuffix, dateMask, dateTimeMask, routeId } = addFileData.fileInformation
+    validation_error = producerId && fileCount && occurence && hopName && hopId && sftAccountName && direction && direction && fileMask && filePrefix && fileSuffix && dateMask && dateTimeMask && routeId;
+    setAddFileData({
+      ...addFileData,
+      validationFlag: !Boolean(validation_error)
+    })
+    return validation_error
   }
 
   const onCancelAddFile = () => {
@@ -335,7 +376,7 @@ function AddFile(props) {
       addFquency.frequencyId= 1;
       addFquency.id= addFileData.frequency.length+1
     } else {
-      addFquency.frequencyId= 22;
+      // addFquency.frequencyId= 22;
       addFquency.id= addFileData.frequency.length+1
     }
     setAddFileData({
@@ -356,6 +397,10 @@ function AddFile(props) {
       ]
     })
   }
+  
+  // const handleMonthlyOnField = () => {
+
+  // }
 
   const updateFrqStartTime  = (type, value, id) => {
     let freqs = addFileData.frequency.map(fre => {
@@ -414,6 +459,21 @@ function AddFile(props) {
       ]
     })
   }
+
+  const handleErrorDialog = () => {
+    setAddFileData({
+      ...addFileData,
+      errorDialog: false
+    })
+  }
+
+  const closeValidationError = () => {
+    setAddFileData({
+      ...addFileData,
+      validationFlag: false
+    })
+  }
+
   console.log(addFileData)
   // console.log(routeOptions)
   // console.log(props)
@@ -552,6 +612,27 @@ function AddFile(props) {
       </Button>
         <Button onClick={onAddFileSubmit} variant="contained">Submit</Button>
       </div>
+      {/* <AlertDialog open={addFileData.errorDialog} handleClose={handleErrorDialog}/> */}
+      {/* <Snackbar open={true} autoHideDuration={6000} anchorOrigin={{ vertical: 'top', horizontal: 'right' }}>
+        <Alert severity="success">
+          The File was added Sucessfully!
+        </Alert>
+      </Snackbar>
+      <Snackbar open={true} autoHideDuration={6000} anchorOrigin={{ vertical: 'top', horizontal: 'right' }}>
+         <Alert severity="error">
+          The File was updated Sucessfully!
+        </Alert>
+      </Snackbar>
+      <Snackbar open={true} autoHideDuration={6000} anchorOrigin={{ vertical: 'top', horizontal: 'right' }}>
+        <Alert severity="error">
+          The file cannot be added because it has not yet been intiated.
+        </Alert>
+      </Snackbar> */}
+      <Snackbar open={addFileData.validationFlag} onClose={closeValidationError} autoHideDuration={6000} anchorOrigin={{ vertical: 'top', horizontal: 'right' }}>
+        <Alert severity="error">
+          The file cannot be added due to incomplete or incorrect information.
+        </Alert>
+      </Snackbar>
     </div>
   );
 }

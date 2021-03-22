@@ -88,7 +88,7 @@ const useStyles = makeStyles((theme) => ({
 function Frequency(props) {
 
   const {id, startTime, sla, endTime, days} = props.data
-  const weekdays = [ 'S', 'M', 'T', 'W', 'T', 'F', 'S'];
+  const weekdays = [ 'M', 'T', 'W', 'T', 'F'];
   console.log(days)
   const classes = useStyles();
   return (
@@ -106,12 +106,18 @@ function Frequency(props) {
         <div className={classes.flexrow}>
           <div className={classes.frequency_header1}>Day(s)</div>
           <div>
-            {[0,1,2,3,4,5,6].map((day, i) =>
+            <Button className={classes.weekdays_unselected_btn} variant="contained" color="primary">
+                S
+            </Button>
+            {[1,2,3,4,5].map((day, i) =>
               <Button className={days.includes(day) ? classes.weekdays_btn : classes.weekdays_unselected_btn} variant="contained" color="primary"
               onClick={()=>props.updateFrequencyDay(id, day)}>
               {weekdays[i]}
             </Button>
             )}
+            <Button className={classes.weekdays_unselected_btn} variant="contained" color="primary">
+              S
+          </Button>
           </div>
         </div>
         <div className={classes.divider}></div>
