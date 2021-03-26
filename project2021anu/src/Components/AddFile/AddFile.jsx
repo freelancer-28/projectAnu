@@ -101,6 +101,20 @@ const useStyles = makeStyles((theme) => ({
   },
   form_btn_space: {
     marginRight: '20px'
+  },
+  read_textFileds: {
+    width: '262px',
+    // border: '1px solid #D1D5D9',
+    height: '36px',
+    background: '#EFF0F1 0% 0% no-repeat padding-box',
+    borderRadius: '3px',
+    display: 'flex',
+    justifyContent: 'flex-start',
+    alignItems: 'center',
+    color: '#687681'
+  },
+  readValue: {
+    paddingLeft: '10px'
   }
 }));
 
@@ -226,13 +240,28 @@ function AddFile(props) {
 
   const handleInputChange = event => {
     const {name, value} =  event.target
-    setAddFileData({
-      ...addFileData,
-      fileInformation: {
-        ...addFileData.fileInformation,
-        [name]: value
-      }
-    })
+    let fileMask = null
+    if(["filePrefix", "fileSuffix", "dateTimeMask"].includes(name)){
+        fileMask =  (name === "filePrefix" ? value : addFileData.fileInformation.filePrefix||"" ) + 
+                    (name === "fileSuffix" ? value : addFileData.fileInformation.fileSuffix||"")  +
+                    (name === "dateTimeMask" ? value : addFileData.fileInformation.dateTimeMask||"")
+      setAddFileData({
+        ...addFileData,
+        fileInformation: {
+          ...addFileData.fileInformation,
+          [name]: value,
+          fileMask: fileMask
+        }
+      })
+    } else {
+      setAddFileData({
+        ...addFileData,
+        fileInformation: {
+          ...addFileData.fileInformation,
+          [name]: value
+        }
+      })
+    }
   }
 
   const handleDirectionChange = data => {
@@ -510,9 +539,15 @@ function AddFile(props) {
                    placeholder="Direction"
                   />
                 </div>
-                <div className={classes.flex}>
+                {/* <div className={classes.flex}>
                   <span className={classes.label}>File Mask</span>
                   <TextField name="fileMask" onChange={handleInputChange} value={addFileData.fileInformation.fileMask} />
+                </div> */}
+                <div className={classes.flex}>
+                  <span className={classes.label}>File Mask</span>
+                  <div className={classes.read_textFileds}>
+                    <span className={classes.readValue}>{addFileData.fileInformation.fileMask}</span>
+                  </div>
                 </div>
               </Grid>
               <Grid container>
