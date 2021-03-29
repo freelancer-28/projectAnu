@@ -352,9 +352,11 @@ function AddFile(props) {
                     endTime: f.startTime,
                     hopId: addFileData.hopId,
                     hopName: addFileData.hopName,
-                    fileCount: addFileData.fileCount,
-                    // frequencyId: f.frequencyId,
-                    frequencySpecifierId: [...f.days]
+                    fileCount: +addFileData.fileCount,
+                    frequencyId: null,
+                    frequencySpecifierId: [...f.days],
+                    monthlyOn: null,
+                    exceptionDay: null
                   }
             } else if (addFileData.occurence === "Monthly"){
                       return {
@@ -363,9 +365,10 @@ function AddFile(props) {
                               endTime: f.startTime,
                               hopId: addFileData.hopId,
                               hopName: addFileData.hopName,
-                              fileCount: addFileData.fileCount,
+                              fileCount: +addFileData.fileCount,
                               frequencyId: f.frequencyId,
                               frequencySpecifierId: [...f.days],
+                              monthlyFrequencySpecifierId: [f.frequencyId],
                               monthlyOn: f.monthlyOn,
                               exceptionDay: f.exceptionDay
                             }
@@ -373,6 +376,8 @@ function AddFile(props) {
           })
         ]
       }
+      // delte direction key from request
+      delete request?.fileInformation?.direction
       await addFileAPIs.addFile(request)
       // verify the response and then redirect to fileObserverAdmin page
       props.history.push('/fileObserverAdmin')
@@ -619,7 +624,8 @@ function AddFile(props) {
                 <div className={classes.flex}>
                   <span className={classes.label}>File count</span>
                   {/* <TextField type="number"/> */}
-                  <TextField type="number" name="fileCount" onChange={handleFileCountChange} value={addFileData.fileCount}/>
+                  {/* <TextField type="number" name="fileCount" onChange={handleFileCountChange} value={addFileData.fileCount}/> */}
+                  <TextField name="fileCount" onChange={handleFileCountChange} value={addFileData.fileCount}/>
                 </div>
               </Grid>
             </div>
