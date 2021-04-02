@@ -1,3 +1,3 @@
 export default {
-    baseUrl: "http://localhsot:9010"
+    baseUrl: "http://localhost:4000"
 }

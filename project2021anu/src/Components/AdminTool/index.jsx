@@ -2,12 +2,14 @@ import React, { useState, useEffect, useRef } from "react";
 import Container from "@material-ui/core/Container";
 import { useSelector, useDispatch } from "react-redux";
 import { selectAdminFileData } from "../../reducers/adminFileData";
+import { selectAddFile } from "../../reducers/addFile";
 import { LinkContainer, Box, Button, ButtonContainer } from "./styles";
 import Table from "../../Components/Table";
 import fileAPIs from "../../apis/AdminTools";
 import { updateAdminFileData, updateFileData } from "../../actions";
 import AddFile from "../AddFile/AddFile";
 import EditFile from "../EditFile/EditFile";
+import CustomErrorDialog from '../CustomErrorDialog/index'
 
 const ViewDetailsLink = <LinkContainer href="#">View Details</LinkContainer>;
 
@@ -120,6 +122,11 @@ const columns = [
 const AdminTool = (props) => {
   const [isDataLoading, setIsDataLoading] = useState(false);
   const [isAddFile, setIsAddFile] = useState(false);
+  // const [validatationObj, setValidationObj] = useState({
+  //   severity: null,
+  //   validationFlag: false,
+  //   validationMessage: ""
+  // })
 
   const dispatch = useDispatch();
   const data = useSelector(selectAdminFileData);
@@ -198,8 +205,13 @@ const AdminTool = (props) => {
   }
 
   console.log(props)
+  const addFile = useSelector(selectAddFile);
+  console.log(addFile)
+  const { status, message } = addFile || {}
+
  return (
   <Box>
+    <CustomErrorDialog open={status === "Success"} onClose={()=>{}} severity={status} message={message}/>
     {!isAddFile && 
     <ButtonContainer>
       <Button variant="contained" color="primary" disableElevation>

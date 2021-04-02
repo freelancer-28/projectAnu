@@ -9,6 +9,7 @@ const addFile = (state = null, action) => {
       return state;
   }
 };
+const selectAddFile = (state) => state.addFile;
 
 // const producerOptions = (state = defaultValue, action) => {
 //   switch (action.type) {
@@ -26,4 +27,4 @@ const addFile = (state = null, action) => {
 // const selectProducer = (state) => state.producer;
 // const selectProducerOptions = (state) => state.producerOptions;
 
-export { addFile };
+export { addFile, selectAddFile };

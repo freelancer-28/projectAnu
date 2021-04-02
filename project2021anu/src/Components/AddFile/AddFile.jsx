@@ -28,12 +28,13 @@ import { selectRoute, selectRouteOptions } from '../../reducers/route';
 // import { faFileExport } from "fa5-pro-light";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import AlertDialog from "../AlertDialog/index"
-import Snackbar from '@material-ui/core/Snackbar';
-import MuiAlert from '@material-ui/lab/Alert';
+// import Snackbar from '@material-ui/core/Snackbar';
+// import MuiAlert from '@material-ui/lab/Alert';
 
-function Alert(props) {
-  return <MuiAlert elevation={6} variant="filled" {...props} />;
-}
+// function Alert(props) {
+//   return <MuiAlert elevation={6} variant="filled" {...props} />;
+// }
+import CustomErrorDialog from '../CustomErrorDialog/index'
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -146,6 +147,7 @@ function AddFile(props) {
 
   const [addFileData, setAddFileData] = useState({
     validationFlag: false,
+    validationMessage: "",
     errorDialog: true,
     producerId: null,
     occurence: null,
@@ -338,8 +340,8 @@ function AddFile(props) {
     
     // dispatch(submitFile(addFileData));
     // for the request for createFileConfiguration
-    // if(true){
-    if(validateTheForm()){
+    if(true){
+    // if(validateTheForm()){
       let request = {
         producerId: addFileData.producerId,
         fileInformation: addFileData.fileInformation,
@@ -348,29 +350,30 @@ function AddFile(props) {
             if(addFileData.occurence === "Weekly"){
               return {
                     startTime: f.startTime,
-                    sla: f.sla,
-                    endTime: f.startTime,
+                    sla: +f.sla,
+                    endTime: f.endTime,
                     hopId: addFileData.hopId,
                     hopName: addFileData.hopName,
                     fileCount: +addFileData.fileCount,
                     frequencyId: null,
                     frequencySpecifierId: [...f.days],
+                    monthlyFrequencySpecifierId: null,
                     monthlyOn: null,
                     exceptionDay: null
                   }
             } else if (addFileData.occurence === "Monthly"){
                       return {
                               startTime: f.startTime,
-                              sla: f.sla,
+                              sla: +f.sla,
                               endTime: f.startTime,
                               hopId: addFileData.hopId,
                               hopName: addFileData.hopName,
                               fileCount: +addFileData.fileCount,
-                              frequencyId: f.frequencyId,
+                              frequencyId: +f.frequencyId,
                               frequencySpecifierId: [...f.days],
                               monthlyFrequencySpecifierId: [f.frequencyId],
                               monthlyOn: f.monthlyOn,
-                              exceptionDay: f.exceptionDay
+                              exceptionDay: ""+f.exceptionDay
                             }
                     }
           })
@@ -378,9 +381,20 @@ function AddFile(props) {
       }
       // delte direction key from request
       delete request?.fileInformation?.direction
-      await addFileAPIs.addFile(request)
+      const createFileConfigurationResponse = await addFileAPIs.addFile(request)
       // verify the response and then redirect to fileObserverAdmin page
-      props.history.push('/fileObserverAdmin')
+      console.log(createFileConfigurationResponse)
+      if (createFileConfigurationResponse.status === "Success") {
+        dispatch(submitFile(createFileConfigurationResponse));
+        props.history.push('/fileObserverAdmin')
+      } else {
+        setAddFileData({
+          ...addFileData,
+          validationFlag: true,
+          validationMessage: "After submition failed: The file cannot be added because it has not yet been identified"
+        })
+      }
+      
     }
     
   }
@@ -392,7 +406,8 @@ function AddFile(props) {
     validation_error = producerId && fileCount && occurence && hopName && hopId && sftAccountName && direction && direction && fileMask && filePrefix && fileSuffix && dateMask && dateTimeMask && routeId;
     setAddFileData({
       ...addFileData,
-      validationFlag: !Boolean(validation_error)
+      validationFlag: !Boolean(validation_error),
+      validationMessage: "Validation failed: The file cannot be added due to incomplete or incorrect information."
     })
     return validation_error
   }
@@ -504,7 +519,8 @@ function AddFile(props) {
   const closeValidationError = () => {
     setAddFileData({
       ...addFileData,
-      validationFlag: false
+      validationFlag: false,
+      validationMessage: ""
     })
   }
 
@@ -653,8 +669,9 @@ function AddFile(props) {
       </Button>
         <Button onClick={onAddFileSubmit} variant="contained">Submit</Button>
       </div>
-      {/* <AlertDialog open={addFileData.errorDialog} handleClose={handleErrorDialog}/> */}
-      {/* <Snackbar open={true} autoHideDuration={6000} anchorOrigin={{ vertical: 'top', horizontal: 'right' }}>
+      <CustomErrorDialog open={addFileData.validationFlag} onClose={closeValidationError} severity="error" message={addFileData.validationMessage}/>
+      {/* <AlertDialog open={addFileData.errorDialog} handleClose={handleErrorDialog}/>
+      <Snackbar open={true} autoHideDuration={6000} anchorOrigin={{ vertical: 'top', horizontal: 'right' }}>
         <Alert severity="success">
           The File was added Sucessfully!
         </Alert>
@@ -668,12 +685,12 @@ function AddFile(props) {
         <Alert severity="error">
           The file cannot be added because it has not yet been intiated.
         </Alert>
-      </Snackbar> */}
+      </Snackbar>
       <Snackbar open={addFileData.validationFlag} onClose={closeValidationError} autoHideDuration={6000} anchorOrigin={{ vertical: 'top', horizontal: 'right' }}>
         <Alert severity="error">
           The file cannot be added due to incomplete or incorrect information.
         </Alert>
-      </Snackbar>
+      </Snackbar> */}
     </div>
   );
 }

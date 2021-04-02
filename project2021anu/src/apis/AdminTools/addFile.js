@@ -5,7 +5,7 @@ const { baseUrl } = config;
 
 const addFile = async (addFileData) => {
   try {
-    let url = `${baseUrl}/ebs/api/v1/addFile`;
+    let url = `${baseUrl}/ebs/api/v1/configurations/createFileConfiguration`;
     const { data } = await axios.post(url, addFileData)
     return data;
   } catch (err) {
