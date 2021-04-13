@@ -1,6 +1,9 @@
 import React, { useState, useEffect, useRef } from "react";
 import Snackbar from '@material-ui/core/Snackbar';
 import MuiAlert from '@material-ui/lab/Alert';
+import Button from '@material-ui/core/Button';
+import IconButton from '@material-ui/core/IconButton';
+import CloseIcon from '@material-ui/icons/Close';
 
 function Alert(props) {
   return <MuiAlert elevation={6} variant="filled" {...props} />;
@@ -9,8 +12,25 @@ function Alert(props) {
 const CustomErrorDialog = (props) => {
 
  return (
-    <Snackbar open={props.open} onClose={props.onClose} autoHideDuration={6000} anchorOrigin={{ vertical: 'top', horizontal: 'right' }}>
-        <Alert severity={props.severity}>
+    <Snackbar open={props.open}
+              onClose={props.onClose}
+              autoHideDuration={6000}
+              anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+
+                >
+        <Alert severity={props.severity}
+        action={
+            <React.Fragment>
+              <IconButton
+                aria-label="close"
+                color="inherit"
+              //   className={classes.close}
+                onClick={props.onClose}
+              >
+                <CloseIcon />
+              </IconButton>
+            </React.Fragment>
+          }>
             {props.message}
         </Alert>
     </Snackbar>
@@ -34,7 +54,7 @@ export default CustomErrorDialog;
 //   },
 // }));
 
-// export default function ConsecutiveSnackbars() {
+// export default function CustomErrorDialog(props) {
 //   const [snackPack, setSnackPack] = React.useState([]);
 //   const [open, setOpen] = React.useState(false);
 //   const [messageInfo, setMessageInfo] = React.useState(undefined);
@@ -72,13 +92,11 @@ export default CustomErrorDialog;
 //       <Button onClick={handleClick('Message A')}>Show message A</Button>
 //       <Button onClick={handleClick('Message B')}>Show message B</Button>
 //       <Snackbar
-//         key={messageInfo ? messageInfo.key : undefined}
-//         anchorOrigin={{
-//           vertical: 'bottom',
-//           horizontal: 'left',
-//         }}
-//         open={open}
+//         onClose={props.onClose}
 //         autoHideDuration={6000}
+//         anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+//         key={messageInfo ? messageInfo.key : undefined}
+//         open={props.open}
 //         onClose={handleClose}
 //         onExited={handleExited}
 //         message={messageInfo ? messageInfo.message : undefined}

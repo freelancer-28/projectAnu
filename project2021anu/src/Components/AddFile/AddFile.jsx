@@ -340,8 +340,8 @@ function AddFile(props) {
     
     // dispatch(submitFile(addFileData));
     // for the request for createFileConfiguration
-    if(true){
-    // if(validateTheForm()){
+    // if(true){
+    if(validateTheForm()){
       let request = {
         producerId: addFileData.producerId,
         fileInformation: addFileData.fileInformation,
@@ -415,6 +415,7 @@ function AddFile(props) {
   const onCancelAddFile = () => {
     // dispatch(updateFileData(null));
     props.history.push('/fileObserverAdmin')
+    dispatch(submitFile({status: '', message: ''}));
     // console.log('fileObserverAdmin')
   }
 
@@ -601,7 +602,7 @@ function AddFile(props) {
                    placeholder="Route"
                   />
                 </div>
-                <div className={classes.flex}>
+                {/* <div className={classes.flex}>
                   <span className={classes.label}>HopName</span>
                   <Select
                    value={hopNameOptions.filter(h=> h.label === addFileData.hopName)}
@@ -610,8 +611,7 @@ function AddFile(props) {
                    isLoading={!(hopNameOptions && hopNameOptions.length)}
                    placeholder="HopName"
                   />
-                  {/* <TextField name="hopName" value={addFileData.hopName}/> */}
-                </div>
+                </div> */}
               </Grid>
             </div>
           </div>
@@ -627,15 +627,15 @@ function AddFile(props) {
                   </RadioGroup>
                 </div>
                 <div className={classes.flex}>
-                  <span className={classes.label}>Hop ID</span>
-                  {/* <Select
-                   value={addFileData.frequency.hopId}
-                   options={hopIdsOptions}
-                   onChange={handleHopIdChange}
-                   isLoading={!(hopIdsOptions && hopIdsOptions.length)}
-                   placeholder="HopIds"
-                  /> */}
-                  <TextField value={addFileData.hopId}/>
+                  <span className={classes.label}>HopName</span>
+                  <Select
+                   value={hopNameOptions.filter(h=> h.label === addFileData.hopName)}
+                   options={hopNameOptions}
+                   onChange={handleHopNameChange}
+                   isLoading={!(hopNameOptions && hopNameOptions.length)}
+                   placeholder="HopName"
+                  />
+                  {/* <TextField value={addFileData.hopId}/> */}
                 </div>
                 <div className={classes.flex}>
                   <span className={classes.label}>File count</span>

@@ -6,7 +6,7 @@ import { selectAddFile } from "../../reducers/addFile";
 import { LinkContainer, Box, Button, ButtonContainer } from "./styles";
 import Table from "../../Components/Table";
 import fileAPIs from "../../apis/AdminTools";
-import { updateAdminFileData, updateFileData } from "../../actions";
+import { updateAdminFileData, updateFileData, submitFile } from "../../actions";
 import AddFile from "../AddFile/AddFile";
 import EditFile from "../EditFile/EditFile";
 import CustomErrorDialog from '../CustomErrorDialog/index'
@@ -204,6 +204,10 @@ const AdminTool = (props) => {
     }
   }
 
+  const handleErrorClose = () => {
+    dispatch(submitFile({message: '', status: ''}));
+  }
+
   console.log(props)
   const addFile = useSelector(selectAddFile);
   console.log(addFile)
@@ -211,7 +215,7 @@ const AdminTool = (props) => {
 
  return (
   <Box>
-    <CustomErrorDialog open={status === "Success"} onClose={()=>{}} severity={status} message={message}/>
+    <CustomErrorDialog open={status === "Success"} onClose={()=>handleErrorClose()} severity={status} message={message}/>
     {!isAddFile && 
     <ButtonContainer>
       <Button variant="contained" color="primary" disableElevation>
