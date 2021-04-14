@@ -152,8 +152,8 @@ function Frequency(props) {
     console.log(data)
     props.updateFrqStartTime("monthlyOn", data.value, id)
     const monthlyOnValue = data.value
-    if(frequencyId !== null){
-      if(frequencyId == 21){
+    if(sfrequencyId !== null){
+      if(sfrequencyId == 21){
           // Begin of the month
           // let currentDate = new Date().get
           let currentMonth = new Date().getUTCMonth();
@@ -167,13 +167,13 @@ function Frequency(props) {
             // exception day will be + 2 days, i.e ignore saturday and sunday
             exceptionDay = new Date(currentYear, currentMonth, monthlyOnValue+2).getDay()
             console.log("exception day : "+ exceptionDay)
-            props.updateFrqStartTime("exceptionDay", exceptionDay, id)
+            props.updateFrqStartTime("thirdrow", exceptionDay, id)
           } else if (monthlyOnDate.getDay() === 7) {
             exceptionDay = new Date(currentYear, currentMonth, monthlyOnValue+2).getDay()
             console.log("exception day : "+ exceptionDay)
-            props.updateFrqStartTime("exceptionDay", exceptionDay, id)
+            props.updateFrqStartTime("thirdrow", exceptionDay, id)
           } else {
-            props.updateFrqStartTime("exceptionDay", null, id)
+            props.updateFrqStartTime("thirdrow", null, id)
           }
           
       } else {
@@ -191,19 +191,19 @@ function Frequency(props) {
             // exception day will be + 2 days, i.e ignore saturday and sunday
             exceptionDay = new Date(currentYear, currentMonth, new Date(currentYear, currentMonth+1, 0).getDate() - monthlyOnValue - 1).getDay()
             console.log("exception day : "+ exceptionDay)
-            props.updateFrqStartTime("exceptionDay", exceptionDay, id)
+            props.updateFrqStartTime("thirdrow", exceptionDay, id)
           } else if (monthlyOnDate.getDay() === 7) {
             exceptionDay = new Date(currentYear, currentMonth, new Date(currentYear, currentMonth+1, 0).getDate() - monthlyOnValue - 2).getDay()
             console.log("exception day : "+ exceptionDay)
-            props.updateFrqStartTime("exceptionDay", exceptionDay, id)
+            props.updateFrqStartTime("thirdrow", exceptionDay, id)
           } else {
-            props.updateFrqStartTime("exceptionDay", null, id)
+            props.updateFrqStartTime("thirdrow", null, id)
           }
       }
     }
   }
   const handleFrequencyId = (event) => {
-    props.updateFrqStartTime("frequencyId", event.target.value, id)
+    props.updateFrqStartTime("sfrequencyId", event.target.value, id)
     if(monthlyOn) {
       const monthlyOnValue = monthlyOn // props.monthlyOnValue
       if(event.target.value == 21){
@@ -220,13 +220,13 @@ function Frequency(props) {
           // exception day will be + 2 days, i.e ignore saturday and sunday
           exceptionDay = new Date(currentYear, currentMonth, monthlyOnValue+2).getDay()
           console.log("exception day : "+ exceptionDay)
-          props.updateFrqStartTime("exceptionDay", exceptionDay, id)
+          props.updateFrqStartTime("thirdrow", exceptionDay, id)
         } else if (monthlyOnDate.getDay() === 7) {
           exceptionDay = new Date(currentYear, currentMonth, monthlyOnValue+2).getDay()
           console.log("exception day : "+ exceptionDay)
-          props.updateFrqStartTime("exceptionDay", exceptionDay, id)
+          props.updateFrqStartTime("thirdrow", exceptionDay, id)
         } else {
-          props.updateFrqStartTime("exceptionDay", null, id)
+          props.updateFrqStartTime("thirdrow", null, id)
         }
         
     } else {
@@ -244,23 +244,23 @@ function Frequency(props) {
           // exception day will be + 2 days, i.e ignore saturday and sunday
           exceptionDay = new Date(currentYear, currentMonth, new Date(currentYear, currentMonth+1, 0).getDate() - monthlyOnValue - 1).getDay()
           console.log("exception day : "+ exceptionDay)
-          props.updateFrqStartTime("exceptionDay", exceptionDay, id)
+          props.updateFrqStartTime("thirdrow", exceptionDay, id)
         } else if (monthlyOnDate.getDay() === 7) {
           exceptionDay = new Date(currentYear, currentMonth, new Date(currentYear, currentMonth+1, 0).getDate() - monthlyOnValue - 2).getDay()
           console.log("exception day : "+ exceptionDay)
-          props.updateFrqStartTime("exceptionDay", exceptionDay, id)
+          props.updateFrqStartTime("thirdrow", exceptionDay, id)
         } else {
-          props.updateFrqStartTime("exceptionDay", null, id)
+          props.updateFrqStartTime("thirdrow", null, id)
         }
     }
     }
   }
-  const {id, startTime, sla, endTime, days, mdays, monthlyOn, frequencyId, exceptionDay} = props.data
-  const weekdays = [ 'M', 'T', 'W', 'T', 'F'];
+  const {id, startTime, sla, endTime, days, mdays, monthlyOn, sfrequencyId, exceptionDay, thirdrow} = props.data
+  const weekdays = [ 'S','M', 'T', 'W', 'T', 'F','S'];
   console.log(days)
   const classes = useStyles();
   const editDysFrequency =  getDaysInMonth()
-  const exceptionDayRadio = frequencyId == 21 ? "next" : (frequencyId == 22 ? "previous" : null)
+  const exceptionDayRadio = sfrequencyId == 21 ? "next" : (sfrequencyId == 22 ? "previous" : null)
   return (
     <div>
       <div className={classes.frequency_box}>
@@ -297,7 +297,7 @@ function Frequency(props) {
                     placeholder=""
                     />
                   <div className={classes.paddingLeft50px}>
-                    <RadioGroup row aria-label="position" name="position" defaultValue="top" onChange={handleFrequencyId} value={frequencyId}>
+                    <RadioGroup row aria-label="position" name="position" defaultValue="top" onChange={handleFrequencyId} value={sfrequencyId}>
                       <FormControlLabel classes={{ root: classes.label }} value="21" control={<Radio color="primary" />} label="Beginning of the month" />
                       <FormControlLabel classes={{ root: classes.label }} value="22" control={<Radio color="primary" />} label="End of month" />
                     </RadioGroup>
@@ -305,34 +305,35 @@ function Frequency(props) {
             </div>
             <div className={classes.edit_fre_days_secondtxt}><span>____</span><span>and its in selected day(s):</span></div>
             <div className={classes.edit_fre_days_second}>
-            <Button className={classes.weekdays_unselected_btn} variant="contained" color="primary">
+            {/* <Button className={classes.weekdays_unselected_btn} variant="contained" color="primary">
                 S
-            </Button>
-              {[1,2,3,4,5].map((day, i) =>
+            </Button> */}
+              {[0,1,2,3,4,5,6].map((day, i) =>
                 <Button className={days.includes(day) ? classes.weekdays_btn : classes.weekdays_unselected_btn} variant="contained" color="primary"
                 onClick={()=>props.updateFrequencyDay(id, day)}>
                 {weekdays[i]}
               </Button>
               )}
-            <Button className={classes.weekdays_unselected_btn} variant="contained" color="primary">
+            {/* <Button className={classes.weekdays_unselected_btn} variant="contained" color="primary">
                 S
-            </Button>
+            </Button> */}
             </div>
-            {exceptionDay!==null && exceptionDay!==undefined && 
+            {thirdrow!==null && thirdrow!==undefined && 
             <>
             <div className={classes.edit_fre_days_thirdtxt}><span>__________</span><span>When the {monthlyOn} day of the month falls on Saturday or Sunday. Choose the day of the week for the system to monitor below:</span></div>
             <div className={classes.edit_fre_days_third}>
-                  <Button className={classes.weekdays_unselected_btn} variant="contained" color="primary">
+                  {/* <Button className={classes.weekdays_unselected_btn} variant="contained" color="primary">
                       S
-                  </Button>
-                    {[1,2,3,4,5].map((day, i) =>
-                      <Button className={[exceptionDay].includes(day) ? classes.weekdays_btn : classes.weekdays_unselected_btn} variant="contained" color="primary">
+                  </Button> */}
+                    {[0,1,2,3,4,5,6].map((day, i) =>
+                      <Button className={[exceptionDay].includes(day) ? classes.weekdays_btn : classes.weekdays_unselected_btn} variant="contained" color="primary"
+                      onClick={()=>props.updateFrqStartTime("exceptionDay", i, id)}>
                       {weekdays[i]}
                     </Button>
                     )}
-                  <Button className={classes.weekdays_unselected_btn} variant="contained" color="primary">
+                  {/* <Button className={classes.weekdays_unselected_btn} variant="contained" color="primary">
                     S
-                  </Button>
+                  </Button> */}
                   <div className={classes.paddingLeft50px}>
                     <RadioGroup row aria-label="position" name="position" defaultValue="top" value={exceptionDayRadio}>
                       <FormControlLabel classes={{ root: classes.label }} value="previous" control={<Radio color="primary" />} label="previous" />

@@ -146,6 +146,7 @@ const fqc = {
 function AddFile(props) {
 
   const [addFileData, setAddFileData] = useState({
+    thirdrow: null,
     validationFlag: false,
     validationMessage: "",
     errorDialog: true,
