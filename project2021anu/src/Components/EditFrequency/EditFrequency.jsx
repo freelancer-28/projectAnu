@@ -152,7 +152,7 @@ function Frequency(props) {
     console.log(data)
     props.updateFrqStartTime("monthlyOn", data.value, id)
     const monthlyOnValue = data.value
-    if(sfrequencyId !== null){
+    if(sfrequencyId){
       if(sfrequencyId == 21){
           // Begin of the month
           // let currentDate = new Date().get
@@ -166,11 +166,11 @@ function Frequency(props) {
           if(monthlyOnDate.getDay() === 6) {
             // exception day will be + 2 days, i.e ignore saturday and sunday
             exceptionDay = new Date(currentYear, currentMonth, monthlyOnValue+2).getDay()
-            console.log("exception day : "+ exceptionDay)
+            // console.log("exception day : "+ exceptionDay)
             props.updateFrqStartTime("thirdrow", exceptionDay, id)
-          } else if (monthlyOnDate.getDay() === 7) {
-            exceptionDay = new Date(currentYear, currentMonth, monthlyOnValue+2).getDay()
-            console.log("exception day : "+ exceptionDay)
+          } else if (monthlyOnDate.getDay() === 0) {
+            exceptionDay = new Date(currentYear, currentMonth, monthlyOnValue+1).getDay()
+            // console.log("exception day : "+ exceptionDay)
             props.updateFrqStartTime("thirdrow", exceptionDay, id)
           } else {
             props.updateFrqStartTime("thirdrow", null, id)
@@ -183,17 +183,19 @@ function Frequency(props) {
           let currentMonth = new Date().getUTCMonth();
           let currentYear = new Date().getUTCFullYear();
           console.log(new Date(currentYear, currentMonth+1, 0).getDate())
-          let monthlyOnDate = new Date(currentYear, currentMonth, new Date(currentYear, currentMonth+1, 0).getDate() - monthlyOnValue)
+          let monthlyOnDate = new Date(currentYear, currentMonth, new Date(currentYear, currentMonth+1, 0).getDate() - (monthlyOnValue-1))
           console.log(monthlyOnDate.getDay())
           console.log(currentMonth + "/" + currentYear)
           let exceptionDay = null
           if(monthlyOnDate.getDay() === 6) {
             // exception day will be + 2 days, i.e ignore saturday and sunday
-            exceptionDay = new Date(currentYear, currentMonth, new Date(currentYear, currentMonth+1, 0).getDate() - monthlyOnValue - 1).getDay()
+            // console.log(new Date(currentYear, currentMonth, new Date(currentYear, currentMonth+1, 0).getDate() - (monthlyOnValue - 1) - 1))
+            exceptionDay = new Date(currentYear, currentMonth, new Date(currentYear, currentMonth+1, 0).getDate() - (monthlyOnValue - 1) - 1).getDay()
             console.log("exception day : "+ exceptionDay)
             props.updateFrqStartTime("thirdrow", exceptionDay, id)
-          } else if (monthlyOnDate.getDay() === 7) {
-            exceptionDay = new Date(currentYear, currentMonth, new Date(currentYear, currentMonth+1, 0).getDate() - monthlyOnValue - 2).getDay()
+          } else if (monthlyOnDate.getDay() === 0) {
+            // console.log(new Date(currentYear, currentMonth, new Date(currentYear, currentMonth+1, 0).getDate() - (monthlyOnValue - 1) - 2))
+            exceptionDay = new Date(currentYear, currentMonth, new Date(currentYear, currentMonth+1, 0).getDate() - (monthlyOnValue - 1) - 2).getDay()
             console.log("exception day : "+ exceptionDay)
             props.updateFrqStartTime("thirdrow", exceptionDay, id)
           } else {
@@ -218,12 +220,14 @@ function Frequency(props) {
         let exceptionDay = null
         if(monthlyOnDate.getDay() === 6) {
           // exception day will be + 2 days, i.e ignore saturday and sunday
+          // console.log(new Date(currentYear, currentMonth, monthlyOnValue+2))
           exceptionDay = new Date(currentYear, currentMonth, monthlyOnValue+2).getDay()
-          console.log("exception day : "+ exceptionDay)
+          // console.log("exception day : "+ exceptionDay)
           props.updateFrqStartTime("thirdrow", exceptionDay, id)
-        } else if (monthlyOnDate.getDay() === 7) {
-          exceptionDay = new Date(currentYear, currentMonth, monthlyOnValue+2).getDay()
-          console.log("exception day : "+ exceptionDay)
+        } else if (monthlyOnDate.getDay() === 0) {
+          // console.log(new Date(currentYear, currentMonth, monthlyOnValue+1))
+          exceptionDay = new Date(currentYear, currentMonth, monthlyOnValue+1).getDay()
+          // console.log("exception day : "+ exceptionDay)
           props.updateFrqStartTime("thirdrow", exceptionDay, id)
         } else {
           props.updateFrqStartTime("thirdrow", null, id)
@@ -236,18 +240,20 @@ function Frequency(props) {
         let currentMonth = new Date().getUTCMonth();
         let currentYear = new Date().getUTCFullYear();
         console.log(new Date(currentYear, currentMonth+1, 0).getDate())
-        let monthlyOnDate = new Date(currentYear, currentMonth, new Date(currentYear, currentMonth+1, 0).getDate() - monthlyOnValue)
+        let monthlyOnDate = new Date(currentYear, currentMonth, new Date(currentYear, currentMonth+1, 0).getDate() - (monthlyOnValue-1))
         console.log(monthlyOnDate.getDay())
         console.log(currentMonth + "/" + currentYear)
         let exceptionDay = null
         if(monthlyOnDate.getDay() === 6) {
           // exception day will be + 2 days, i.e ignore saturday and sunday
-          exceptionDay = new Date(currentYear, currentMonth, new Date(currentYear, currentMonth+1, 0).getDate() - monthlyOnValue - 1).getDay()
-          console.log("exception day : "+ exceptionDay)
+          // console.log(new Date(currentYear, currentMonth, new Date(currentYear, currentMonth+1, 0).getDate() - (monthlyOnValue-1) - 1))
+          exceptionDay = new Date(currentYear, currentMonth, new Date(currentYear, currentMonth+1, 0).getDate() - (monthlyOnValue-1) - 1).getDay()
+          // console.log("exception day : "+ exceptionDay)
           props.updateFrqStartTime("thirdrow", exceptionDay, id)
-        } else if (monthlyOnDate.getDay() === 7) {
-          exceptionDay = new Date(currentYear, currentMonth, new Date(currentYear, currentMonth+1, 0).getDate() - monthlyOnValue - 2).getDay()
-          console.log("exception day : "+ exceptionDay)
+        } else if (monthlyOnDate.getDay() === 0) {
+          // console.log(new Date(currentYear, currentMonth, new Date(currentYear, currentMonth+1, 0).getDate() - (monthlyOnValue-1) - 2))
+          exceptionDay = new Date(currentYear, currentMonth, new Date(currentYear, currentMonth+1, 0).getDate() - (monthlyOnValue-1) - 2).getDay()
+          // console.log("exception day : "+ exceptionDay)
           props.updateFrqStartTime("thirdrow", exceptionDay, id)
         } else {
           props.updateFrqStartTime("thirdrow", null, id)

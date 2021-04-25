@@ -104,7 +104,8 @@ const useStyles = makeStyles((theme) => ({
     marginRight: '20px'
   },
   read_textFileds: {
-    width: '262px',
+    width: 'auto',
+    minWidth: "262px",
     // border: '1px solid #D1D5D9',
     height: '36px',
     background: '#EFF0F1 0% 0% no-repeat padding-box',
