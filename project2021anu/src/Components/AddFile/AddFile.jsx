@@ -480,6 +480,7 @@ function AddFile(props) {
           days.push(day)
         }
         fre.days = days
+        fre.thirdrow = days.length !== 7
       }
       return fre;
     })

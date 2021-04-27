@@ -11,8 +11,13 @@ import RadioGroup from '@material-ui/core/RadioGroup';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 // import { faFileExport } from "fa5-pro-light";
 import Select from '../Select'
+import { red } from '@material-ui/core/colors';
 
 const useStyles = makeStyles((theme) => ({
+  warningclass: {
+    color: 'red',
+    marginLeft: '200px'
+  },
   divider_alt: {
     margin: '10px 0px',
     borderBottomStyle: 'dashed',
@@ -145,125 +150,32 @@ const getDaysInMonth = () => {
 
 function Frequency(props) {
 
-  // const [addFileData, setAddFileData] = useState({
-    
-  // })
+  const [ warning, SetWarning ] = useState(false)
+
+  const handleExceptionDaySelection = (i, id) => {
+    console.log(`days => ${days}`)
+    console.log(i)
+    console.log(days.includes(i))
+    if(days.includes(i)){
+      SetWarning(false)
+      props.updateFrqStartTime("exceptionDay", i, id)
+    } else {
+      SetWarning(true)
+    }
+    // ()=>props.updateFrqStartTime("exceptionDay", i, id)
+  }
+
   const handleMonthlyOn = (data) => {
     console.log(data)
     props.updateFrqStartTime("monthlyOn", data.value, id)
-    const monthlyOnValue = data.value
-    if(sfrequencyId){
-      if(sfrequencyId == 21){
-          // Begin of the month
-          // let currentDate = new Date().get
-          let currentMonth = new Date().getUTCMonth();
-          let currentYear = new Date().getUTCFullYear();
-          let monthlyOnDate = new Date(currentYear, currentMonth, monthlyOnValue)
-          console.log(monthlyOnDate)
-          console.log(monthlyOnDate.getDay())
-          console.log(currentMonth + "/" + currentYear)
-          let exceptionDay = null
-          if(monthlyOnDate.getDay() === 6) {
-            // exception day will be + 2 days, i.e ignore saturday and sunday
-            exceptionDay = new Date(currentYear, currentMonth, monthlyOnValue+2).getDay()
-            // console.log("exception day : "+ exceptionDay)
-            props.updateFrqStartTime("thirdrow", exceptionDay, id)
-          } else if (monthlyOnDate.getDay() === 0) {
-            exceptionDay = new Date(currentYear, currentMonth, monthlyOnValue+1).getDay()
-            // console.log("exception day : "+ exceptionDay)
-            props.updateFrqStartTime("thirdrow", exceptionDay, id)
-          } else {
-            props.updateFrqStartTime("thirdrow", null, id)
-          }
-          
-      } else {
-          // End of the month 
-          // Begin of the month
-          // let currentDate = new Date().get
-          let currentMonth = new Date().getUTCMonth();
-          let currentYear = new Date().getUTCFullYear();
-          console.log(new Date(currentYear, currentMonth+1, 0).getDate())
-          let monthlyOnDate = new Date(currentYear, currentMonth, new Date(currentYear, currentMonth+1, 0).getDate() - (monthlyOnValue-1))
-          console.log(monthlyOnDate.getDay())
-          console.log(currentMonth + "/" + currentYear)
-          let exceptionDay = null
-          if(monthlyOnDate.getDay() === 6) {
-            // exception day will be + 2 days, i.e ignore saturday and sunday
-            // console.log(new Date(currentYear, currentMonth, new Date(currentYear, currentMonth+1, 0).getDate() - (monthlyOnValue - 1) - 1))
-            exceptionDay = new Date(currentYear, currentMonth, new Date(currentYear, currentMonth+1, 0).getDate() - (monthlyOnValue - 1) - 1).getDay()
-            console.log("exception day : "+ exceptionDay)
-            props.updateFrqStartTime("thirdrow", exceptionDay, id)
-          } else if (monthlyOnDate.getDay() === 0) {
-            // console.log(new Date(currentYear, currentMonth, new Date(currentYear, currentMonth+1, 0).getDate() - (monthlyOnValue - 1) - 2))
-            exceptionDay = new Date(currentYear, currentMonth, new Date(currentYear, currentMonth+1, 0).getDate() - (monthlyOnValue - 1) - 2).getDay()
-            console.log("exception day : "+ exceptionDay)
-            props.updateFrqStartTime("thirdrow", exceptionDay, id)
-          } else {
-            props.updateFrqStartTime("thirdrow", null, id)
-          }
-      }
-    }
   }
   const handleFrequencyId = (event) => {
     props.updateFrqStartTime("sfrequencyId", event.target.value, id)
-    if(monthlyOn) {
-      const monthlyOnValue = monthlyOn // props.monthlyOnValue
-      if(event.target.value == 21){
-        // Begin of the month
-        // let currentDate = new Date().get
-        let currentMonth = new Date().getUTCMonth();
-        let currentYear = new Date().getUTCFullYear();
-        let monthlyOnDate = new Date(currentYear, currentMonth, monthlyOnValue)
-        console.log(monthlyOnDate)
-        console.log(monthlyOnDate.getDay())
-        console.log(currentMonth + "/" + currentYear)
-        let exceptionDay = null
-        if(monthlyOnDate.getDay() === 6) {
-          // exception day will be + 2 days, i.e ignore saturday and sunday
-          // console.log(new Date(currentYear, currentMonth, monthlyOnValue+2))
-          exceptionDay = new Date(currentYear, currentMonth, monthlyOnValue+2).getDay()
-          // console.log("exception day : "+ exceptionDay)
-          props.updateFrqStartTime("thirdrow", exceptionDay, id)
-        } else if (monthlyOnDate.getDay() === 0) {
-          // console.log(new Date(currentYear, currentMonth, monthlyOnValue+1))
-          exceptionDay = new Date(currentYear, currentMonth, monthlyOnValue+1).getDay()
-          // console.log("exception day : "+ exceptionDay)
-          props.updateFrqStartTime("thirdrow", exceptionDay, id)
-        } else {
-          props.updateFrqStartTime("thirdrow", null, id)
-        }
-        
-    } else {
-        // End of the month 
-        // Begin of the month
-        // let currentDate = new Date().get
-        let currentMonth = new Date().getUTCMonth();
-        let currentYear = new Date().getUTCFullYear();
-        console.log(new Date(currentYear, currentMonth+1, 0).getDate())
-        let monthlyOnDate = new Date(currentYear, currentMonth, new Date(currentYear, currentMonth+1, 0).getDate() - (monthlyOnValue-1))
-        console.log(monthlyOnDate.getDay())
-        console.log(currentMonth + "/" + currentYear)
-        let exceptionDay = null
-        if(monthlyOnDate.getDay() === 6) {
-          // exception day will be + 2 days, i.e ignore saturday and sunday
-          // console.log(new Date(currentYear, currentMonth, new Date(currentYear, currentMonth+1, 0).getDate() - (monthlyOnValue-1) - 1))
-          exceptionDay = new Date(currentYear, currentMonth, new Date(currentYear, currentMonth+1, 0).getDate() - (monthlyOnValue-1) - 1).getDay()
-          // console.log("exception day : "+ exceptionDay)
-          props.updateFrqStartTime("thirdrow", exceptionDay, id)
-        } else if (monthlyOnDate.getDay() === 0) {
-          // console.log(new Date(currentYear, currentMonth, new Date(currentYear, currentMonth+1, 0).getDate() - (monthlyOnValue-1) - 2))
-          exceptionDay = new Date(currentYear, currentMonth, new Date(currentYear, currentMonth+1, 0).getDate() - (monthlyOnValue-1) - 2).getDay()
-          // console.log("exception day : "+ exceptionDay)
-          props.updateFrqStartTime("thirdrow", exceptionDay, id)
-        } else {
-          props.updateFrqStartTime("thirdrow", null, id)
-        }
-    }
-    }
   }
   const {id, startTime, sla, endTime, days, mdays, monthlyOn, sfrequencyId, exceptionDay, thirdrow} = props.data
   const weekdays = [ 'S','M', 'T', 'W', 'T', 'F','S'];
   console.log(days)
+  console.log(thirdrow)
   const classes = useStyles();
   const editDysFrequency =  getDaysInMonth()
   const exceptionDayRadio = sfrequencyId == 21 ? "next" : (sfrequencyId == 22 ? "previous" : null)
@@ -324,7 +236,7 @@ function Frequency(props) {
                 S
             </Button> */}
             </div>
-            {thirdrow!==null && thirdrow!==undefined && 
+            {(thirdrow === undefined || thirdrow === true) && 
             <>
             <div className={classes.edit_fre_days_thirdtxt}><span>__________</span><span>When the {monthlyOn} day of the month falls on Saturday or Sunday. Choose the day of the week for the system to monitor below:</span></div>
             <div className={classes.edit_fre_days_third}>
@@ -333,7 +245,7 @@ function Frequency(props) {
                   </Button> */}
                     {[0,1,2,3,4,5,6].map((day, i) =>
                       <Button className={[exceptionDay].includes(day) ? classes.weekdays_btn : classes.weekdays_unselected_btn} variant="contained" color="primary"
-                      onClick={()=>props.updateFrqStartTime("exceptionDay", i, id)}>
+                      onClick={()=>handleExceptionDaySelection(i, id)}>
                       {weekdays[i]}
                     </Button>
                     )}
@@ -347,6 +259,7 @@ function Frequency(props) {
                     </RadioGroup>
                   </div>
             </div>
+                  {warning && <span className={classes.warningclass}>Exception day must be subset of selected days selecition</span>}
             </>}
           </div>
         </div>
