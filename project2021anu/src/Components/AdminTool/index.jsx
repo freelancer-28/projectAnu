@@ -2,11 +2,12 @@ import React, { useState, useEffect, useRef } from "react";
 import Container from "@material-ui/core/Container";
 import { useSelector, useDispatch } from "react-redux";
 import { selectAdminFileData } from "../../reducers/adminFileData";
+import { selectAdminRawData } from "../../reducers/adminRawData";
 import { selectAddFile } from "../../reducers/addFile";
 import { LinkContainer, Box, Button, ButtonContainer } from "./styles";
 import Table from "../../Components/Table";
 import fileAPIs from "../../apis/AdminTools";
-import { updateAdminFileData, updateFileData, submitFile } from "../../actions";
+import { updateAdminFileData, updateFileData, submitFile, updateAdminRawData } from "../../actions";
 import AddFile from "../AddFile/AddFile";
 import EditFile from "../EditFile/EditFile";
 import CustomErrorDialog from '../CustomErrorDialog/index'
@@ -130,9 +131,11 @@ const AdminTool = (props) => {
 
   const dispatch = useDispatch();
   const data = useSelector(selectAdminFileData);
+  const rawData = useSelector(selectAdminRawData)
 
   const onEditRow = (rowIndex) => {
-    dispatch(updateFileData(rowIndex));
+    
+    dispatch(updateFileData(rawData[rowIndex]));
     props.history.push('/editfile')
     console.log(rowIndex)
   }
@@ -161,7 +164,8 @@ const AdminTool = (props) => {
     setIsDataLoading(true);
     const data = await fileAPIs.fetchData();
     // console.log(processAdminData(data.fileconfigurations));
-    dispatch(updateAdminFileData(processAdminData(data.fileconfigurations)));
+    dispatch(updateAdminRawData(data.fileAdminConfigurationRequests));
+    dispatch(updateAdminFileData(processAdminData(data.fileAdminConfigurationRequests)));
     setTimeout(() => {
       setIsDataLoading(false);
     }, 600);

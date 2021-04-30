@@ -405,7 +405,7 @@ function AddFile(props) {
     let validation_error = false;
     const { producerId, fileCount, occurence, hopName, hopId } = addFileData
     const { sftAccountName, direction, fileMask, filePrefix, fileSuffix, dateMask, dateTimeMask, routeId } = addFileData.fileInformation
-    validation_error = producerId && fileCount && occurence && hopName && hopId && sftAccountName && direction && direction && fileMask && filePrefix && fileSuffix && dateMask && dateTimeMask && routeId;
+    validation_error = producerId && fileCount && occurence && hopName && hopId && sftAccountName  && fileMask && filePrefix && fileSuffix && dateMask && dateTimeMask && routeId;
     setAddFileData({
       ...addFileData,
       validationFlag: !Boolean(validation_error),

@@ -5,6 +5,7 @@ import { fileMask, fileMaskOptions } from "./fileMask";
 import { fileData } from "./fileData";
 import { combineReducers } from "redux";
 import { adminFileData } from "./adminFileData";
+import { adminRawData } from "./adminRawData";
 import { addFile } from "./addFile";
 
 const rootReducer = combineReducers({
@@ -15,6 +16,7 @@ const rootReducer = combineReducers({
   // userInfo,
   fileData,
   adminFileData,
+  adminRawData,
   addFile,
   route,
   routeOptions
