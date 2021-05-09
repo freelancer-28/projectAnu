@@ -23,6 +23,7 @@ import {
 } from "../../actions";
 import filtersAPIs from "../../apis/FileObserver/filters";
 import addFileAPIs from "../../apis/AdminTools/addFile";
+import updateFileAPIs from "../../apis/AdminTools/updateFile";
 import { selectProducer, selectProducerOptions } from "../../reducers/producer";
 import { selectRoute, selectRouteOptions } from '../../reducers/route';
 import { selectFileData } from "../../reducers/fileData";
@@ -144,6 +145,7 @@ function EditFile(props) {
     validationMessage: "",
     errorDialog: true,
     producerId: null,
+    producerName: null,
     occurence: null,
     hopId: null,
     hopName: null,
@@ -164,7 +166,8 @@ function EditFile(props) {
   const dispatch = useDispatch();
   const classes = useStyles();
   useEffect(() => {
-    const { frequencyId, endTime,startTime, sla, monthlyOn, frequencySpecifierId, exceptionDay, producerId, hopName, hopId, fileCount } = editData
+    const { frequencyId, endTime,startTime, monthlyOn, monthlyFrequencySpecierId, frequencySpecifierIds, exceptionDay, producerId, producerName, hopName, hopId, fileCount } = editData
+    var { slaTime: sla } = editData;
     const {
       dateMask,
       dateTimeMask,
@@ -185,19 +188,24 @@ function EditFile(props) {
       firstFrequency.endTime= endTime;
       firstFrequency.startTime= startTime;
       firstFrequency.sla= sla;
+      const tempfrequencySpecifierIds = frequencySpecifierIds.map(day => day === 7 ? 0 : day)
+      firstFrequency.days= [...tempfrequencySpecifierIds]
     } else {
       firstFrequency.frequencyId= frequencyId;
       firstFrequency.monthlyOn= monthlyOn;
-      firstFrequency.sfrequencyId = ""+frequencySpecifierId;
+      firstFrequency.sfrequencyId = ""+monthlyFrequencySpecierId;
       firstFrequency.endTime= endTime;
       firstFrequency.startTime= startTime;
       firstFrequency.sla= sla;
-      firstFrequency.exceptionDay= +exceptionDay;
-      firstFrequency.days= [ +exceptionDay ];
+      firstFrequency.exceptionDay= exceptionDay || null ;
+      const tempfrequencySpecifierIds = frequencySpecifierIds.map(day => day === 7 ? 0 : day)
+      firstFrequency.days= [...tempfrequencySpecifierIds]
+      firstFrequency.thirdrow = exceptionDay === null ? false : true
     }
     setAddFileData({
       ...addFileData,
       producerId,
+      producerName,
       hopName,
       hopId,
       occurence,
@@ -384,6 +392,7 @@ function EditFile(props) {
     if(validateTheForm()){
       let request = {
         producerId: addFileData.producerId,
+        producerName: addFileData.producerName,
         fileInformation: addFileData.fileInformation,
         frequency: [
           ...addFileData.frequency.map(f => {
@@ -421,7 +430,7 @@ function EditFile(props) {
       }
       // delte direction key from request
       delete request?.fileInformation?.direction
-      const createFileConfigurationResponse = await addFileAPIs.addFile(request)
+      const createFileConfigurationResponse = await updateFileAPIs.updateFile(request)
       // verify the response and then redirect to fileObserverAdmin page
       console.log(createFileConfigurationResponse)
       if (createFileConfigurationResponse.status === "Success") {
@@ -441,9 +450,9 @@ function EditFile(props) {
 
   const validateTheForm = () => {
     let validation_error = false;
-    const { producerId, fileCount, occurence, hopName, hopId } = addFileData
+    const { producerId, producerName, fileCount, occurence, hopName, hopId } = addFileData
     const { sftAccountName, direction, fileMask, filePrefix, fileSuffix, dateMask, dateTimeMask, routeId } = addFileData.fileInformation
-    validation_error = producerId && fileCount && occurence && hopName && hopId && sftAccountName && fileMask && filePrefix && fileSuffix && dateMask && dateTimeMask && routeId;
+    validation_error = producerName && fileCount && occurence && hopName && hopId && sftAccountName && fileMask && filePrefix && fileSuffix && dateMask && dateTimeMask && routeId;
     setAddFileData({
       ...addFileData,
       validationFlag: !Boolean(validation_error),
@@ -568,8 +577,8 @@ function EditFile(props) {
 
   const editData = useSelector(selectFileData);
   console.log(editData)
-  const { producerName, sftAccountName, direction, fileMask, filePrefix, fileSuffix, dateMask, dateTimeMask, routeName, fileCount, hopName } = editData // props.data;
-  const hopNameOptions = []
+  const { producerName, sftAccountName, direction, fileMask, filePrefix, fileSuffix, dateMask, dateTimeMask, routeName, fileCount, hopName, relatedHopList } = editData // props.data;
+  const hopNameOptions = relatedHopList.map((hop, i) => ({ "value": hop.hopId, "label": hop.hopName }))
   // console.log(routeOptions)
 
   // const producer = useSelector(selectProducer);
@@ -664,16 +673,33 @@ function EditFile(props) {
                 </div>
                 <div className={classes.flex}>
                   <span className={classes.label}>HopName</span>
+                  <Select
+                   value={hopNameOptions.filter(h=> h.label === addFileData.hopName)}
+                   options={hopNameOptions}
+                   onChange={handleHopNameChange}
+                   isLoading={!(hopNameOptions && hopNameOptions.length)}
+                   placeholder="HopName"
+                  />
+                  {/* <TextField value={addFileData.hopId}/> */}
+                </div>
+                {/* <div className={classes.flex}>
+                  <span className={classes.label}>HopName</span>
                   <div className={classes.read_textFileds}>
                     <span className={classes.readValue}>{hopName}</span>
                   </div>
-                </div>
+                </div> */}
                 <div className={classes.flex}>
+                  <span className={classes.label}>File count</span>
+                  {/* <TextField type="number"/> */}
+                  {/* <TextField type="number" name="fileCount" onChange={handleFileCountChange} value={addFileData.fileCount}/> */}
+                  <TextField name="fileCount" onChange={handleFileCountChange} value={addFileData.fileCount}/>
+                </div>
+                {/* <div className={classes.flex}>
                   <span className={classes.label}>File count</span>
                   <div className={classes.read_textFileds}>
                     <span className={classes.readValue}>{fileCount}</span>
                   </div>
-                </div>
+                </div> */}
               </Grid>
             </div>
             {addFileData.occurence === "Weekly" && 

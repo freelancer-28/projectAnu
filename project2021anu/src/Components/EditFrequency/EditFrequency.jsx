@@ -175,7 +175,7 @@ function Frequency(props) {
   const {id, startTime, sla, endTime, days, mdays, monthlyOn, sfrequencyId, exceptionDay, thirdrow} = props.data
   const weekdays = [ 'S','M', 'T', 'W', 'T', 'F','S'];
   console.log(days)
-  console.log(thirdrow)
+  console.log("thirdrow====================",thirdrow)
   const classes = useStyles();
   const editDysFrequency =  getDaysInMonth()
   const exceptionDayRadio = sfrequencyId == 21 ? "next" : (sfrequencyId == 22 ? "previous" : null)
@@ -268,7 +268,7 @@ function Frequency(props) {
         <Grid container>
               <div className={classes.flex}>
                 <span className={classes.label}>Start Time</span>
-                <TextField className={classes.root} value={startTime} label="" variant="outlined" icon={faTrashAlt} onChange={(event)=>props.updateFrqStartTime("startTime", event.target.value, id)}/>
+                <TextField type="time" className={classes.root} value={startTime} label="" variant="outlined" icon={faTrashAlt} onChange={(event)=>props.updateFrqStartTime("startTime", event.target.value, id)}/>
               </div>
               <div className={classes.flex}>
                 <span className={classes.label}>SLA</span>
@@ -276,7 +276,7 @@ function Frequency(props) {
               </div>
               <div className={classes.flex}>
                 <span className={classes.label}>End Time</span>
-                <TextField className={classes.root} value={endTime} label="" variant="outlined" icon={faTrashAlt} onChange={(event)=>props.updateFrqStartTime("endTime", event.target.value, id)}/>
+                <TextField type="time" className={classes.root} value={endTime} label="" variant="outlined" icon={faTrashAlt} onChange={(event)=>props.updateFrqStartTime("endTime", event.target.value, id)}/>
               </div>
             </Grid>
         </div>
