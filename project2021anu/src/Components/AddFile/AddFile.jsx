@@ -146,6 +146,9 @@ const fqc = {
 
 function AddFile(props) {
 
+  const [ warning, setWarning ] = useState(false)
+  const [ timeWarning, setTimeWarning ] = useState(false)
+
   const [addFileData, setAddFileData] = useState({
     thirdrow: null,
     validationFlag: false,
@@ -318,11 +321,16 @@ function AddFile(props) {
 
   const handleFileCountChange = event => {
     const {name, value} =  event.target
-    let nonNegative = value >= 0
+    let nonNegative = value > 0 || value === ''
     if(nonNegative){
       setAddFileData({
         ...addFileData,
         fileCount: event.target.value
+      })
+    } else {
+      setAddFileData({
+        ...addFileData,
+        fileCount: ""
       })
     }
   }
@@ -340,10 +348,16 @@ function AddFile(props) {
   const onAddFileSubmit = async () => {
     console.log("+++++++++++++++++++++++++++++++++++++")
     
+     let validationsErrors = false;
+     if(addFileData.occurence === "Weekly"){
+        validationsErrors = timeWarning
+     } else if (addFileData.occurence === "Monthly"){
+        validationsErrors = warning || timeWarning
+     }
     // dispatch(submitFile(addFileData));
     // for the request for createFileConfiguration
     // if(true){
-    if(validateTheForm()){
+    if(validateTheForm() && !validationsErrors){
       let request = {
         producerId: addFileData.producerId,
         fileInformation: addFileData.fileInformation,
@@ -653,6 +667,10 @@ function AddFile(props) {
               updateFrqStartTime={updateFrqStartTime}
               updateFrequencyDay={updateFrequencyDay}
               updateFrequencyMDay={updateFrequencyMDay}
+              setWarning={setWarning}
+              setTimeWarning={setTimeWarning}
+              warning={warning}
+              timeWarning={timeWarning}
               />)
             }
             {addFileData.occurence === "Monthly" && 
@@ -660,6 +678,10 @@ function AddFile(props) {
               updateFrqStartTime={updateFrqStartTime}
               updateFrequencyDay={updateFrequencyDay}
               updateFrequencyMDay={updateFrequencyMDay}
+              setWarning={setWarning}
+              setTimeWarning={setTimeWarning}
+              warning={warning}
+              timeWarning={timeWarning}
               />)
             }
             {addFileData.occurence && <Button className={classes.form_btn_space} variant="outlined" onClick={addFrequency}>+ Add Frequency</Button>}

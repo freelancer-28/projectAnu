@@ -16,7 +16,7 @@ import { red } from '@material-ui/core/colors';
 const useStyles = makeStyles((theme) => ({
   warningclass: {
     color: 'red',
-    marginLeft: '200px'
+    marginLeft: '410px'
   },
   divider_alt: {
     margin: '10px 0px',
@@ -150,17 +150,39 @@ const getDaysInMonth = () => {
 
 function Frequency(props) {
 
-  const [ warning, SetWarning ] = useState(false)
+  const updateTimeInMinutes = (type, val, id) => {
+    let nonNegative = val >= 0 || val === ''
+    let value = Number(val)
+    if(nonNegative && !Number.isNaN(value)){
+      if(type === "sla") {
+        if(value > endTime){
+          props.setTimeWarning(true)
+        } else {
+          props.setTimeWarning(false)
+        }
+      } else if(type === "endTime"){
+        if(value < sla){
+          props.setTimeWarning(true)
+        } else {
+          props.setTimeWarning(false)
+        }
+      }
+      props.updateFrqStartTime(type, value, id)
+    } else {
+      props.updateFrqStartTime(type, "", id)      
+    }
+    
+  }
 
   const handleExceptionDaySelection = (i, id) => {
     console.log(`days => ${days}`)
     console.log(i)
     console.log(days.includes(i))
     if(days.includes(i)){
-      SetWarning(false)
+      props.setWarning(false)
       props.updateFrqStartTime("exceptionDay", i, id)
     } else {
-      SetWarning(true)
+      props.setWarning(true)
     }
     // ()=>props.updateFrqStartTime("exceptionDay", i, id)
   }
@@ -259,7 +281,7 @@ function Frequency(props) {
                     </RadioGroup>
                   </div>
             </div>
-                  {warning && <span className={classes.warningclass}>Exception day must be subset of selected days selecition</span>}
+                  {props.warning && <span className={classes.warningclass}>Exception day must be subset of selected days selecition</span>}
             </>}
           </div>
         </div>
@@ -272,13 +294,14 @@ function Frequency(props) {
               </div>
               <div className={classes.flex}>
                 <span className={classes.label}>SLA</span>
-                <TextField className={classes.root} value={sla} label="" variant="outlined" onChange={(event)=>props.updateFrqStartTime("sla", event.target.value, id)}/>
+                <TextField className={classes.root} value={sla} label="" variant="outlined" onChange={(event)=>updateTimeInMinutes("sla", event.target.value, id)}/>
               </div>
               <div className={classes.flex}>
                 <span className={classes.label}>End Time</span>
-                <TextField type="time" className={classes.root} value={endTime} label="" variant="outlined" icon={faTrashAlt} onChange={(event)=>props.updateFrqStartTime("endTime", event.target.value, id)}/>
+                <TextField className={classes.root} value={endTime} label="" variant="outlined" icon={faTrashAlt} onChange={(event)=>updateTimeInMinutes("endTime", event.target.value, id)}/>
               </div>
             </Grid>
+            {props.timeWarning && <span className={classes.warningclass}>END TIME GREATER THEN SLA TIME</span>}
         </div>
       </div>
     </div>

@@ -8,6 +8,10 @@ import { faTrashAlt } from '@fortawesome/free-solid-svg-icons'
 // import { faFileExport } from "fa5-pro-light";
 
 const useStyles = makeStyles((theme) => ({
+  warningclass: {
+    color: 'red',
+    marginLeft: '410px'
+  },
   divider_alt: {
     margin: '10px 0px',
     borderBottomStyle: 'dashed',
@@ -87,6 +91,30 @@ const useStyles = makeStyles((theme) => ({
 
 function Frequency(props) {
 
+  const updateTimeInMinutes = (type, val, id) => {
+    let nonNegative = val >= 0 || val === ''
+    let value = Number(val)
+    if(nonNegative && !Number.isNaN(value)){
+      if(type === "sla") {
+        if(value > endTime){
+          props.setTimeWarning(true)
+        } else {
+          props.setTimeWarning(false)
+        }
+      } else if(type === "endTime"){
+        if(value < sla){
+          props.setTimeWarning(true)
+        } else {
+          props.setTimeWarning(false)
+        }
+      }
+      props.updateFrqStartTime(type, value, id)
+    } else {
+      props.updateFrqStartTime(type, "", id)      
+    }
+    
+  }
+
   const {id, startTime, sla, endTime, days} = props.data
   const weekdays = [ 'M', 'T', 'W', 'T', 'F'];
   console.log(days)
@@ -125,17 +153,18 @@ function Frequency(props) {
         <Grid container>
               <div className={classes.flex}>
                 <span className={classes.label}>Start Time</span>
-                <TextField className={classes.root} value={startTime} label="" variant="outlined" icon={faTrashAlt} onChange={(event)=>props.updateFrqStartTime("startTime", event.target.value, id)}/>
+                <TextField type="time" className={classes.root} value={startTime} label="" variant="outlined" icon={faTrashAlt} onChange={(event)=>props.updateFrqStartTime("startTime", event.target.value, id)}/>
               </div>
               <div className={classes.flex}>
                 <span className={classes.label}>SLA</span>
-                <TextField className={classes.root} value={sla} label="" variant="outlined" onChange={(event)=>props.updateFrqStartTime("sla", event.target.value, id)}/>
+                <TextField className={classes.root} value={sla} label="" variant="outlined" onChange={(event)=>updateTimeInMinutes("sla", event.target.value, id)}/>
               </div>
               <div className={classes.flex}>
                 <span className={classes.label}>End Time</span>
-                <TextField className={classes.root} value={endTime} label="" variant="outlined" icon={faTrashAlt} onChange={(event)=>props.updateFrqStartTime("endTime", event.target.value, id)}/>
+                <TextField className={classes.root} value={endTime} label="" variant="outlined" icon={faTrashAlt} onChange={(event)=>updateTimeInMinutes("endTime", event.target.value, id)}/>
               </div>
             </Grid>
+            {props.timeWarning && <span className={classes.warningclass}>END TIME GREATER THEN SLA TIME</span>}
         </div>
       </div>
     </div>
