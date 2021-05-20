@@ -1,3 +1,4 @@
+import React, {useEffect, useState} from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import Button from '@material-ui/core/Button';
 // import TextField from '@material-ui/core/TextField';
@@ -6,6 +7,8 @@ import TextField from '../TextField';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTrashAlt } from '@fortawesome/free-solid-svg-icons'
 // import { faFileExport } from "fa5-pro-light";
+import FormControl from '@material-ui/core/FormControl';
+import FormHelperText from '@material-ui/core/FormHelperText';
 
 const useStyles = makeStyles((theme) => ({
   warningclass: {
@@ -95,19 +98,19 @@ function Frequency(props) {
     let nonNegative = val >= 0 || val === ''
     let value = Number(val)
     if(nonNegative && !Number.isNaN(value)){
-      if(type === "sla") {
-        if(value > endTime){
-          props.setTimeWarning(true)
-        } else {
-          props.setTimeWarning(false)
-        }
-      } else if(type === "endTime"){
-        if(value < sla){
-          props.setTimeWarning(true)
-        } else {
-          props.setTimeWarning(false)
-        }
-      }
+      // if(type === "sla") {
+      //   if(value > endTime){
+      //     props.setTimeWarning(true)
+      //   } else {
+      //     props.setTimeWarning(false)
+      //   }
+      // } else if(type === "endTime"){
+      //   if(value < sla){
+      //     props.setTimeWarning(true)
+      //   } else {
+      //     props.setTimeWarning(false)
+      //   }
+      // }
       props.updateFrqStartTime(type, value, id)
     } else {
       props.updateFrqStartTime(type, "", id)      
@@ -115,8 +118,8 @@ function Frequency(props) {
     
   }
 
-  const {id, startTime, sla, endTime, days} = props.data
-  const weekdays = [ 'M', 'T', 'W', 'T', 'F'];
+  const {id, startTime, startTimeWarning, sla, slaWarning, endTime, endTimeWarning, days, daysWarning} = props.data
+  const weekdays = [ 'S','M', 'T', 'W', 'T', 'F','S'];
   console.log(days)
   const classes = useStyles();
   return (
@@ -132,39 +135,55 @@ function Frequency(props) {
       </div>
       <div className={classes.frequency_subbox}>
         <div className={classes.flexrow}>
+          <FormControl variant="outlined"  error={daysWarning}>
           <div className={classes.frequency_header1}>Day(s)</div>
           <div>
-            <Button className={classes.weekdays_unselected_btn} variant="contained" color="primary">
+            {/* <Button className={classes.weekdays_unselected_btn} variant="contained" color="primary">
                 S
-            </Button>
-            {[1,2,3,4,5].map((day, i) =>
+            </Button> */}
+            {[0,1,2,3,4,5,6].map((day, i) =>
               <Button className={days.includes(day) ? classes.weekdays_btn : classes.weekdays_unselected_btn} variant="contained" color="primary"
               onClick={()=>props.updateFrequencyDay(id, day)}>
               {weekdays[i]}
             </Button>
             )}
-            <Button className={classes.weekdays_unselected_btn} variant="contained" color="primary">
+            {/* <Button className={classes.weekdays_unselected_btn} variant="contained" color="primary">
               S
-          </Button>
+          </Button> */}
           </div>
+          {daysWarning && <FormHelperText>Min one day has to be selected. Max seven days</FormHelperText>}
+          </FormControl>
         </div>
         <div className={classes.divider}></div>
         <div>
         <Grid container>
               <div className={classes.flex}>
                 <span className={classes.label}>Start Time</span>
-                <TextField type="time" className={classes.root} value={startTime} label="" variant="outlined" icon={faTrashAlt} onChange={(event)=>props.updateFrqStartTime("startTime", event.target.value, id)}/>
+                <TextField type="time" className={classes.root} value={startTime} label="" variant="outlined" // icon={faTrashAlt} 
+                error={startTimeWarning}
+                helperText={startTimeWarning && "its a required Field"}
+                onChange={(event)=>props.updateFrqStartTime("startTime", event.target.value, id)}/>
               </div>
               <div className={classes.flex}>
                 <span className={classes.label}>SLA</span>
-                <TextField className={classes.root} value={sla} label="" variant="outlined" onChange={(event)=>updateTimeInMinutes("sla", event.target.value, id)}/>
+                <TextField className={classes.root} value={sla} label="" variant="outlined"
+                // onBlur={(event)=>handleTimerValidation("sla", event.target.value, id)}
+                onChange={(event)=>updateTimeInMinutes("sla", event.target.value, id)}
+                error={slaWarning}
+                helperText={slaWarning && "SLA <= End time"}
+                />
               </div>
               <div className={classes.flex}>
                 <span className={classes.label}>End Time</span>
-                <TextField className={classes.root} value={endTime} label="" variant="outlined" icon={faTrashAlt} onChange={(event)=>updateTimeInMinutes("endTime", event.target.value, id)}/>
+                <TextField className={classes.root} value={endTime} label="" variant="outlined"
+                  // onBlur={(event)=>handleTimerValidation("endTime", event.target.value, id)}
+                  onChange={(event)=>updateTimeInMinutes("endTime", event.target.value, id)}
+                  error={endTimeWarning}
+                  helperText={endTimeWarning && "End time >= SLA"}
+                  />  
               </div>
             </Grid>
-            {props.timeWarning && <span className={classes.warningclass}>END TIME GREATER THEN SLA TIME</span>}
+            {/* {props.timeWarning && <span className={classes.warningclass}>END TIME GREATER THEN SLA TIME</span>} */}
         </div>
       </div>
     </div>

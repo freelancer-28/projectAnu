@@ -12,7 +12,7 @@ import AddFile from "../AddFile/AddFile";
 import EditFile from "../EditFile/EditFile";
 import CustomErrorDialog from '../CustomErrorDialog/index'
 
-const ViewDetailsLink = <LinkContainer href="#">View Details</LinkContainer>;
+const ViewDetailsLink = <LinkContainer href="/filedetails">View Details</LinkContainer>;
 
 const placeHolderData = [
   [

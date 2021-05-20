@@ -35,6 +35,7 @@ import AlertDialog from "../AlertDialog/index"
 //   return <MuiAlert elevation={6} variant="filled" {...props} />;
 // }
 import CustomErrorDialog from '../CustomErrorDialog/index'
+import FormHelperText from '@material-ui/core/FormHelperText';
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -141,7 +142,11 @@ const fqc = {
   hopId: null,
   hopName: null,
   fileCount: null,
-  frequencyId: null
+  frequencyId: null,
+  daysWarning: false,
+  startTimeWarning: null,
+  slaWarning: null,
+  endTimeWarning: null
 }
 
 function AddFile(props) {
@@ -149,6 +154,7 @@ function AddFile(props) {
   const [ warning, setWarning ] = useState(false)
   const [ timeWarning, setTimeWarning ] = useState(false)
 
+  const [ validationWarnings, setValidationWarnings ] = useState([])
   const [addFileData, setAddFileData] = useState({
     thirdrow: null,
     validationFlag: false,
@@ -159,6 +165,20 @@ function AddFile(props) {
     hopId: null,
     hopName: null,
     fileCount: null,
+    fileInfoWarning: {
+      producerIdWarning: null, // select
+      sftAccountNameWarning: null,
+      // directionWarning: null, // select
+      // fileMaskWarning: null, // read
+      filePrefixWarning: null,
+      fileSuffixWarning: null,
+      dateMaskWarning: null,
+      dateTimeMaskWarning: null,
+      routeIdWarning: null, // select
+      occurenceWarning: null, // radio
+      hopNameWarning: null, // select
+      fileCountWarning: null,
+    },
     fileInformation: {
       dateMask: null,
       dateTimeMask: null,
@@ -167,7 +187,7 @@ function AddFile(props) {
       fileSuffix: null,
       routeId: null,
       sftAccountName: null,
-      direction: null
+      direction: directionOptions[0]
     },
     frequency:[]
   })
@@ -241,6 +261,11 @@ function AddFile(props) {
       fileInformation: {
         ...addFileData.fileInformation,
         sftAccountName: data.sftAccountName
+      },
+      fileInfoWarning: {
+        ...addFileData.fileInfoWarning,
+        producerIdWarning: false,
+        sftAccountNameWarning: false
       }
     })
   };
@@ -258,6 +283,10 @@ function AddFile(props) {
           ...addFileData.fileInformation,
           [name]: value,
           fileMask: fileMask
+        },
+        fileInfoWarning: {
+          ...addFileData.fileInfoWarning,
+          [`${name}Warning`]: !Boolean(value)
         }
       })
     } else {
@@ -266,6 +295,10 @@ function AddFile(props) {
         fileInformation: {
           ...addFileData.fileInformation,
           [name]: value
+        },
+        fileInfoWarning: {
+          ...addFileData.fileInfoWarning,
+          [`${name}Warning`]: !Boolean(value)
         }
       })
     }
@@ -289,6 +322,10 @@ function AddFile(props) {
       fileInformation: {
         ...addFileData.fileInformation,
         routeId: data.value
+      },
+      fileInfoWarning: {
+        ...addFileData.fileInfoWarning,
+        routeIdWarning: false
       }
     })
   }
@@ -297,7 +334,11 @@ function AddFile(props) {
     setAddFileData({
       ...addFileData,
       hopName: data.label, // { value: data.value, label: data.value }
-      hopId: data.value
+      hopId: data.value,
+      fileInfoWarning: {
+        ...addFileData.fileInfoWarning,
+        hopNameWarning: false
+      }
     })
   }
   const handleOccuranceChange = event => {
@@ -306,12 +347,16 @@ function AddFile(props) {
       delete firstFrequency.mdays;
       firstFrequency.frequencyId= 1;
     } else {
-      firstFrequency.frequencyId= null;
+      firstFrequency.frequencyId= 21;
       firstFrequency.monthlyOn= null;
     }
     setAddFileData({
       ...addFileData,
       occurence: event.target.value,
+      fileInfoWarning: {
+        ...addFileData.fileInfoWarning,
+        occurenceWarning: false
+      },
       frequency:[
         // ...addFileData.frequency, if we change from 2 weekly to monthly then we have to clean the weekly
         firstFrequency
@@ -322,17 +367,26 @@ function AddFile(props) {
   const handleFileCountChange = event => {
     const {name, value} =  event.target
     let nonNegative = value > 0 || value === ''
-    if(nonNegative){
+    if(nonNegative && !value.includes(".")){
       setAddFileData({
         ...addFileData,
-        fileCount: event.target.value
+        fileCount: event.target.value,
+        fileInfoWarning: {
+          ...addFileData.fileInfoWarning,
+          fileCountWarning: false
+        }
       })
-    } else {
-      setAddFileData({
-        ...addFileData,
-        fileCount: ""
-      })
-    }
+    } 
+    // else {
+    //   setAddFileData({
+    //     ...addFileData,
+    //     // fileCount: "",
+    //     fileInfoWarning: {
+    //       ...addFileData.fileInfoWarning,
+    //       fileCountWarning: true
+    //     }
+    //   })
+    // }
   }
 
   const handleHopIdChange = data => {
@@ -344,25 +398,48 @@ function AddFile(props) {
       }
     })
   }
-  
+  const onSubmitFrequencyBloackValidation = () => {
+    let validationsErrors = false;
+    let updatedFreqs = addFileData.frequency.map(fre => {
+      if(fre.daysWarning === null || fre.daysWarning){
+        fre.daysWarning = true;
+      }
+      if(fre.startTimeWarning === null || fre.startTimeWarning){
+        fre.startTimeWarning = true;
+      }
+      if(fre.slaWarning === null || fre.slaWarning){
+        fre.slaWarning = true;
+      }
+      if(fre.endTimeWarning === null || fre.endTimeWarning){
+        fre.endTimeWarning = true;
+      }
+      return fre
+    })
+    setAddFileData({
+      ...addFileData,
+      frequency:[
+        ...updatedFreqs
+      ]
+    })
+    let index = updatedFreqs.findIndex(fre => (fre.daysWarning || fre.startTimeWarning || fre.slaWarning || fre.endTimeWarning))
+    validationsErrors = index !== -1
+    return validationsErrors
+  }
+
   const onAddFileSubmit = async () => {
     console.log("+++++++++++++++++++++++++++++++++++++")
     
-     let validationsErrors = false;
-     if(addFileData.occurence === "Weekly"){
-        validationsErrors = timeWarning
-     } else if (addFileData.occurence === "Monthly"){
-        validationsErrors = warning || timeWarning
-     }
+     
     // dispatch(submitFile(addFileData));
     // for the request for createFileConfiguration
     // if(true){
-    if(validateTheForm() && !validationsErrors){
+    if(validateTheForm()){
       let request = {
         producerId: addFileData.producerId,
         fileInformation: addFileData.fileInformation,
         frequency: [
           ...addFileData.frequency.map(f => {
+            const tempfrequencySpecifierIds = f.days.map(day => day === 0 ? 7 : day) // before submit covert 0 to 7 
             if(addFileData.occurence === "Weekly"){
               return {
                     startTime: f.startTime,
@@ -372,7 +449,7 @@ function AddFile(props) {
                     hopName: addFileData.hopName,
                     fileCount: +addFileData.fileCount,
                     frequencyId: null,
-                    frequencySpecifierId: [...f.days],
+                    frequencySpecifierId: [...tempfrequencySpecifierIds],
                     monthlyFrequencySpecifierId: null,
                     monthlyOn: null,
                     exceptionDay: null
@@ -386,7 +463,7 @@ function AddFile(props) {
                               hopName: addFileData.hopName,
                               fileCount: +addFileData.fileCount,
                               frequencyId: +f.frequencyId,
-                              frequencySpecifierId: [...f.days],
+                              frequencySpecifierId: [...tempfrequencySpecifierIds],
                               monthlyFrequencySpecifierId: [f.frequencyId],
                               monthlyOn: f.monthlyOn,
                               exceptionDay: ""+f.exceptionDay
@@ -415,17 +492,34 @@ function AddFile(props) {
     
   }
 
+  function fieldWarning(tempAddFileData, warningType, type) {
+    let fieldValue = warningType === undefined ? tempAddFileData[type] : warningType
+    if(fieldValue){
+      tempAddFileData.fileInfoWarning[`${type}Warning`] = false;
+    } else {
+      tempAddFileData.fileInfoWarning[`${type}Warning`] = true;
+    }
+  }
   const validateTheForm = () => {
+    let frequencyValidation_error = onSubmitFrequencyBloackValidation()
+
+    const { sftAccountNameWarning, filePrefixWarning, fileSuffixWarning, dateMaskWarning, dateTimeMaskWarning, routeIdWarning, hopNameWarning, fileCountWarning } = addFileData.fileInfoWarning
     let validation_error = false;
     const { producerId, fileCount, occurence, hopName, hopId } = addFileData
     const { sftAccountName, direction, fileMask, filePrefix, fileSuffix, dateMask, dateTimeMask, routeId } = addFileData.fileInformation
+    let tempAddFileData = { ...addFileData, fileInformation: {...addFileData.fileInformation}, fileInfoWarning: {...addFileData.fileInfoWarning}, frequency: [...addFileData.frequency]}
+    let fields = ['sftAccountName', 'filePrefix', 'fileSuffix', 'dateMask', 'dateTimeMask', 'routeId', 'hopName', 'fileCount', 'producerId', 'routeId', 'hopName', 'occurence']
+    fields.forEach(field => fieldWarning(tempAddFileData, addFileData.fileInformation[field], field))
+
     validation_error = producerId && fileCount && occurence && hopName && hopId && sftAccountName  && fileMask && filePrefix && fileSuffix && dateMask && dateTimeMask && routeId;
+
+    
     setAddFileData({
-      ...addFileData,
-      validationFlag: !Boolean(validation_error),
+      ...tempAddFileData,
+      validationFlag: !Boolean(validation_error && !frequencyValidation_error),
       validationMessage: "Validation failed: The file cannot be added due to incomplete or incorrect information."
     })
-    return validation_error
+    return validation_error && !frequencyValidation_error
   }
 
   const onCancelAddFile = () => {
@@ -464,14 +558,29 @@ function AddFile(props) {
     })
   }
   
-  // const handleMonthlyOnField = () => {
-
-  // }
-
   const updateFrqStartTime  = (type, value, id) => {
     let freqs = addFileData.frequency.map(fre => {
       if(fre.id === id){
-        fre[`${type}`] = value
+        fre[`${type}`] = value;
+        if(type === "startTime"){
+          fre[`${type}Warning`] = !Boolean(value)
+        } else {
+          if(type === "sla" && (value <= fre.endTime)){
+            fre[`${type}Warning`] = false
+            fre.endTimeWarning = false
+          }else {
+            fre[`${type}Warning`] = true
+            fre.endTimeWarning = true
+          }
+          if(type === "endTime" && (value >= fre.sla)){
+            fre[`${type}Warning`] = false
+            fre.slaWarning = false
+          }else {
+            fre[`${type}Warning`] = true
+            fre.slaWarning = false
+          }
+        }
+        
       }
       return fre;
     })
@@ -495,6 +604,8 @@ function AddFile(props) {
         }
         fre.days = days
         fre.thirdrow = days.length !== 7
+        fre.exceptionDay= days.length === 7 ?  null : fre.exceptionDay
+        fre.daysWarning =  days.length === 0
       }
       return fre;
     })
@@ -556,20 +667,30 @@ function AddFile(props) {
               <Grid container>
                 <div className={classes.flex}>
                   <span className={classes.label}>Producer</span>
+                  <FormControl variant="outlined"  error={addFileData.fileInfoWarning.producerIdWarning}>
                   <Select 
+                    // error={true}
                     value={producerOptions.filter(r=> r.value === addFileData.producerId)}
                     options={producerOptions}
                     onChange={handleProducerChange}
                     isLoading={!(producerOptions && producerOptions.length)}
                     placeholder="Producer"
                   />
+                  {addFileData.fileInfoWarning.producerIdWarning && <FormHelperText>its a required Field</FormHelperText>}
+                  </FormControl>
                 </div>
                 <div className={classes.flex}>
                   <span className={classes.label}>SFT Account Name</span>
-                  <TextField name="sftAccountName" onChange={handleInputChange} value={addFileData.fileInformation.sftAccountName} />
+                  <TextField name="sftAccountName" 
+                    onChange={handleInputChange} 
+                    disabled={true}
+                    value={addFileData.fileInformation.sftAccountName}
+                    error={addFileData.fileInfoWarning.sftAccountNameWarning}
+                    helperText={addFileData.fileInfoWarning.sftAccountNameWarning && "its a required Field"} />
                 </div>
                 <div className={classes.flex}>
                   <span className={classes.label}>Direction</span>
+                  <FormControl>
                   <Select
                    value={addFileData.fileInformation.direction}
                    options={directionOptions}
@@ -577,6 +698,7 @@ function AddFile(props) {
                    isLoading={!(directionOptions && directionOptions.length)}
                    placeholder="Direction"
                   />
+                  </FormControl>
                 </div>
                 {/* <div className={classes.flex}>
                   <span className={classes.label}>File Mask</span>
@@ -592,24 +714,33 @@ function AddFile(props) {
               <Grid container>
                 <div className={classes.flex}>
                   <span className={classes.label}>Prefix</span>
-                  <TextField name="filePrefix" onChange={handleInputChange} value={addFileData.fileInformation.prefix}/>
+                  <TextField name="filePrefix" onChange={handleInputChange} value={addFileData.fileInformation.filePrefix}
+                  error={addFileData.fileInfoWarning.filePrefixWarning}
+                  helperText={addFileData.fileInfoWarning.filePrefixWarning && "its a required Field"} />
                 </div>
                 <div className={classes.flex}>
                   <span className={classes.label}>Suffix</span>
-                  <TextField name="fileSuffix" onChange={handleInputChange} value={addFileData.fileInformation.suffix}/>
+                  <TextField name="fileSuffix" onChange={handleInputChange} value={addFileData.fileInformation.fileSuffix}
+                  error={addFileData.fileInfoWarning.fileSuffixWarning}
+                  helperText={addFileData.fileInfoWarning.fileSuffixWarning && "its a required Field"} />
                 </div>
                 <div className={classes.flex}>
                   <span className={classes.label}>Date Mask</span>
-                  <TextField name="dateMask" onChange={handleInputChange} value={addFileData.fileInformation.dateMask}/>
+                  <TextField name="dateMask" onChange={handleInputChange} value={addFileData.fileInformation.dateMask}
+                  error={addFileData.fileInfoWarning.dateMaskWarning}
+                  helperText={addFileData.fileInfoWarning.dateMaskWarning && "its a required Field"} />
                 </div>
                 <div className={classes.flex}>
                   <span className={classes.label}>Date Time Mask</span>
-                  <TextField name="dateTimeMask" onChange={handleInputChange} value={addFileData.fileInformation.dateTimeMask}/>
+                  <TextField name="dateTimeMask" onChange={handleInputChange} value={addFileData.fileInformation.dateTimeMask}
+                  error={addFileData.fileInfoWarning.dateTimeMaskWarning}
+                  helperText={addFileData.fileInfoWarning.dateTimeMaskWarning && "its a required Field"} />
                 </div>
               </Grid>
               <Grid container>
                 <div className={classes.flex}>
                   <span className={classes.label}>Route</span>
+                  <FormControl variant="outlined"  error={addFileData.fileInfoWarning.routeIdWarning}>
                   <Select
                    name="route"
                    value={routeOptions.filter(r=> r.value === addFileData.fileInformation.routeId)}
@@ -618,6 +749,8 @@ function AddFile(props) {
                    isLoading={!(routeOptions && routeOptions.length)}
                    placeholder="Route"
                   />
+                  {addFileData.fileInfoWarning.routeIdWarning && <FormHelperText>its a required Field</FormHelperText>}
+                  </FormControl>
                 </div>
                 {/* <div className={classes.flex}>
                   <span className={classes.label}>HopName</span>
@@ -637,14 +770,18 @@ function AddFile(props) {
             <div>
               <Grid container>
                 <div className={classes.padding}>
+                <FormControl variant="outlined"  error={addFileData.fileInfoWarning.occurenceWarning}>
                   <FormLabel classes={{ root: classes.label }} component="legend">Occurence</FormLabel>
                   <RadioGroup row aria-label="position" name="position" defaultValue="top" onChange={handleOccuranceChange} value={addFileData.occurence}>
                     <FormControlLabel classes={{ root: classes.label }} value="Weekly" control={<Radio color="primary" />} label="Weekly" />
                     <FormControlLabel classes={{ root: classes.label }} value="Monthly" control={<Radio color="primary" />} label="Monthly" />
                   </RadioGroup>
+                  {addFileData.fileInfoWarning.occurenceWarning && <FormHelperText>its a required Field</FormHelperText>}
+                  </FormControl>
                 </div>
                 <div className={classes.flex}>
                   <span className={classes.label}>HopName</span>
+                  <FormControl variant="outlined"  error={addFileData.fileInfoWarning.hopNameWarning}>
                   <Select
                    value={hopNameOptions.filter(h=> h.label === addFileData.hopName)}
                    options={hopNameOptions}
@@ -652,13 +789,17 @@ function AddFile(props) {
                    isLoading={!(hopNameOptions && hopNameOptions.length)}
                    placeholder="HopName"
                   />
+                  {addFileData.fileInfoWarning.hopNameWarning && <FormHelperText>its a required Field</FormHelperText>}
+                  </FormControl>
                   {/* <TextField value={addFileData.hopId}/> */}
                 </div>
                 <div className={classes.flex}>
                   <span className={classes.label}>File count</span>
                   {/* <TextField type="number"/> */}
                   {/* <TextField type="number" name="fileCount" onChange={handleFileCountChange} value={addFileData.fileCount}/> */}
-                  <TextField name="fileCount" onChange={handleFileCountChange} value={addFileData.fileCount}/>
+                  <TextField name="fileCount" onChange={handleFileCountChange} value={addFileData.fileCount}
+                  error={addFileData.fileInfoWarning.fileCountWarning}
+                  helperText={addFileData.fileInfoWarning.fileCountWarning && "its a required Field"} />
                 </div>
               </Grid>
             </div>
@@ -671,6 +812,8 @@ function AddFile(props) {
               setTimeWarning={setTimeWarning}
               warning={warning}
               timeWarning={timeWarning}
+              setValidationWarnings={setValidationWarnings}
+              validationWarnings={validationWarnings}
               />)
             }
             {addFileData.occurence === "Monthly" && 
@@ -682,6 +825,8 @@ function AddFile(props) {
               setTimeWarning={setTimeWarning}
               warning={warning}
               timeWarning={timeWarning}
+              setValidationWarnings={setValidationWarnings}
+              validationWarnings={validationWarnings}
               />)
             }
             {addFileData.occurence && <Button className={classes.form_btn_space} variant="outlined" onClick={addFrequency}>+ Add Frequency</Button>}
@@ -695,27 +840,6 @@ function AddFile(props) {
         <Button onClick={onAddFileSubmit} variant="contained">Submit</Button>
       </div>
       <CustomErrorDialog open={addFileData.validationFlag} onClose={closeValidationError} severity="error" message={addFileData.validationMessage}/>
-      {/* <AlertDialog open={addFileData.errorDialog} handleClose={handleErrorDialog}/>
-      <Snackbar open={true} autoHideDuration={6000} anchorOrigin={{ vertical: 'top', horizontal: 'right' }}>
-        <Alert severity="success">
-          The File was added Sucessfully!
-        </Alert>
-      </Snackbar>
-      <Snackbar open={true} autoHideDuration={6000} anchorOrigin={{ vertical: 'top', horizontal: 'right' }}>
-         <Alert severity="error">
-          The File was updated Sucessfully!
-        </Alert>
-      </Snackbar>
-      <Snackbar open={true} autoHideDuration={6000} anchorOrigin={{ vertical: 'top', horizontal: 'right' }}>
-        <Alert severity="error">
-          The file cannot be added because it has not yet been intiated.
-        </Alert>
-      </Snackbar>
-      <Snackbar open={addFileData.validationFlag} onClose={closeValidationError} autoHideDuration={6000} anchorOrigin={{ vertical: 'top', horizontal: 'right' }}>
-        <Alert severity="error">
-          The file cannot be added due to incomplete or incorrect information.
-        </Alert>
-      </Snackbar> */}
     </div>
   );
 }

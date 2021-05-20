@@ -4,10 +4,12 @@ import InputAdornment from '@material-ui/core/InputAdornment';
 import AccountCircle from '@material-ui/icons/AccountCircle';
 
 const TextField = (props) => {
-  const { icon, type } = props
+  const { icon, type, error, helperText } = props
   return <ReactTextField
     type={type || "string" }
     variant="outlined"
+    error={error || false}
+    helperText={helperText || ""}
     InputProps={{
       endAdornment: (
         <InputAdornment position="end">

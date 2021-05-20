@@ -12,8 +12,13 @@ import FormControlLabel from '@material-ui/core/FormControlLabel';
 // import { faFileExport } from "fa5-pro-light";
 import Select from '../Select'
 import { red } from '@material-ui/core/colors';
+import FormControl from '@material-ui/core/FormControl';
+import FormHelperText from '@material-ui/core/FormHelperText';
 
 const useStyles = makeStyles((theme) => ({
+  marginWarningLeft: {
+    marginLeft: '210px'
+  },
   warningclass: {
     color: 'red',
     marginLeft: '410px'
@@ -151,22 +156,9 @@ const getDaysInMonth = () => {
 function Frequency(props) {
 
   const updateTimeInMinutes = (type, val, id) => {
-    let nonNegative = val >= 0 || val === ''
-    let value = Number(val)
+    let nonNegative = val > 0 || val === ''
+    let value = val === "" ? "" : Number(val)
     if(nonNegative && !Number.isNaN(value)){
-      if(type === "sla") {
-        if(value > endTime){
-          props.setTimeWarning(true)
-        } else {
-          props.setTimeWarning(false)
-        }
-      } else if(type === "endTime"){
-        if(value < sla){
-          props.setTimeWarning(true)
-        } else {
-          props.setTimeWarning(false)
-        }
-      }
       props.updateFrqStartTime(type, value, id)
     } else {
       props.updateFrqStartTime(type, "", id)      
@@ -194,7 +186,7 @@ function Frequency(props) {
   const handleFrequencyId = (event) => {
     props.updateFrqStartTime("sfrequencyId", event.target.value, id)
   }
-  const {id, startTime, sla, endTime, days, mdays, monthlyOn, sfrequencyId, exceptionDay, thirdrow} = props.data
+  const {id, startTime, startTimeWarning, sla, slaWarning,  endTime, endTimeWarning, days, daysWarning, mdays, monthlyOn, sfrequencyId, exceptionDay, thirdrow} = props.data
   const weekdays = [ 'S','M', 'T', 'W', 'T', 'F','S'];
   console.log(days)
   console.log("thirdrow====================",thirdrow)
@@ -244,6 +236,7 @@ function Frequency(props) {
                   </div>
             </div>
             <div className={classes.edit_fre_days_secondtxt}><span>____</span><span>and its in selected day(s):</span></div>
+            <FormControl variant="outlined"  error={daysWarning}>
             <div className={classes.edit_fre_days_second}>
             {/* <Button className={classes.weekdays_unselected_btn} variant="contained" color="primary">
                 S
@@ -258,6 +251,8 @@ function Frequency(props) {
                 S
             </Button> */}
             </div>
+            {daysWarning && <div className={classes.marginWarningLeft}><FormHelperText>Min one day has to be selected. Max seven days</FormHelperText></div>}
+            </FormControl>
             {(thirdrow === undefined || thirdrow === true) && 
             <>
             <div className={classes.edit_fre_days_thirdtxt}><span>__________</span><span>When the {monthlyOn} day of the month falls on Saturday or Sunday. Choose the day of the week for the system to monitor below:</span></div>
@@ -290,18 +285,31 @@ function Frequency(props) {
         <Grid container>
               <div className={classes.flex}>
                 <span className={classes.label}>Start Time</span>
-                <TextField type="time" className={classes.root} value={startTime} label="" variant="outlined" icon={faTrashAlt} onChange={(event)=>props.updateFrqStartTime("startTime", event.target.value, id)}/>
+                <TextField type="time" className={classes.root} value={startTime} label="" variant="outlined" // icon={faTrashAlt} 
+                error={startTimeWarning}
+                helperText={startTimeWarning && "its a required Field"}
+                onChange={(event)=>props.updateFrqStartTime("startTime", event.target.value, id)}/>
               </div>
               <div className={classes.flex}>
                 <span className={classes.label}>SLA</span>
-                <TextField className={classes.root} value={sla} label="" variant="outlined" onChange={(event)=>updateTimeInMinutes("sla", event.target.value, id)}/>
+                <TextField className={classes.root} value={sla} label="" variant="outlined"
+                // onBlur={(event)=>handleTimerValidation("sla", event.target.value, id)}
+                onChange={(event)=>updateTimeInMinutes("sla", event.target.value, id)}
+                error={slaWarning}
+                helperText={slaWarning && "SLA <= End time"}
+                />
               </div>
               <div className={classes.flex}>
                 <span className={classes.label}>End Time</span>
-                <TextField className={classes.root} value={endTime} label="" variant="outlined" icon={faTrashAlt} onChange={(event)=>updateTimeInMinutes("endTime", event.target.value, id)}/>
+                <TextField className={classes.root} value={endTime} label="" variant="outlined"
+                  // onBlur={(event)=>handleTimerValidation("endTime", event.target.value, id)}
+                  onChange={(event)=>updateTimeInMinutes("endTime", event.target.value, id)}
+                  error={endTimeWarning}
+                  helperText={endTimeWarning && "End time >= SLA"}
+                  />  
               </div>
             </Grid>
-            {props.timeWarning && <span className={classes.warningclass}>END TIME GREATER THEN SLA TIME</span>}
+            {/* {props.timeWarning && <span className={classes.warningclass}>END TIME GREATER THEN SLA TIME</span>} */}
         </div>
       </div>
     </div>

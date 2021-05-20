@@ -1,30 +1,5 @@
 import react, {useEffect, useState} from 'react';
-import { useSelector, useDispatch } from "react-redux";
 import { makeStyles } from '@material-ui/core/styles';
-import Button from '@material-ui/core/Button';
-// import TextField from '@material-ui/core/TextField';
-import Grid from '@material-ui/core/Grid';
-import Radio from '@material-ui/core/Radio';
-import RadioGroup from '@material-ui/core/RadioGroup';
-import FormControlLabel from '@material-ui/core/FormControlLabel';
-import FormControl from '@material-ui/core/FormControl';
-import FormLabel from '@material-ui/core/FormLabel';
-import Frequency from '../Frequency/Frequency'
-import Select from '../Select'
-import TextField from '../TextField'
-import {
-  updateProducer,
-  updateProducerOptions,
-  updateFileMask,
-  submitFile,
-  updateRoute,
-  updateRouteOptions
-} from "../../actions";
-import filtersAPIs from "../../apis/FileObserver/filters";
-import addFileAPIs from "../../apis/AdminTools/addFile";
-
-import { selectProducer, selectProducerOptions } from "../../reducers/producer";
-import { selectRoute, selectRouteOptions } from '../../reducers/route';
 
 const useStyles = makeStyles((theme) => ({
   container: {

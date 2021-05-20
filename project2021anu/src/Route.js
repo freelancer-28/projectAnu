@@ -11,6 +11,7 @@ import HomeMenu from './Components/HomeMenu';
 import AdminTool from './Components/AdminTool'
 import EditFile from './Components/EditFile/EditFile'
 import AddFile from './Components/AddFile/AddFile'
+import FileDetails from './Components/FileDetails/FileDetails';
 
 const Main = () => {
   return (
@@ -33,6 +34,7 @@ const ComingSoon = () => (
         <Route  path="/fileObserverAdmin" component={AdminTool} />
         <Route path="/editfile" component={EditFile} />
         <Route path="/addfile" component={AddFile} />
+        <Route path="/filedetails" component={FileDetails} />
       </Switch>
     );
   };

@@ -28,6 +28,7 @@ import { selectProducer, selectProducerOptions } from "../../reducers/producer";
 import { selectRoute, selectRouteOptions } from '../../reducers/route';
 import { selectFileData } from "../../reducers/fileData";
 import CustomErrorDialog from '../CustomErrorDialog/index'
+import FormHelperText from '@material-ui/core/FormHelperText';
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -134,7 +135,11 @@ const fqc = {
   hopId: null,
   hopName: null,
   fileCount: null,
-  frequencyId: null
+  frequencyId: null,
+  daysWarning: false,
+  startTimeWarning: null,
+  slaWarning: null,
+  endTimeWarning: null
 }
 
 function EditFile(props) {
@@ -143,6 +148,7 @@ function EditFile(props) {
   const [ timeWarning, setTimeWarning ] = useState(false)
 
   const [addFileData, setAddFileData] = useState({
+    producerFileId: null,
     thirdrow: null,
     validationFlag: false,
     validationMessage: "",
@@ -153,6 +159,20 @@ function EditFile(props) {
     hopId: null,
     hopName: null,
     fileCount: null,
+    fileInfoWarning: {
+      producerIdWarning: null, // select
+      sftAccountNameWarning: null,
+      // directionWarning: null, // select
+      // fileMaskWarning: null, // read
+      filePrefixWarning: null,
+      fileSuffixWarning: null,
+      dateMaskWarning: null,
+      dateTimeMaskWarning: null,
+      routeIdWarning: null, // select
+      occurenceWarning: null, // radio
+      hopNameWarning: null, // select
+      fileCountWarning: null,
+    },
     fileInformation: {
       dateMask: null,
       dateTimeMask: null,
@@ -161,7 +181,7 @@ function EditFile(props) {
       fileSuffix: null,
       routeId: null,
       sftAccountName: null,
-      direction: null
+      direction: directionOptions[0]
     },
     frequency:[]
   })
@@ -169,7 +189,7 @@ function EditFile(props) {
   const dispatch = useDispatch();
   const classes = useStyles();
   useEffect(() => {
-    const { frequencyId, endTime,startTime, monthlyOn, monthlyFrequencySpecierId, frequencySpecifierIds, exceptionDay, producerId, producerName, hopName, hopId, fileCount } = editData
+    const { frequencyId, endTime,startTime, monthlyOn, monthlyFrequencySpecierId, frequencySpecifierIds, exceptionDay, producerId, producerName, hopName, hopId, fileCount, producerFileId } = editData
     var { slaTime: sla } = editData;
     const {
       dateMask,
@@ -189,8 +209,11 @@ function EditFile(props) {
       delete firstFrequency.mdays;
       firstFrequency.frequencyId= frequencyId;
       firstFrequency.endTime= endTime;
+      firstFrequency.endTimeWarning = endTime ? false : true
       firstFrequency.startTime= startTime;
+      firstFrequency.startTimeWarning = startTime ? false : true
       firstFrequency.sla= sla;
+      firstFrequency.slaWarning = sla ? false : true
       const tempfrequencySpecifierIds = frequencySpecifierIds.map(day => day === 7 ? 0 : day)
       firstFrequency.days= [...tempfrequencySpecifierIds]
     } else {
@@ -198,8 +221,11 @@ function EditFile(props) {
       firstFrequency.monthlyOn= monthlyOn;
       firstFrequency.sfrequencyId = ""+monthlyFrequencySpecierId;
       firstFrequency.endTime= endTime;
+      firstFrequency.endTimeWarning = endTime ? false : true
       firstFrequency.startTime= startTime;
+      firstFrequency.startTimeWarning = startTime ? false : true
       firstFrequency.sla= sla;
+      firstFrequency.slaWarning = sla ? false : true
       firstFrequency.exceptionDay= exceptionDay || null ;
       const tempfrequencySpecifierIds = frequencySpecifierIds.map(day => day === 7 ? 0 : day)
       firstFrequency.days= [...tempfrequencySpecifierIds]
@@ -207,6 +233,7 @@ function EditFile(props) {
     }
     setAddFileData({
       ...addFileData,
+      producerFileId,
       producerId,
       producerName,
       hopName,
@@ -343,7 +370,11 @@ function EditFile(props) {
     setAddFileData({
       ...addFileData,
       hopName: data.label, // { value: data.value, label: data.value }
-      hopId: data.value
+      hopId: data.value,
+      fileInfoWarning: {
+        ...addFileData.fileInfoWarning,
+        hopNameWarning: false
+      }
     })
   }
   const handleOccuranceChange = event => {
@@ -352,12 +383,16 @@ function EditFile(props) {
       delete firstFrequency.mdays;
       firstFrequency.frequencyId= 1;
     } else {
-      firstFrequency.frequencyId= null;
+      firstFrequency.frequencyId= 21;
       firstFrequency.monthlyOn= null;
     }
     setAddFileData({
       ...addFileData,
       occurence: event.target.value,
+      fileInfoWarning: {
+        ...addFileData.fileInfoWarning,
+        occurenceWarning: false
+      },
       frequency:[
         // ...addFileData.frequency, if we change from 2 weekly to monthly then we have to clean the weekly
         firstFrequency
@@ -368,17 +403,26 @@ function EditFile(props) {
   const handleFileCountChange = event => {
     const {name, value} =  event.target
     let nonNegative = value > 0 || value === ''
-    if(nonNegative){
+    if(nonNegative && !value.includes(".")){
       setAddFileData({
         ...addFileData,
-        fileCount: event.target.value
+        fileCount: event.target.value,
+        fileInfoWarning: {
+          ...addFileData.fileInfoWarning,
+          fileCountWarning: false
+        }
       })
-    } else {
-      setAddFileData({
-        ...addFileData,
-        fileCount: ""
-      })
-    }
+    } 
+    // else {
+    //   setAddFileData({
+    //     ...addFileData,
+    //     // fileCount: "",
+    //     fileInfoWarning: {
+    //       ...addFileData.fileInfoWarning,
+    //       fileCountWarning: true
+    //     }
+    //   })
+    // }
   }
 
   const handleHopIdChange = data => {
@@ -391,24 +435,48 @@ function EditFile(props) {
     })
   }
   
+  const onSubmitFrequencyBloackValidation = () => {
+    let validationsErrors = false;
+    let updatedFreqs = addFileData.frequency.map(fre => {
+      if(fre.daysWarning === null || fre.daysWarning){
+        fre.daysWarning = true;
+      }
+      if(fre.startTimeWarning === null || fre.startTimeWarning){
+        fre.startTimeWarning = true;
+      }
+      if(fre.slaWarning === null || fre.slaWarning){
+        fre.slaWarning = true;
+      }
+      if(fre.endTimeWarning === null || fre.endTimeWarning){
+        fre.endTimeWarning = true;
+      }
+      return fre
+    })
+    setAddFileData({
+      ...addFileData,
+      frequency:[
+        ...updatedFreqs
+      ]
+    })
+    let index = updatedFreqs.findIndex(fre => (fre.daysWarning || fre.startTimeWarning || fre.slaWarning || fre.endTimeWarning))
+    validationsErrors = index !== -1
+    return validationsErrors
+  }
+
   const onAddFileSubmit = async () => {
     console.log("+++++++++++++++++++++++++++++++++++++")
-    let validationsErrors = false;
-     if(addFileData.occurence === "Weekly"){
-        validationsErrors = timeWarning
-     } else if (addFileData.occurence === "Monthly"){
-        validationsErrors = warning || timeWarning
-     }
     // dispatch(submitFile(addFileData));
     // for the request for createFileConfiguration
     // if(true){
-    if(validateTheForm() && !validationsErrors){
+    if(validateTheForm()){
       let request = {
+        producerFileId: addFileData.producerFileId,
         producerId: addFileData.producerId,
         producerName: addFileData.producerName,
         fileInformation: addFileData.fileInformation,
         frequency: [
           ...addFileData.frequency.map(f => {
+            const tempfrequencySpecifierIds = f.days.map(day => day === 0 ? 7 : day) // before submit covert 0 to 7 
             if(addFileData.occurence === "Weekly"){
               return {
                     startTime: f.startTime,
@@ -418,7 +486,7 @@ function EditFile(props) {
                     hopName: addFileData.hopName,
                     fileCount: +addFileData.fileCount,
                     frequencyId: null,
-                    frequencySpecifierId: [...f.days],
+                    frequencySpecifierId: [...tempfrequencySpecifierIds],
                     monthlyFrequencySpecifierId: null,
                     monthlyOn: null,
                     exceptionDay: null
@@ -432,7 +500,7 @@ function EditFile(props) {
                               hopName: addFileData.hopName,
                               fileCount: +addFileData.fileCount,
                               frequencyId: +f.frequencyId,
-                              frequencySpecifierId: [...f.days],
+                              frequencySpecifierId: [...tempfrequencySpecifierIds],
                               monthlyFrequencySpecifierId: [f.frequencyId],
                               monthlyOn: f.monthlyOn,
                               exceptionDay: ""+f.exceptionDay
@@ -461,17 +529,37 @@ function EditFile(props) {
     
   }
 
+  function fieldWarning(tempAddFileData, warningType, type) {
+    let fieldValue = warningType === undefined ? tempAddFileData[type] : warningType
+    if(fieldValue){
+      tempAddFileData.fileInfoWarning[`${type}Warning`] = false;
+    } else {
+      tempAddFileData.fileInfoWarning[`${type}Warning`] = true;
+    }
+  }
+
   const validateTheForm = () => {
+    let frequencyValidation_error = onSubmitFrequencyBloackValidation()
+
+    const { sftAccountNameWarning, filePrefixWarning, fileSuffixWarning, dateMaskWarning, dateTimeMaskWarning, routeIdWarning, hopNameWarning, fileCountWarning } = addFileData.fileInfoWarning
     let validation_error = false;
-    const { producerId, producerName, fileCount, occurence, hopName, hopId } = addFileData
+    const { producerId, fileCount, occurence, hopName, hopId } = addFileData
     const { sftAccountName, direction, fileMask, filePrefix, fileSuffix, dateMask, dateTimeMask, routeId } = addFileData.fileInformation
-    validation_error = producerName && fileCount && occurence && hopName && hopId && sftAccountName && fileMask && filePrefix && fileSuffix && dateMask && dateTimeMask && routeId;
+    let tempAddFileData = { ...addFileData, fileInformation: {...addFileData.fileInformation}, fileInfoWarning: {...addFileData.fileInfoWarning}, frequency: [...addFileData.frequency]}
+    // let fields = ['sftAccountName', 'filePrefix', 'fileSuffix', 'dateMask', 'dateTimeMask', 'routeId', 'hopName', 'fileCount', 'producerId', 'routeId', 'hopName', 'occurence']
+    // below changes are only for update
+    let fields = ['hopName', 'fileCount', 'occurence']
+    fields.forEach(field => fieldWarning(tempAddFileData, addFileData.fileInformation[field], field))
+
+    validation_error = fileCount && occurence && hopName;
+
+    
     setAddFileData({
-      ...addFileData,
-      validationFlag: !Boolean(validation_error),
+      ...tempAddFileData,
+      validationFlag: !Boolean(validation_error && !frequencyValidation_error),
       validationMessage: "Validation failed: The file cannot be added due to incomplete or incorrect information."
     })
-    return validation_error
+    return validation_error && !frequencyValidation_error
   }
 
   const onCancelAddFile = () => {
@@ -517,7 +605,26 @@ function EditFile(props) {
   const updateFrqStartTime  = (type, value, id) => {
     let freqs = addFileData.frequency.map(fre => {
       if(fre.id === id){
-        fre[`${type}`] = value
+        fre[`${type}`] = value;
+        if(type === "startTime"){
+          fre[`${type}Warning`] = !Boolean(value)
+        } else {
+          if(type === "sla" && (value <= fre.endTime)){
+            fre[`${type}Warning`] = false
+            fre.endTimeWarning = false
+          }else {
+            fre[`${type}Warning`] = true
+            fre.endTimeWarning = true
+          }
+          if(type === "endTime" && (value >= fre.sla)){
+            fre[`${type}Warning`] = false
+            fre.slaWarning = false
+          }else {
+            fre[`${type}Warning`] = true
+            fre.slaWarning = false
+          }
+        }
+        
       }
       return fre;
     })
@@ -541,6 +648,8 @@ function EditFile(props) {
         }
         fre.days = days
         fre.thirdrow = days.length !== 7
+        fre.exceptionDay= days.length === 7 ?  null : fre.exceptionDay
+        fre.daysWarning =  days.length === 0
       }
       return fre;
     })
@@ -678,13 +787,17 @@ function EditFile(props) {
             <div>
               <Grid container>
                 <div className={classes.padding}>
+                <FormControl variant="outlined"  error={addFileData.fileInfoWarning.occurenceWarning}>
                   <FormLabel classes={{ root: classes.label }} component="legend">Occurence</FormLabel>
                   <RadioGroup row aria-label="position" name="position" defaultValue="top" onChange={handleOccuranceChange} value={addFileData.occurence}>
                     <FormControlLabel classes={{ root: classes.label }} value="Weekly" control={<Radio color="primary" />} label="Weekly" />
                     <FormControlLabel classes={{ root: classes.label }} value="Monthly" control={<Radio color="primary" />} label="Monthly" />
                   </RadioGroup>
+                  {addFileData.fileInfoWarning.occurenceWarning && <FormHelperText>its a required Field</FormHelperText>}
+                  </FormControl>
                 </div>
                 <div className={classes.flex}>
+                <FormControl variant="outlined"  error={addFileData.fileInfoWarning.hopNameWarning}>
                   <span className={classes.label}>HopName</span>
                   <Select
                    value={hopNameOptions.filter(h=> h.label === addFileData.hopName)}
@@ -693,6 +806,8 @@ function EditFile(props) {
                    isLoading={!(hopNameOptions && hopNameOptions.length)}
                    placeholder="HopName"
                   />
+                  {addFileData.fileInfoWarning.hopNameWarning && <FormHelperText>its a required Field</FormHelperText>}
+                  </FormControl>
                   {/* <TextField value={addFileData.hopId}/> */}
                 </div>
                 {/* <div className={classes.flex}>
@@ -705,7 +820,9 @@ function EditFile(props) {
                   <span className={classes.label}>File count</span>
                   {/* <TextField type="number"/> */}
                   {/* <TextField type="number" name="fileCount" onChange={handleFileCountChange} value={addFileData.fileCount}/> */}
-                  <TextField name="fileCount" onChange={handleFileCountChange} value={addFileData.fileCount}/>
+                  <TextField name="fileCount" onChange={handleFileCountChange} value={addFileData.fileCount}
+                  error={addFileData.fileInfoWarning.fileCountWarning}
+                  helperText={addFileData.fileInfoWarning.fileCountWarning && "its a required Field"} />
                 </div>
                 {/* <div className={classes.flex}>
                   <span className={classes.label}>File count</span>
