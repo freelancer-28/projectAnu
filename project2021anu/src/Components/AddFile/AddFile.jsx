@@ -146,7 +146,9 @@ const fqc = {
   daysWarning: false,
   startTimeWarning: null,
   slaWarning: null,
-  endTimeWarning: null
+  endTimeWarning: null,
+  monthlyOnWarning: null,
+  sfrequencyIdWarning: null
 }
 
 function AddFile(props) {
@@ -346,6 +348,8 @@ function AddFile(props) {
     if(event.target.value === "Weekly") {
       delete firstFrequency.mdays;
       firstFrequency.frequencyId= 1;
+      firstFrequency.monthlyOnWarning = false;
+      firstFrequency.sfrequencyIdWarning= false;
     } else {
       firstFrequency.frequencyId= 21;
       firstFrequency.monthlyOn= null;
@@ -401,6 +405,12 @@ function AddFile(props) {
   const onSubmitFrequencyBloackValidation = () => {
     let validationsErrors = false;
     let updatedFreqs = addFileData.frequency.map(fre => {
+      if(fre.monthlyOnWarning === null || fre.monthlyOnWarning){
+        fre.monthlyOnWarning = true;
+      }
+      if(fre.sfrequencyIdWarning === null || fre.sfrequencyIdWarning){
+        fre.sfrequencyIdWarning = true;
+      }
       if(fre.daysWarning === null || fre.daysWarning){
         fre.daysWarning = true;
       }
@@ -421,7 +431,7 @@ function AddFile(props) {
         ...updatedFreqs
       ]
     })
-    let index = updatedFreqs.findIndex(fre => (fre.daysWarning || fre.startTimeWarning || fre.slaWarning || fre.endTimeWarning))
+    let index = updatedFreqs.findIndex(fre => (fre.daysWarning || fre.startTimeWarning || fre.slaWarning || fre.endTimeWarning || fre.monthlyOnWarning || fre.sfrequencyIdWarning))
     validationsErrors = index !== -1
     return validationsErrors
   }
@@ -464,7 +474,7 @@ function AddFile(props) {
                               fileCount: +addFileData.fileCount,
                               frequencyId: +f.frequencyId,
                               frequencySpecifierId: [...tempfrequencySpecifierIds],
-                              monthlyFrequencySpecifierId: [f.frequencyId],
+                              monthlyFrequencySpecifierId: f.sfrequencyId,
                               monthlyOn: f.monthlyOn,
                               exceptionDay: ""+f.exceptionDay
                             }
@@ -536,7 +546,7 @@ function AddFile(props) {
       addFquency.frequencyId= 1;
       addFquency.id= addFileData.frequency.length+1
     } else {
-      // addFquency.frequencyId= 22;
+      addFquency.frequencyId= 21;
       addFquency.id= addFileData.frequency.length+1
     }
     setAddFileData({
@@ -564,18 +574,22 @@ function AddFile(props) {
         fre[`${type}`] = value;
         if(type === "startTime"){
           fre[`${type}Warning`] = !Boolean(value)
+        } else if(type === "monthlyOn"){
+          fre[`${type}Warning`] = !Boolean(value)
+        } else if(type === "sfrequencyId"){
+          fre[`${type}Warning`] = !Boolean(value)
         } else {
           if(type === "sla" && (value <= fre.endTime)){
             fre[`${type}Warning`] = false
             fre.endTimeWarning = false
-          }else {
+          }else if(type === "sla"){
             fre[`${type}Warning`] = true
             fre.endTimeWarning = true
           }
           if(type === "endTime" && (value >= fre.sla)){
             fre[`${type}Warning`] = false
             fre.slaWarning = false
-          }else {
+          }else if(type === "endTime"){
             fre[`${type}Warning`] = true
             fre.slaWarning = false
           }

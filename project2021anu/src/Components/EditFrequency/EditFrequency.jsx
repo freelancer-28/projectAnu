@@ -186,7 +186,7 @@ function Frequency(props) {
   const handleFrequencyId = (event) => {
     props.updateFrqStartTime("sfrequencyId", event.target.value, id)
   }
-  const {id, startTime, startTimeWarning, sla, slaWarning,  endTime, endTimeWarning, days, daysWarning, mdays, monthlyOn, sfrequencyId, exceptionDay, thirdrow} = props.data
+  const {id, startTime, startTimeWarning, sla, slaWarning,  endTime, endTimeWarning, days, daysWarning, mdays, monthlyOn, monthlyOnWarning, sfrequencyId, sfrequencyIdWarning, exceptionDay, thirdrow} = props.data
   const weekdays = [ 'S','M', 'T', 'W', 'T', 'F','S'];
   console.log(days)
   console.log("thirdrow====================",thirdrow)
@@ -221,6 +221,7 @@ function Frequency(props) {
               <div className={classes.lineStyleing}></div>
             </div>
             <div className={classes.edit_fre_days_first}>
+                <FormControl variant="outlined"  error={monthlyOnWarning}>
                     <Select
                     value={{ value: monthlyOn, label: monthlyOn }}
                     options={editDysFrequency}
@@ -228,12 +229,17 @@ function Frequency(props) {
                     isLoading={!(editDysFrequency && editDysFrequency.length)}
                     placeholder=""
                     />
+                    {monthlyOnWarning && <FormHelperText>its a required Field</FormHelperText>}
+                </FormControl>
+                <FormControl variant="outlined"  error={sfrequencyIdWarning}>
                   <div className={classes.paddingLeft50px}>
                     <RadioGroup row aria-label="position" name="position" defaultValue="top" onChange={handleFrequencyId} value={sfrequencyId}>
                       <FormControlLabel classes={{ root: classes.label }} value="21" control={<Radio color="primary" />} label="Beginning of the month" />
                       <FormControlLabel classes={{ root: classes.label }} value="22" control={<Radio color="primary" />} label="End of month" />
                     </RadioGroup>
                   </div>
+                  {sfrequencyIdWarning && <FormHelperText>its a required Field</FormHelperText>}
+                </FormControl>
             </div>
             <div className={classes.edit_fre_days_secondtxt}><span>____</span><span>and its in selected day(s):</span></div>
             <FormControl variant="outlined"  error={daysWarning}>
