@@ -12,99 +12,7 @@ import AddFile from "../AddFile/AddFile";
 import EditFile from "../EditFile/EditFile";
 import CustomErrorDialog from '../CustomErrorDialog/index'
 
-const ViewDetailsLink = <LinkContainer href="/filedetails">View Details</LinkContainer>;
-
-const placeHolderData = [
-  [
-    "NASCO",
-    "File1",
-    "NEB",
-    "12/22/2020 00:45:11",
-    "Active",
-    ViewDetailsLink,
-  ],
-  [
-    "Edifecs",
-    "File2",
-    "NEB",
-    "12/22/2020 01:45:31",
-    "Active",
-    ViewDetailsLink,
-  ],
-  ["PSP", "File3", "NEB", "12/21/2020 01:45:31", "Inactive", ViewDetailsLink],
-  [
-    "Producer1",
-    "File4",
-    "NEB",
-    "12/22/2020 10:45:10",
-    "Inactive",
-    ViewDetailsLink,
-  ],
-  [
-    "Producer2",
-    "File5",
-    "NEB",
-    "12/21/2020 00:45:50",
-    "Active",
-    ViewDetailsLink,
-  ],
-  [
-    "Producer3",
-    "File6",
-    "NEB",
-    "12/18/2020 01:45:00",
-    "Inactive",
-    ViewDetailsLink,
-  ],
-  [
-    "Producer4",
-    "File7",
-    "NEB",
-    "12/22/2020 00:45:11",
-    "Inactive",
-    ViewDetailsLink,
-  ],
-  [
-    "Producer5",
-    "File8",
-    "NEB",
-    "12/21/2020 08:45:11",
-    "Active",
-    ViewDetailsLink,
-  ],
-  [
-    "Producer6",
-    "File9",
-    "NEB",
-    "12/21/2020 01:45:01",
-    "Active",
-    ViewDetailsLink,
-  ],
-  [
-    "Producer6",
-    "File9",
-    "NEB",
-    "12/21/2020 01:45:01",
-    "Active",
-    ViewDetailsLink,
-  ],
-  [
-    "Producer6",
-    "File9",
-    "NEB",
-    "12/21/2020 01:45:01",
-    "Active",
-    ViewDetailsLink,
-  ],
-  [
-    "Producer6",
-    "File9",
-    "NEB",
-    "12/21/2020 01:45:01",
-    "Active",
-    ViewDetailsLink,
-  ],
-];
+// const ViewDetailsLink = <LinkContainer href="/filedetails">View Details</LinkContainer>;
 
 const getColumnWidth = (i) => {
   if (i == 1) return 10;
@@ -123,18 +31,12 @@ const columns = [
 const AdminTool = (props) => {
   const [isDataLoading, setIsDataLoading] = useState(false);
   const [isAddFile, setIsAddFile] = useState(false);
-  // const [validatationObj, setValidationObj] = useState({
-  //   severity: null,
-  //   validationFlag: false,
-  //   validationMessage: ""
-  // })
-
+ 
   const dispatch = useDispatch();
   const data = useSelector(selectAdminFileData);
   const rawData = useSelector(selectAdminRawData)
 
   const onEditRow = (rowIndex) => {
-    
     dispatch(updateFileData(rawData[rowIndex]));
     props.history.push('/editfile')
     console.log(rowIndex)
@@ -146,16 +48,26 @@ const AdminTool = (props) => {
     // console.log(rowIndex)
   }
 
+  const ViewDetailsLink = (id, rowdata) => {
+    console.log(rowdata)
+    const viewDetails = () => {
+      console.log("view details -------------------")
+      props.history.push(`/filedetails/${rowdata.producerFileId}`)
+    }
+    // href={`/filedetails/${rowdata.producerFileId}`}
+   return <LinkContainer key={id} onClick={viewDetails} >View Details{id}</LinkContainer>
+  };
+
   const processAdminData = (data) => {
     if (!data || !Array.isArray(data)) return;
-    return data.map((d) => {
+    return data.map((d,i) => {
       const temp = [];
       columns.forEach((c) => {
         if (c.id) {
           temp.push(d[c.id]);
         }
       });
-      temp.push(ViewDetailsLink);
+      temp.push(ViewDetailsLink(i, data[i]));
       return temp;
     });
   };

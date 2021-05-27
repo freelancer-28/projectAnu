@@ -420,17 +420,7 @@ function EditFile(props) {
           fileCountWarning: false
         }
       })
-    } 
-    // else {
-    //   setAddFileData({
-    //     ...addFileData,
-    //     // fileCount: "",
-    //     fileInfoWarning: {
-    //       ...addFileData.fileInfoWarning,
-    //       fileCountWarning: true
-    //     }
-    //   })
-    // }
+    }
   }
 
   const handleHopIdChange = data => {
@@ -499,7 +489,7 @@ function EditFile(props) {
                     hopId: addFileData.hopId,
                     hopName: addFileData.hopName,
                     fileCount: +addFileData.fileCount,
-                    frequencyId: null,
+                    frequencyId: +f.frequencyId,
                     frequencySpecifierId: [...tempfrequencySpecifierIds],
                     monthlyFrequencySpecifierId: null,
                     monthlyOn: null,
@@ -517,7 +507,8 @@ function EditFile(props) {
                               frequencySpecifierId: [...tempfrequencySpecifierIds],
                               monthlyFrequencySpecifierId: f.sfrequencyId,
                               monthlyOn: f.monthlyOn,
-                              exceptionDay: ""+f.exceptionDay
+                              // exceptionDay: ""+f.exceptionDay
+                              exceptionDay: ""+f.exceptionDay === "0" ? '7' : ""+f.exceptionDay // this is the change
                             }
                     }
           })
@@ -619,7 +610,7 @@ function EditFile(props) {
   const updateFrqStartTime  = (type, value, id) => {
     let freqs = addFileData.frequency.map(fre => {
       if(fre.id === id){
-        fre[`${type}`] = value;
+        fre[`${type}`] = value
         if(type === "startTime"){
           fre[`${type}Warning`] = !Boolean(value)
         } else if(type === "monthlyOn"){
@@ -642,7 +633,6 @@ function EditFile(props) {
             fre.slaWarning = false
           }
         }
-        
       }
       return fre;
     })

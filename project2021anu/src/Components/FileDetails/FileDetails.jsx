@@ -1,7 +1,12 @@
-import react, {useEffect, useState} from 'react';
+import React, {useEffect, useState} from 'react';
+import { useSelector } from "react-redux";
+import { selectAdminRawData } from "../../reducers/adminRawData";
 import { makeStyles } from '@material-ui/core/styles';
 
 const useStyles = makeStyles((theme) => ({
+  cursorpointer: {
+    cursor: 'pointer'
+  },
   container: {
     padding: '40px 16px',
     background: '#FFFFFF',
@@ -80,57 +85,73 @@ const useStyles = makeStyles((theme) => ({
 
 
 
-function FileDetails(props) {
+const FileDetails = (props) => {
 
+  const [details, setDetails] = useState({})
+
+  const data = useSelector(selectAdminRawData);
+  useEffect(() => {
+    let temp = window.location.pathname.split('/')
+    const rowID = temp[temp.length-1]
+    console.log(rowID)
+    console.log(data)
+    setDetails(data.filter(d => d.producerFileId == rowID)[0])
+  }, [data])
+  
   const classes = useStyles();
 
-  console.log(props)
+  const closeDetailsPage = () => {
+    props.history.push('/fileObserverAdmin')
+  }
+  console.log(details)
   return (
+    <div>
+    { details ?
     <div className={classes.container}>
       <div className={classes.left_contaner}></div>
       <div className={classes.right_contaner}>
         <div className={classes.header}>
           <span>File Details</span>
-          <span>X</span>
+          <span className={classes.cursorpointer} onClick={closeDetailsPage}>X</span>
         </div>
         <div className={classes.fileInfo}>
           <div className={classes.fileInfo_header}>FileInformation</div>
           <div className={classes.fileInfoContainer}>
             <div className={classes.fileInfo_box}>
               <div className={classes.fileInfo_box_header}>Producer</div>
-              <div>Test</div>
+              <div>{details.producerName}</div>
             </div>
             <div className={classes.fileInfo_box}>
               <div className={classes.fileInfo_box_header}>SFT Account Name</div>
-              <div>15884</div>
+              <div>{details.sftAccountName}</div>
             </div>
             <div className={classes.fileInfo_box}>
               <div className={classes.fileInfo_box_header}>Direction</div>
-              <div>Test</div>
+              <div>{details.direction}</div>
             </div>
             <div className={classes.fileInfo_box}>
               <div className={classes.fileInfo_box_header}>File Mask</div>
-              <div>Test</div>
+              <div>{details.fileMask}</div>
             </div>
             <div className={classes.fileInfo_box}>
               <div className={classes.fileInfo_box_header}>Prefix</div>
-              <div>15884</div>
+              <div>{details.filePrefix}</div>
             </div>
             <div className={classes.fileInfo_box}>
               <div className={classes.fileInfo_box_header}>Suffix</div>
-              <div>Test</div>
+              <div>{details.fileSuffix}</div>
             </div>
             <div className={classes.fileInfo_box}>
               <div className={classes.fileInfo_box_header}>Date Mask</div>
-              <div>Test</div>
+              <div>{details.dateMask}</div>
             </div>
             <div className={classes.fileInfo_box}>
               <div className={classes.fileInfo_box_header}>Date Time Mask</div>
-              <div>15884</div>
+              <div>{details.dateTimeMask}</div>
             </div>
             <div className={classes.fileInfo_box}>
               <div className={classes.fileInfo_box_header}>Route</div>
-              <div>PSP Route RBMS Route</div>
+              <div>{details.routeName}</div>
             </div>
           </div>
         </div>
@@ -139,40 +160,40 @@ function FileDetails(props) {
           <div className={classes.fileInfoContainer}>
             <div className={classes.fileInfo_box}>
               <div className={classes.fileInfo_box_header}>Occurance</div>
-              <div>Test</div>
+              <div>{details.frequencyId === 1 ? "Monthly" : "Weekly"}</div>
             </div>
             <div className={classes.fileInfo_box}>
               <div className={classes.fileInfo_box_header}>Hop ID</div>
-              <div>Test</div>
+              <div>{details.hopId}</div>
             </div>
             <div className={classes.fileInfo_box}>
               <div className={classes.fileInfo_box_header}>File Count</div>
-              <div>Test</div>
+              <div>{details.fileCount}</div>
             </div>
           </div>
           <div className={classes.frequncies}>
             <div className={classes.frequnciesCount}>
-              <div>Frquency # 2</div>
+              <div>Frquency # 1</div>
               <div>Days M, T, W, T, F</div>
             </div>
             <div className={classes.frequencyInfoContainer}>
               <div className={classes.fileInfo_box}>
                 <div className={classes.fileInfo_box_header}>Start Time</div>
-                <div>10:00 AM</div>
+                <div>{details.startTime}</div>
               </div>
               <div className={classes.fileInfo_box}>
                 <div className={classes.fileInfo_box_header}>SLA</div>
-                <div>10:00 AM</div>
+                <div>{details.sla}</div>
               </div>
               <div className={classes.fileInfo_box}>
                 <div className={classes.fileInfo_box_header}>End Time</div>
-                <div>10:00 AM</div>
+                <div>{details.endTime}</div>
               </div>
             </div>
             
           </div>
           
-          <div className={classes.frequncies}>
+          {/* <div className={classes.frequncies}>
             <div className={classes.frequnciesCount}>
               <div>Frquency # 2</div>
               <div>Days M, T, W, T, F</div>
@@ -192,10 +213,12 @@ function FileDetails(props) {
               </div>
             </div>
             
-          </div>
+          </div> */}
 
         </div>
       </div>
+    </div> :
+    <div>no detrails</div>}
     </div>
   );
 }
