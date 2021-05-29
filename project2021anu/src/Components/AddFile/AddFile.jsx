@@ -148,7 +148,8 @@ const fqc = {
   slaWarning: null,
   endTimeWarning: null,
   monthlyOnWarning: null,
-  sfrequencyIdWarning: null
+  sfrequencyIdWarning: null,
+  exceptionDayWarning: null
 }
 
 function AddFile(props) {
@@ -350,9 +351,11 @@ function AddFile(props) {
       firstFrequency.frequencyId= 1;
       firstFrequency.monthlyOnWarning = false;
       firstFrequency.sfrequencyIdWarning= false;
+      firstFrequency.exceptionDayWarning= false;
     } else {
       firstFrequency.frequencyId= 21;
       firstFrequency.monthlyOn= null;
+      firstFrequency.exceptionDayWarning= true;
     }
     setAddFileData({
       ...addFileData,
@@ -423,6 +426,9 @@ function AddFile(props) {
       if(fre.endTimeWarning === null || fre.endTimeWarning){
         fre.endTimeWarning = true;
       }
+      if((fre.exceptionDayWarning === null && fre.thirdrow === true) || fre.exceptionDayWarning){
+        fre.exceptionDayWarning = true;
+      }
       return fre
     })
     setAddFileData({
@@ -431,7 +437,7 @@ function AddFile(props) {
         ...updatedFreqs
       ]
     })
-    let index = updatedFreqs.findIndex(fre => (fre.daysWarning || fre.startTimeWarning || fre.slaWarning || fre.endTimeWarning || fre.monthlyOnWarning || fre.sfrequencyIdWarning))
+    let index = updatedFreqs.findIndex(fre => (fre.daysWarning || fre.startTimeWarning || fre.slaWarning || fre.endTimeWarning || fre.monthlyOnWarning || fre.sfrequencyIdWarning || fre.exceptionDayWarning))
     validationsErrors = index !== -1
     return validationsErrors
   }
@@ -593,6 +599,9 @@ function AddFile(props) {
             fre[`${type}Warning`] = true
             fre.slaWarning = false
           }
+          if(type === "exceptionDay"){
+            fre[`${type}Warning`] = false
+          }
         }
         
       }
@@ -620,6 +629,7 @@ function AddFile(props) {
         fre.thirdrow = days.length !== 7
         fre.exceptionDay= days.length === 7 ?  null : fre.exceptionDay
         fre.daysWarning =  days.length === 0
+        fre.exceptionDayWarning = !(fre.thirdrow === false && fre.exceptionDay === null)
       }
       return fre;
     })

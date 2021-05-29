@@ -186,7 +186,7 @@ function Frequency(props) {
   const handleFrequencyId = (event) => {
     props.updateFrqStartTime("sfrequencyId", event.target.value, id)
   }
-  const {id, startTime, startTimeWarning, sla, slaWarning,  endTime, endTimeWarning, days, daysWarning, mdays, monthlyOn, monthlyOnWarning, sfrequencyId, sfrequencyIdWarning, exceptionDay, thirdrow} = props.data
+  const {id, startTime, startTimeWarning, sla, slaWarning,  endTime, endTimeWarning, days, daysWarning, mdays, monthlyOn, monthlyOnWarning, sfrequencyId, sfrequencyIdWarning, exceptionDay, exceptionDayWarning, thirdrow} = props.data
   const weekdays = [ 'S','M', 'T', 'W', 'T', 'F','S'];
   console.log(days)
   console.log("thirdrow====================",thirdrow)
@@ -282,6 +282,7 @@ function Frequency(props) {
                     </RadioGroup>
                   </div>
             </div>
+            {exceptionDayWarning && <span className={classes.warningclass}>Exception day need to be selected if all the days are not selected</span>}
                   {props.warning && <span className={classes.warningclass}>Exception day must be subset of selected days selecition</span>}
             </>}
           </div>

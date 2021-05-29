@@ -141,7 +141,8 @@ const fqc = {
   slaWarning: null,
   endTimeWarning: null,
   monthlyOnWarning: null,
-  sfrequencyIdWarning: null
+  sfrequencyIdWarning: null,
+  exceptionDayWarning: null
 }
 
 function EditFile(props) {
@@ -220,6 +221,7 @@ function EditFile(props) {
       firstFrequency.days= [...tempfrequencySpecifierIds]
       firstFrequency.monthlyOnWarning = false;
       firstFrequency.sfrequencyIdWarning = false;
+      firstFrequency.exceptionDayWarning = false;
     } else {
       firstFrequency.frequencyId= frequencyId;
       firstFrequency.monthlyOn= monthlyOn;
@@ -390,6 +392,7 @@ function EditFile(props) {
       firstFrequency.frequencyId= 1;
       firstFrequency.monthlyOnWarning = false;
       firstFrequency.sfrequencyIdWarning= false;
+      firstFrequency.exceptionDayWarning= false;
     } else {
       firstFrequency.frequencyId= 21;
       firstFrequency.monthlyOn= null;
@@ -454,6 +457,9 @@ function EditFile(props) {
       if(fre.endTimeWarning === null || fre.endTimeWarning){
         fre.endTimeWarning = true;
       }
+      if((fre.exceptionDayWarning === null && fre.thirdrow === true) || fre.exceptionDayWarning){
+        fre.exceptionDayWarning = true;
+      }
       return fre
     })
     setAddFileData({
@@ -462,7 +468,7 @@ function EditFile(props) {
         ...updatedFreqs
       ]
     })
-    let index = updatedFreqs.findIndex(fre => (fre.daysWarning || fre.startTimeWarning || fre.slaWarning || fre.endTimeWarning || fre.monthlyOnWarning || fre.sfrequencyIdWarning))
+    let index = updatedFreqs.findIndex(fre => (fre.daysWarning || fre.startTimeWarning || fre.slaWarning || fre.endTimeWarning || fre.monthlyOnWarning || fre.sfrequencyIdWarning || fre.exceptionDayWarning))
     validationsErrors = index !== -1
     return validationsErrors
   }
@@ -632,6 +638,9 @@ function EditFile(props) {
             fre[`${type}Warning`] = true
             fre.slaWarning = false
           }
+          if(type === "exceptionDay"){
+            fre[`${type}Warning`] = false
+          }
         }
       }
       return fre;
@@ -658,6 +667,7 @@ function EditFile(props) {
         fre.thirdrow = days.length !== 7
         fre.exceptionDay= days.length === 7 ?  null : fre.exceptionDay
         fre.daysWarning =  days.length === 0
+        fre.exceptionDayWarning = !(fre.thirdrow === false && fre.exceptionDay === null)
       }
       return fre;
     })
@@ -706,7 +716,8 @@ function EditFile(props) {
   }
 
   const editData = useSelector(selectFileData);
-  console.log(editData)
+  // console.log(editData)
+  console.log(addFileData)
   const { producerName, sftAccountName, direction, fileMask, filePrefix, fileSuffix, dateMask, dateTimeMask, routeName, fileCount, hopName, relatedHopList } = editData // props.data;
   const hopNameOptions = relatedHopList.map((hop, i) => ({ "value": hop.hopId, "label": hop.hopName }))
   // console.log(routeOptions)

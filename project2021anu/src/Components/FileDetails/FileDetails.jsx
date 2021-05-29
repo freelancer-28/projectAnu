@@ -88,7 +88,13 @@ const useStyles = makeStyles((theme) => ({
 const FileDetails = (props) => {
 
   const [details, setDetails] = useState({})
-
+  const days = { 1 : 'S',
+                   2 : 'M', 
+                    3 : 'T', 
+                    4 : 'W', 
+                    5 : 'T', 
+                     6 : 'F', 
+                      7 : 'S'}
   const data = useSelector(selectAdminRawData);
   useEffect(() => {
     let temp = window.location.pathname.split('/')
@@ -104,6 +110,9 @@ const FileDetails = (props) => {
     props.history.push('/fileObserverAdmin')
   }
   console.log(details)
+
+  let daysToPrint = details && details.frequencySpecifierIds ? details.frequencySpecifierIds.map(day=> days[day]) : []
+  console.log(daysToPrint)
   return (
     <div>
     { details ?
@@ -174,7 +183,8 @@ const FileDetails = (props) => {
           <div className={classes.frequncies}>
             <div className={classes.frequnciesCount}>
               <div>Frquency # 1</div>
-              <div>Days M, T, W, T, F</div>
+              {/* <div>Days M, T, W, T, F</div> */}
+              <div>Days {daysToPrint.toString()}</div>
             </div>
             <div className={classes.frequencyInfoContainer}>
               <div className={classes.fileInfo_box}>
