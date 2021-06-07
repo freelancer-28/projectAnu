@@ -585,19 +585,19 @@ function AddFile(props) {
         } else if(type === "sfrequencyId"){
           fre[`${type}Warning`] = !Boolean(value)
         } else {
-          if(type === "sla" && (value <= fre.endTime)){
+          if(type === "sla" && (value <= fre.endTime) && value !== ""){
             fre[`${type}Warning`] = false
             fre.endTimeWarning = false
           }else if(type === "sla"){
             fre[`${type}Warning`] = true
             fre.endTimeWarning = true
           }
-          if(type === "endTime" && (value >= fre.sla)){
+          if(type === "endTime" && fre.sla && (value >= fre.sla)){
             fre[`${type}Warning`] = false
             fre.slaWarning = false
           }else if(type === "endTime"){
             fre[`${type}Warning`] = true
-            fre.slaWarning = false
+            fre.slaWarning = true
           }
           if(type === "exceptionDay"){
             fre[`${type}Warning`] = false

@@ -234,10 +234,10 @@ function EditFile(props) {
       firstFrequency.startTimeWarning = startTime ? false : true
       firstFrequency.sla= sla;
       firstFrequency.slaWarning = sla ? false : true
-      firstFrequency.exceptionDay= exceptionDay || null ;
       const tempfrequencySpecifierIds = frequencySpecifierIds.map(day => day === 7 ? 0 : day)
       firstFrequency.days= [...tempfrequencySpecifierIds]
-      firstFrequency.thirdrow = exceptionDay === null ? false : true
+      firstFrequency.exceptionDay= exceptionDay || null ;
+      firstFrequency.thirdrow = (exceptionDay === null && tempfrequencySpecifierIds.length  === 7) ? false : true
     }
     setAddFileData({
       ...addFileData,
@@ -624,19 +624,19 @@ function EditFile(props) {
         } else if(type === "sfrequencyId"){
           fre[`${type}Warning`] = !Boolean(value)
         } else {
-          if(type === "sla" && (value <= fre.endTime)){
+          if(type === "sla" && (value <= fre.endTime) && value !== ""){
             fre[`${type}Warning`] = false
             fre.endTimeWarning = false
           }else if(type === "sla"){
             fre[`${type}Warning`] = true
             fre.endTimeWarning = true
           }
-          if(type === "endTime" && (value >= fre.sla)){
+          if(type === "endTime" && fre.sla && (value >= fre.sla)){
             fre[`${type}Warning`] = false
             fre.slaWarning = false
           }else if(type === "endTime"){
             fre[`${type}Warning`] = true
-            fre.slaWarning = false
+            fre.slaWarning = true
           }
           if(type === "exceptionDay"){
             fre[`${type}Warning`] = false
@@ -654,7 +654,7 @@ function EditFile(props) {
     })
   }
 
-  const updateFrequencyDay = (id, day) => {
+  const updateFrequencyDay = (id, day, type) => {
     let freqs = addFileData.frequency.map(fre => {
       if(fre.id === id){
         let days = [...fre.days]
@@ -668,6 +668,10 @@ function EditFile(props) {
         fre.exceptionDay= days.length === 7 ?  null : fre.exceptionDay
         fre.daysWarning =  days.length === 0
         fre.exceptionDayWarning = !(fre.thirdrow === false && fre.exceptionDay === null)
+        if(type === "weekly") {
+          fre.exceptionDayWarning = false;
+          fre.thirdrow = false;
+        }
       }
       return fre;
     })

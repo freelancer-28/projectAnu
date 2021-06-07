@@ -7,6 +7,11 @@ const useStyles = makeStyles((theme) => ({
   cursorpointer: {
     cursor: 'pointer'
   },
+  fileInfoValue:{
+    paddingRight: '20px',
+    height: '30px',
+    'overflow-wrap': 'break-word'
+  },
   container: {
     padding: '40px 16px',
     background: '#FFFFFF',
@@ -24,10 +29,10 @@ const useStyles = makeStyles((theme) => ({
     justifyContent: 'space-between'
   },
   left_contaner: {
-    width: '70%'
+    width: '50%'
   },
   right_contaner: {
-    width: '30%',
+    width: '50%',
     border: '1px solid lightgray',
     height: '100%'
   },
@@ -128,39 +133,39 @@ const FileDetails = (props) => {
           <div className={classes.fileInfoContainer}>
             <div className={classes.fileInfo_box}>
               <div className={classes.fileInfo_box_header}>Producer</div>
-              <div>{details.producerName}</div>
+              <div className={classes.fileInfoValue}>{details.producerName}</div>
             </div>
             <div className={classes.fileInfo_box}>
               <div className={classes.fileInfo_box_header}>SFT Account Name</div>
-              <div>{details.sftAccountName}</div>
+              <div className={classes.fileInfoValue}>{details.sftAccountName}</div>
             </div>
             <div className={classes.fileInfo_box}>
               <div className={classes.fileInfo_box_header}>Direction</div>
-              <div>{details.direction}</div>
+              <div className={classes.fileInfoValue}>{details.direction}</div>
             </div>
             <div className={classes.fileInfo_box}>
               <div className={classes.fileInfo_box_header}>File Mask</div>
-              <div>{details.fileMask}</div>
+              <div className={classes.fileInfoValue}>{details.fileMask}</div>
             </div>
             <div className={classes.fileInfo_box}>
               <div className={classes.fileInfo_box_header}>Prefix</div>
-              <div>{details.filePrefix}</div>
+              <div className={classes.fileInfoValue}>{details.filePrefix}</div>
             </div>
             <div className={classes.fileInfo_box}>
               <div className={classes.fileInfo_box_header}>Suffix</div>
-              <div>{details.fileSuffix}</div>
+              <div className={classes.fileInfoValue}>{details.fileSuffix}</div>
             </div>
             <div className={classes.fileInfo_box}>
               <div className={classes.fileInfo_box_header}>Date Mask</div>
-              <div>{details.dateMask}</div>
+              <div className={classes.fileInfoValue}>{details.dateMask}</div>
             </div>
             <div className={classes.fileInfo_box}>
               <div className={classes.fileInfo_box_header}>Date Time Mask</div>
-              <div>{details.dateTimeMask}</div>
+              <div className={classes.fileInfoValue}>{details.dateTimeMask}</div>
             </div>
             <div className={classes.fileInfo_box}>
               <div className={classes.fileInfo_box_header}>Route</div>
-              <div>{details.routeName}</div>
+              <div className={classes.fileInfoValue}>{details.routeName}</div>
             </div>
           </div>
         </div>
@@ -193,7 +198,7 @@ const FileDetails = (props) => {
               </div>
               <div className={classes.fileInfo_box}>
                 <div className={classes.fileInfo_box_header}>SLA</div>
-                <div>{details.sla}</div>
+                <div>{details.slaTime}</div>
               </div>
               <div className={classes.fileInfo_box}>
                 <div className={classes.fileInfo_box_header}>End Time</div>

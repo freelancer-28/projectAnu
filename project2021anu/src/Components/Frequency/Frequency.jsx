@@ -143,7 +143,7 @@ function Frequency(props) {
             </Button> */}
             {[0,1,2,3,4,5,6].map((day, i) =>
               <Button className={days.includes(day) ? classes.weekdays_btn : classes.weekdays_unselected_btn} variant="contained" color="primary"
-              onClick={()=>props.updateFrequencyDay(id, day)}>
+              onClick={()=>props.updateFrequencyDay(id, day, 'weekly')}>
               {weekdays[i]}
             </Button>
             )}
