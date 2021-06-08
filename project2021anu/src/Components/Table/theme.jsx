@@ -83,6 +83,7 @@ const getMuiTheme = () =>
       },
       MuiTableCell: {
         body: {
+          padding: "5px"
           //   color: "green",
           //   background: "#fff",
         },

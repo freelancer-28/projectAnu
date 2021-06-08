@@ -11,11 +11,14 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 const TableContainer = styled(Box)({
   // marginTop: "20vh",
   paddingTop: 10,
-  "& thead th:nth-child(2)": {
-    width: "50%",
-  },
-  "& thead th:nth-child(3)": {
-    width: "30%",
+  // "& thead th:nth-child(2)": {
+  //   width: "50%",
+  // },
+  // "& thead th:nth-child(3)": {
+  //   width: "30%",
+  // },
+   "& tbody tr td:nth-child(5)": {
+    textAlign: "center !important",
   },
 });
 
