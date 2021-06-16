@@ -118,7 +118,7 @@ function Frequency(props) {
     
   }
 
-  const {id, startTime, startTimeWarning, sla, slaWarning, endTime, endTimeWarning, days, daysWarning} = props.data
+  const {id, startTime, startTimeWarning, startTimeTextWarning, sla, slaWarning, endTime, endTimeWarning, days, daysWarning} = props.data
   const weekdays = [ 'S','M', 'T', 'W', 'T', 'F','S'];
   console.log(days)
   const classes = useStyles();
@@ -159,10 +159,13 @@ function Frequency(props) {
         <Grid container>
               <div className={classes.flex}>
                 <span className={classes.label}>Start Time</span>
-                <TextField type="time" className={classes.root} value={startTime} label="" variant="outlined" // icon={faTrashAlt} 
-                error={startTimeWarning}
-                helperText={startTimeWarning && "its a required Field"}
-                onChange={(event)=>props.updateFrqStartTime("startTime", event.target.value, id)}/>
+                <FormControl variant="outlined"  error={startTimeTextWarning}>
+                  <TextField type="time" className={classes.root} value={startTime} label="" variant="outlined" // icon={faTrashAlt} 
+                  error={startTimeWarning  || startTimeTextWarning}
+                  helperText={startTimeWarning && "its a required Field"}
+                  onChange={(event)=>props.updateFrqStartTime("startTime", event.target.value, id)}/>
+                  {startTimeTextWarning && <FormHelperText>Start Time should not overlap with previous frequency</FormHelperText>}
+                </FormControl>
               </div>
               <div className={classes.flex}>
                 <span className={classes.label}>SLA</span>

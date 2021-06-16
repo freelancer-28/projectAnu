@@ -26,7 +26,21 @@ const producerOptions = (state = defaultValue, action) => {
   }
 };
 
+const frequencyIdsOptions = (state = {}, action) => {
+  switch (action.type) {
+    case "UPDATE_FREQUENCY_IDS_OPTIONS":
+      console.log('---------UPDATE_FREQUENCY_IDS_OPTIONS------------');
+      // console.log(action.payload)
+      return action.payload;
+    case "RESET_ALL_TO_DEFAULT":
+      return {};
+    default:
+      return state;
+  }
+};
+
 const selectProducer = (state) => state.producer;
 const selectProducerOptions = (state) => state.producerOptions;
+const selectFrequencyIdsOptions = (state) => state.frequencyIdsOptions;
 
-export { producer, producerOptions, selectProducer, selectProducerOptions };
+export { producer, producerOptions, frequencyIdsOptions, selectProducer, selectProducerOptions, selectFrequencyIdsOptions };

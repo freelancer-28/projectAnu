@@ -2,6 +2,7 @@ import React, {useEffect, useState} from 'react';
 import { useSelector } from "react-redux";
 import { selectAdminRawData } from "../../reducers/adminRawData";
 import { makeStyles } from '@material-ui/core/styles';
+import { selectProducer, selectProducerOptions, selectFrequencyIdsOptions } from "../../reducers/producer";
 
 const useStyles = makeStyles((theme) => ({
   cursorpointer: {
@@ -92,6 +93,7 @@ const useStyles = makeStyles((theme) => ({
 
 const FileDetails = (props) => {
 
+  const frequencyOptions = useSelector(selectFrequencyIdsOptions);
   const [details, setDetails] = useState({})
   const days = { 1 : 'S',
                    2 : 'M', 
@@ -174,7 +176,7 @@ const FileDetails = (props) => {
           <div className={classes.fileInfoContainer}>
             <div className={classes.fileInfo_box}>
               <div className={classes.fileInfo_box_header}>Occurance</div>
-              <div>{details.frequencyId === 1 ? "Monthly" : "Weekly"}</div>
+              <div>{details.frequencyId == frequencyOptions.weekly_FrequencyId ? "Weekly" : "Monthly"}</div>
             </div>
             <div className={classes.fileInfo_box}>
               <div className={classes.fileInfo_box_header}>Hop ID</div>

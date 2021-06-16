@@ -12,4 +12,11 @@ const updateProducerOptions = (payload) => {
   };
 };
 
-export { updateProducer, updateProducerOptions };
+const updateFrequencyIdsOptions = (payload) => {
+  return {
+    type: "UPDATE_FREQUENCY_IDS_OPTIONS",
+    payload,
+  };
+};
+
+export { updateProducer, updateProducerOptions, updateFrequencyIdsOptions };

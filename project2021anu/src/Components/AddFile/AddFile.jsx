@@ -16,6 +16,7 @@ import TextField from '../TextField'
 import {
   updateProducer,
   updateProducerOptions,
+  updateFrequencyIdsOptions,
   updateFileMask,
   submitFile,
   updateRoute,
@@ -23,7 +24,7 @@ import {
 } from "../../actions";
 import filtersAPIs from "../../apis/FileObserver/filters";
 import addFileAPIs from "../../apis/AdminTools/addFile";
-import { selectProducer, selectProducerOptions } from "../../reducers/producer";
+import { selectProducer, selectProducerOptions, selectFrequencyIdsOptions } from "../../reducers/producer";
 import { selectRoute, selectRouteOptions } from '../../reducers/route';
 // import { faFileExport } from "fa5-pro-light";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -145,6 +146,7 @@ const fqc = {
   frequencyId: null,
   daysWarning: false,
   startTimeWarning: null,
+  startTimeTextWarning: null,
   slaWarning: null,
   endTimeWarning: null,
   monthlyOnWarning: null,
@@ -206,6 +208,25 @@ function AddFile(props) {
     dispatch(updateProducerOptions([]))
     dispatch(updateRouteOptions([]));
     const data = await filtersAPIs.fetchProducerOptions();
+    ///////////////////////
+    // collect frequency id
+    let freqIds = {}
+    data.frequencySpecifierNames.forEach(obj => {
+      if(obj.frequency === "DayOfWeekAndTime"){
+        freqIds["weekly_FrequencyId"] = obj.frequencyId
+      }
+      if(obj.frequency === "Monthly"){
+        freqIds["monthly_FrequencyId"] = obj.frequencyId
+        if(obj.frequencySpecifier === "Begin"){
+          freqIds["begin_frequencySpecifier"] = obj.frequencySpecifierId
+        }
+        if(obj.frequencySpecifier === "End"){
+          freqIds["end_frequencySpecifier"] = obj.frequencySpecifierId
+        }
+      }
+    })
+    
+    ///////////////////////
     const producerOptions = data.producerNames.map(d=>({
         value: d.producerId,
         label: d.producerName,
@@ -244,11 +265,13 @@ function AddFile(props) {
 
     dispatch(updateProducerOptions(producerOptions));
     dispatch(updateRouteOptions(routeOptions))
+    dispatch(updateFrequencyIdsOptions(freqIds))
   };
 
   // const producer = useSelector(selectProducer);
   const producerOptions = useSelector(selectProducerOptions);
   const routeOptions = useSelector(selectRouteOptions);
+  const frequencyOptions = useSelector(selectFrequencyIdsOptions);
   const selectedRoute = routeOptions.length ? routeOptions.filter(r=> r.value === addFileData.fileInformation.routeId)[0] : null; // useSelector(selectRoute);
   const hopNameOptions = selectedRoute ? selectedRoute.hopName.map((name, i) => ({ "value": selectedRoute.hopId[i], "label": name })) : []
   // const hopIdsOptions =  selectedRoute ? selectedRoute.hopId.map(id => ({ "value": id, "label": id })) : null
@@ -346,14 +369,14 @@ function AddFile(props) {
   }
   const handleOccuranceChange = event => {
     let firstFrequency = {...fqc}
-    if(event.target.value === "Weekly") {
+    if(event.target.value === "DayOfWeekAndTime") {
       delete firstFrequency.mdays;
-      firstFrequency.frequencyId= 1;
+      firstFrequency.frequencyId= frequencyOptions.weekly_FrequencyId;
       firstFrequency.monthlyOnWarning = false;
       firstFrequency.sfrequencyIdWarning= false;
       firstFrequency.exceptionDayWarning= false;
     } else {
-      firstFrequency.frequencyId= 21;
+      firstFrequency.frequencyId= frequencyOptions.monthly_FrequencyId;
       firstFrequency.monthlyOn= null;
       firstFrequency.exceptionDayWarning= true;
     }
@@ -420,6 +443,11 @@ function AddFile(props) {
       if(fre.startTimeWarning === null || fre.startTimeWarning){
         fre.startTimeWarning = true;
       }
+      if(fre.startTimeTextWarning === null || fre.startTimeTextWarning){
+        if(fre.id !== 1) {
+          fre.startTimeTextWarning = true;
+        }
+      }
       if(fre.slaWarning === null || fre.slaWarning){
         fre.slaWarning = true;
       }
@@ -437,7 +465,7 @@ function AddFile(props) {
         ...updatedFreqs
       ]
     })
-    let index = updatedFreqs.findIndex(fre => (fre.daysWarning || fre.startTimeWarning || fre.slaWarning || fre.endTimeWarning || fre.monthlyOnWarning || fre.sfrequencyIdWarning || fre.exceptionDayWarning))
+    let index = updatedFreqs.findIndex(fre => (fre.daysWarning || fre.startTimeWarning || fre.startTimeTextWarning || fre.slaWarning || fre.endTimeWarning || fre.monthlyOnWarning || fre.sfrequencyIdWarning || fre.exceptionDayWarning))
     validationsErrors = index !== -1
     return validationsErrors
   }
@@ -456,7 +484,7 @@ function AddFile(props) {
         frequency: [
           ...addFileData.frequency.map(f => {
             const tempfrequencySpecifierIds = f.days.map(day => day === 0 ? 7 : day) // before submit covert 0 to 7 
-            if(addFileData.occurence === "Weekly"){
+            if(addFileData.occurence === "DayOfWeekAndTime"){
               return {
                     startTime: f.startTime,
                     sla: +f.sla,
@@ -464,7 +492,7 @@ function AddFile(props) {
                     hopId: addFileData.hopId,
                     hopName: addFileData.hopName,
                     fileCount: +addFileData.fileCount,
-                    frequencyId: null,
+                    frequencyId: +f.frequencyId,
                     frequencySpecifierId: [...tempfrequencySpecifierIds],
                     monthlyFrequencySpecifierId: null,
                     monthlyOn: null,
@@ -547,12 +575,17 @@ function AddFile(props) {
 
   const addFrequency = () => {
     let addFquency = {...fqc}
-    if(addFileData.occurence === "Weekly") {
+    if(addFileData.occurence === "DayOfWeekAndTime") {
       delete addFquency.mdays;
-      addFquency.frequencyId= 1;
+      addFquency.frequencyId= frequencyOptions.weekly_FrequencyId;
       addFquency.id= addFileData.frequency.length+1
+      addFquency.monthlyOnWarning = false;
+      addFquency.sfrequencyIdWarning= false;
+      addFquency.exceptionDayWarning= false;
     } else {
-      addFquency.frequencyId= 21;
+      addFquency.frequencyId= frequencyOptions.monthly_FrequencyId;
+      addFquency.monthlyOn= null;
+      addFquency.exceptionDayWarning= true;
       addFquency.id= addFileData.frequency.length+1
     }
     setAddFileData({
@@ -580,6 +613,22 @@ function AddFile(props) {
         fre[`${type}`] = value;
         if(type === "startTime"){
           fre[`${type}Warning`] = !Boolean(value)
+          if(id > 1){
+            let parentFre = addFileData.frequency.filter(f => f.id === id-1)[0]
+            let splitTime = parentFre.startTime.split(":")
+            let parentTimeinMin = Number(splitTime[0] * 60) + Number(splitTime[1]) + Number(parentFre.endTime || 0 )
+            // =====================
+            let currentSplitTime = value.split(":")
+            let currentTime = Number(currentSplitTime[0] * 60) + Number(currentSplitTime[1])
+            // =====================
+            if(currentTime > parentTimeinMin){
+              fre[`${type}TextWarning`] = false
+            } else {
+              fre[`${type}TextWarning`] = true
+            }
+          } else {
+            fre[`${type}TextWarning`] = false
+          }
         } else if(type === "monthlyOn"){
           fre[`${type}Warning`] = !Boolean(value)
         } else if(type === "sfrequencyId"){
@@ -616,7 +665,7 @@ function AddFile(props) {
     })
   }
 
-  const updateFrequencyDay = (id, day) => {
+  const updateFrequencyDay = (id, day, type) => {
     let freqs = addFileData.frequency.map(fre => {
       if(fre.id === id){
         let days = [...fre.days]
@@ -629,7 +678,10 @@ function AddFile(props) {
         fre.thirdrow = days.length !== 7
         fre.exceptionDay= days.length === 7 ?  null : fre.exceptionDay
         fre.daysWarning =  days.length === 0
-        fre.exceptionDayWarning = !(fre.thirdrow === false && fre.exceptionDay === null)
+        if(type !== "weekly") {
+          fre.exceptionDayWarning = !(fre.thirdrow === false && fre.exceptionDay === null)
+        }
+        
       }
       return fre;
     })
@@ -797,7 +849,7 @@ function AddFile(props) {
                 <FormControl variant="outlined"  error={addFileData.fileInfoWarning.occurenceWarning}>
                   <FormLabel classes={{ root: classes.label }} component="legend">Occurence</FormLabel>
                   <RadioGroup row aria-label="position" name="position" defaultValue="top" onChange={handleOccuranceChange} value={addFileData.occurence}>
-                    <FormControlLabel classes={{ root: classes.label }} value="Weekly" control={<Radio color="primary" />} label="Weekly" />
+                    <FormControlLabel classes={{ root: classes.label }} value="DayOfWeekAndTime" control={<Radio color="primary" />} label="Weekly" />
                     <FormControlLabel classes={{ root: classes.label }} value="Monthly" control={<Radio color="primary" />} label="Monthly" />
                   </RadioGroup>
                   {addFileData.fileInfoWarning.occurenceWarning && <FormHelperText>its a required Field</FormHelperText>}
@@ -827,7 +879,7 @@ function AddFile(props) {
                 </div>
               </Grid>
             </div>
-            {addFileData.occurence === "Weekly" && 
+            {addFileData.occurence === "DayOfWeekAndTime" &&  // DayOfWeekAndTime
               addFileData.frequency.map((freq,i) => <Frequency data={freq} deleteFrequency={deleteFrequency}
               updateFrqStartTime={updateFrqStartTime}
               updateFrequencyDay={updateFrequencyDay}
@@ -851,6 +903,7 @@ function AddFile(props) {
               timeWarning={timeWarning}
               setValidationWarnings={setValidationWarnings}
               validationWarnings={validationWarnings}
+              frequencyOptions={frequencyOptions}
               />)
             }
             {addFileData.occurence && <Button className={classes.form_btn_space} variant="outlined" onClick={addFrequency}>+ Add Frequency</Button>}

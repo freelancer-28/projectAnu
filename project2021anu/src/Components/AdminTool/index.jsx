@@ -7,11 +7,11 @@ import { selectAddFile } from "../../reducers/addFile";
 import { LinkContainer, Box, Button, ButtonContainer } from "./styles";
 import Table from "../../Components/Table";
 import fileAPIs from "../../apis/AdminTools";
-import { updateAdminFileData, updateFileData, submitFile, updateAdminRawData } from "../../actions";
+import {updateProducerOptions,  updateFrequencyIdsOptions, updateRouteOptions, updateAdminFileData, updateFileData, submitFile, updateAdminRawData } from "../../actions";
 import AddFile from "../AddFile/AddFile";
 import EditFile from "../EditFile/EditFile";
 import CustomErrorDialog from '../CustomErrorDialog/index'
-
+import filtersAPIs from "../../apis/FileObserver/filters";
 // const ViewDetailsLink = <LinkContainer href="/filedetails">View Details</LinkContainer>;
 
 const getColumnWidth = (i) => {
@@ -83,8 +83,64 @@ const AdminTool = (props) => {
     }, 600);
   };
 
+  const fetchProducerFiltersFromServer = async () => {
+    dispatch(updateProducerOptions([]))
+    dispatch(updateRouteOptions([]));
+    const data = await filtersAPIs.fetchProducerOptions();
+    ///////////////////////
+    // collect frequency id
+    let freqIds = {}
+    data.frequencySpecifierNames.forEach(obj => {
+      if(obj.frequency === "DayOfWeekAndTime"){
+        freqIds["weekly_FrequencyId"] = obj.frequencyId
+      }
+      if(obj.frequency === "Monthly"){
+        freqIds["monthly_FrequencyId"] = obj.frequencyId
+        if(obj.frequencySpecifier === "Begin"){
+          freqIds["begin_frequencySpecifier"] = obj.frequencySpecifierId
+        }
+        if(obj.frequencySpecifier === "End"){
+          freqIds["end_frequencySpecifier"] = obj.frequencySpecifierId
+        }
+      }
+    })
+    
+    ///////////////////////
+    const producerOptions = data.producerNames.map(d=>({
+        value: d.producerId,
+        label: d.producerName,
+        sftAccountName:  d.sftAccountName
+      }))
+    // console.log(producerOptions)
+    let routeOptions = data.route.reduce((result,d) => {
+      let updated = false;
+        result.map(route => {
+          if(route.value === d.routeId){
+            route.hopId= [...route.hopId, d.hopId];
+            route.hopName= [...route.hopName, d.hopName]
+            updated = true;
+          }
+          return route
+        })
+        if(!updated){
+          result.push({
+            value: d.routeId,
+            label: d.routeName,
+            hopId: [d.hopId],
+            hopName: [d.hopName]
+          })
+        }     
+        return result
+      }, [])
+
+    dispatch(updateProducerOptions(producerOptions));
+    dispatch(updateRouteOptions(routeOptions))
+    dispatch(updateFrequencyIdsOptions(freqIds))
+  };
+
   useEffect(() => {
     fetchAdminDataFromServer();
+    fetchProducerFiltersFromServer()
   }, []);
 
   console.log(isAddFile);

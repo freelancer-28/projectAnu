@@ -1,4 +1,4 @@
-import { updateProducer, updateProducerOptions } from "./producer";
+import { updateProducer, updateProducerOptions, updateFrequencyIdsOptions } from "./producer";
 import { updateFileMask, updateFileMaskOptions } from "./fileMask";
 import { updateUserInfo } from "./userInfo";
 import { updateFileData } from "./fileData";
@@ -12,6 +12,7 @@ export {
   updateProducer,
   updateFileMask,
   updateProducerOptions,
+  updateFrequencyIdsOptions,
   updateFileMaskOptions,
   updateUserInfo,
   updateFileData,

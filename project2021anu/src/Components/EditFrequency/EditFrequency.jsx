@@ -186,13 +186,14 @@ function Frequency(props) {
   const handleFrequencyId = (event) => {
     props.updateFrqStartTime("sfrequencyId", event.target.value, id)
   }
-  const {id, startTime, startTimeWarning, sla, slaWarning,  endTime, endTimeWarning, days, daysWarning, mdays, monthlyOn, monthlyOnWarning, sfrequencyId, sfrequencyIdWarning, exceptionDay, exceptionDayWarning, thirdrow} = props.data
+  const {id, startTime, startTimeWarning, startTimeTextWarning, sla, slaWarning,  endTime, endTimeWarning, days, daysWarning, mdays, monthlyOn, monthlyOnWarning, sfrequencyId, sfrequencyIdWarning, exceptionDay, exceptionDayWarning, thirdrow} = props.data
+  // console.log("sfrequencyIdsfrequencyIdsfrequencyIdsfrequencyId", sfrequencyId)
   const weekdays = [ 'S','M', 'T', 'W', 'T', 'F','S'];
   console.log(days)
   console.log("thirdrow====================",thirdrow)
   const classes = useStyles();
   const editDysFrequency =  getDaysInMonth()
-  const exceptionDayRadio = sfrequencyId == 21 ? "next" : (sfrequencyId == 22 ? "previous" : null)
+  const exceptionDayRadio = sfrequencyId == props.frequencyOptions.begin_frequencySpecifier ? "next" : (sfrequencyId == props.frequencyOptions.end_frequencySpecifier ? "previous" : null)
   return (
     <div>
       <div className={classes.frequency_box}>
@@ -234,8 +235,8 @@ function Frequency(props) {
                 <FormControl variant="outlined"  error={sfrequencyIdWarning}>
                   <div className={classes.paddingLeft50px}>
                     <RadioGroup row aria-label="position" name="position" defaultValue="top" onChange={handleFrequencyId} value={sfrequencyId}>
-                      <FormControlLabel classes={{ root: classes.label }} value="21" control={<Radio color="primary" />} label="Beginning of the month" />
-                      <FormControlLabel classes={{ root: classes.label }} value="22" control={<Radio color="primary" />} label="End of month" />
+                      <FormControlLabel classes={{ root: classes.label }} value={props.frequencyOptions.begin_frequencySpecifier.toString()} control={<Radio color="primary" />} label="Beginning of the month" />
+                      <FormControlLabel classes={{ root: classes.label }} value={props.frequencyOptions.end_frequencySpecifier.toString()} control={<Radio color="primary" />} label="End of month" />
                     </RadioGroup>
                   </div>
                   {sfrequencyIdWarning && <FormHelperText>its a required Field</FormHelperText>}
@@ -292,10 +293,13 @@ function Frequency(props) {
         <Grid container>
               <div className={classes.flex}>
                 <span className={classes.label}>Start Time</span>
+                <FormControl variant="outlined"  error={startTimeTextWarning}>
                 <TextField type="time" className={classes.root} value={startTime} label="" variant="outlined" // icon={faTrashAlt} 
                 error={startTimeWarning}
                 helperText={startTimeWarning && "its a required Field"}
                 onChange={(event)=>props.updateFrqStartTime("startTime", event.target.value, id)}/>
+                {startTimeTextWarning && <FormHelperText>Start Time should not overlap with previous frequency</FormHelperText>}
+                </FormControl>
               </div>
               <div className={classes.flex}>
                 <span className={classes.label}>SLA</span>
