@@ -443,11 +443,14 @@ function AddFile(props) {
       if(fre.startTimeWarning === null || fre.startTimeWarning){
         fre.startTimeWarning = true;
       }
-      if(fre.startTimeTextWarning === null || fre.startTimeTextWarning){
+      // if(fre.startTimeTextWarning === null || fre.startTimeTextWarning){
         if(fre.id !== 1) {
-          fre.startTimeTextWarning = true;
+          let frequencies  = {frequency : addFileData.frequency }
+          let flag = checkOverlap(frequencies);
+          console.log("overlapflag",flag)
+          fre.startTimeTextWarning = flag != "Success";
         }
-      }
+      // }
       if(fre.slaWarning === null || fre.slaWarning){
         fre.slaWarning = true;
       }
@@ -469,6 +472,51 @@ function AddFile(props) {
     validationsErrors = index !== -1
     return validationsErrors
   }
+
+  const checkOverlap = (frequencies) => {
+    var resFrequencies = { frequency: [] }
+
+    for (var i = 0; i < frequencies.frequency.length; i++) {
+      for (var j = 0; j < frequencies.frequency[i].days.length; j++) {
+        var start = frequencies.frequency[i].startTime.split(':')
+        resFrequencies.frequency.push({
+          frequencyid: frequencies.frequency[i].frequencyid,
+          days: frequencies.frequency[i].days[j],
+          startTimeinMin: parseInt(start[0]) * 60 + parseInt(start[1]),
+          startTime: frequencies.frequency[i].startTime,
+          endTime: frequencies.frequency[i].endTime
+        })
+      }
+
+    }
+
+    const sortFrequencies = resFrequencies.frequency.sort(
+
+      function (a, b) {
+        if (a.days < b.days) return -1
+        else if (a.days > b.days) return 1
+        else {
+          if (a.startTime < b.startTime) return -1
+          else if (a.startTime > b.startTime) return 1
+          else return 0
+        }
+      }
+    )
+    for (i = 0; i < sortFrequencies.length; i++) {
+      if (i >= 1) {
+        start = sortFrequencies[i].startTime.split(':')
+        var daysFactor = (parseInt(sortFrequencies[i].days) - parseInt(sortFrequencies[i - 1].days)) * 24 * 60
+        var gap = daysFactor + parseInt(sortFrequencies[i].startTimeinMin) - (parseInt(sortFrequencies[i - 1].startTimeinMin) + parseInt(sortFrequencies[i - 1].endTime))
+        if (gap > 0) continue
+        return 'Failure'
+
+      }
+
+    }
+    return 'Success'
+    //  console.log(sortFrequencies)
+  }
+
 
   const onAddFileSubmit = async () => {
     console.log("+++++++++++++++++++++++++++++++++++++")
@@ -496,7 +544,8 @@ function AddFile(props) {
                     frequencySpecifierId: [...tempfrequencySpecifierIds],
                     monthlyFrequencySpecifierId: null,
                     monthlyOn: null,
-                    exceptionDay: null
+                    exceptionDay: null,
+                    indicator: "W"
                   }
             } else if (addFileData.occurence === "Monthly"){
                       return {
@@ -510,7 +559,8 @@ function AddFile(props) {
                               frequencySpecifierId: [...tempfrequencySpecifierIds],
                               monthlyFrequencySpecifierId: f.sfrequencyId,
                               monthlyOn: f.monthlyOn,
-                              exceptionDay: ""+f.exceptionDay
+                              exceptionDay: ""+f.exceptionDay,
+                              indicator: "M"
                             }
                     }
           })
@@ -557,11 +607,16 @@ function AddFile(props) {
 
     validation_error = producerId && fileCount && occurence && hopName && hopId && sftAccountName  && fileMask && filePrefix && fileSuffix && dateMask && dateTimeMask && routeId;
 
-    
+    let checkIFOverlapToShowErrorMessage = false;
+    addFileData.frequency.forEach(fre => {
+      checkIFOverlapToShowErrorMessage = fre.startTimeTextWarning
+      return !fre.startTimeTextWarning
+    })
+    console.log(checkIFOverlapToShowErrorMessage)
     setAddFileData({
       ...tempAddFileData,
       validationFlag: !Boolean(validation_error && !frequencyValidation_error),
-      validationMessage: "Validation failed: The file cannot be added due to incomplete or incorrect information."
+      validationMessage: checkIFOverlapToShowErrorMessage ? "Overlap in startTime" : "Validation failed: The file cannot be added due to incomplete or incorrect information."
     })
     return validation_error && !frequencyValidation_error
   }
@@ -614,18 +669,18 @@ function AddFile(props) {
         if(type === "startTime"){
           fre[`${type}Warning`] = !Boolean(value)
           if(id > 1){
-            let parentFre = addFileData.frequency.filter(f => f.id === id-1)[0]
-            let splitTime = parentFre.startTime.split(":")
-            let parentTimeinMin = Number(splitTime[0] * 60) + Number(splitTime[1]) + Number(parentFre.endTime || 0 )
+            // let parentFre = addFileData.frequency.filter(f => f.id === id-1)[0]
+            // let splitTime = parentFre.startTime.split(":")
+            // let parentTimeinMin = Number(splitTime[0] * 60) + Number(splitTime[1]) + Number(parentFre.endTime || 0 )
             // =====================
             let currentSplitTime = value.split(":")
             let currentTime = Number(currentSplitTime[0] * 60) + Number(currentSplitTime[1])
             // =====================
-            if(currentTime > parentTimeinMin){
+            // if(currentTime > parentTimeinMin){
               fre[`${type}TextWarning`] = false
-            } else {
-              fre[`${type}TextWarning`] = true
-            }
+            // } else {
+            //   fre[`${type}TextWarning`] = true
+            // }
           } else {
             fre[`${type}TextWarning`] = false
           }

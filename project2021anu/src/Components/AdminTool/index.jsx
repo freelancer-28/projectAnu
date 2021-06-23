@@ -12,6 +12,8 @@ import AddFile from "../AddFile/AddFile";
 import EditFile from "../EditFile/EditFile";
 import CustomErrorDialog from '../CustomErrorDialog/index'
 import filtersAPIs from "../../apis/FileObserver/filters";
+import Drawer from '@material-ui/core/Drawer';
+import FileDetailsDrawer from '../FileDetails/FileDetailsDrawer'
 // const ViewDetailsLink = <LinkContainer href="/filedetails">View Details</LinkContainer>;
 
 const getColumnWidth = (i) => {
@@ -29,6 +31,11 @@ const columns = [
 ]
 
 const AdminTool = (props) => {
+  const [rowID, setRowID] = useState(null)
+  const [showDetails, setShowDetails] = useState(false)
+  const toggleDrawer = () => {
+    setShowDetails(!showDetails)
+  }
   const [isDataLoading, setIsDataLoading] = useState(false);
   const [isAddFile, setIsAddFile] = useState(false);
  
@@ -52,7 +59,9 @@ const AdminTool = (props) => {
     console.log(rowdata)
     const viewDetails = () => {
       console.log("view details -------------------")
-      props.history.push(`/filedetails/${rowdata.producerFileId}`)
+      setRowID(rowdata.producerFileId)
+      setShowDetails(true)
+      // props.history.push(`/filedetails/${rowdata.producerFileId}`)
     }
     // href={`/filedetails/${rowdata.producerFileId}`}
    return <LinkContainer key={id} onClick={viewDetails} >View Details{id}</LinkContainer>
@@ -202,7 +211,10 @@ const AdminTool = (props) => {
     <EditFile toggleaddFile = {toggleaddFile}/> : 
     // <AddFile toggleaddFile = {toggleaddFile}/> :
     <Table data={data} columns={columns} onEditRow={onEditRow}></Table>
-    } 
+    }
+    <Drawer anchor="right" open={showDetails} onClose={toggleDrawer}>
+      <FileDetailsDrawer rowID={rowID} setShowDetails={setShowDetails}/>
+    </Drawer>
   </Box>
 );
 }
