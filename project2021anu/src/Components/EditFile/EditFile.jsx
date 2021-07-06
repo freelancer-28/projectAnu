@@ -30,8 +30,22 @@ import { selectRoute, selectRouteOptions } from '../../reducers/route';
 import { selectFileData } from "../../reducers/fileData";
 import CustomErrorDialog from '../CustomErrorDialog/index'
 import FormHelperText from '@material-ui/core/FormHelperText';
+import Switch from '@material-ui/core/Switch';
+import Tooltip from '@material-ui/core/Tooltip';
+import InfoOutlinedIcon from '@material-ui/icons/InfoOutlined';
 
 const useStyles = makeStyles((theme) => ({
+  displayFlex: {
+    display: "flex"
+  },
+  switch_style: {
+    width: '262px',
+    alignItems: 'start',
+    display: 'flex',
+    flexDirection: 'column',
+    padding: '16px 16px 16px 0px',
+    color: '#3E474D'
+  },
   container: {
     padding: '40px 16px',
     background: '#F4F5F6'
@@ -128,6 +142,7 @@ const directionOptions = [
 
 const fqc = {
   id: 1,
+  addEmailAlert: false,
   days: [1,2,3,4,5],
   mdays: [1,2,3,4,5],
   startTime: null,
@@ -154,6 +169,7 @@ function EditFile(props) {
   const [ timeWarning, setTimeWarning ] = useState(false)
 
   const [addFileData, setAddFileData] = useState({
+    addIncident: false,
     producerFileId: null,
     thirdrow: null,
     validationFlag: false,
@@ -166,6 +182,8 @@ function EditFile(props) {
     hopName: null,
     fileCount: null,
     fileInfoWarning: {
+      asoWarning: null,
+      agroupWarning: null,
       producerIdWarning: null, // select
       sftAccountNameWarning: null,
       // directionWarning: null, // select
@@ -180,6 +198,8 @@ function EditFile(props) {
       fileCountWarning: null,
     },
     fileInformation: {
+      aso: null,
+      agroup: null,
       dateMask: null,
       dateTimeMask: null,
       fileMask: null,
@@ -194,6 +214,7 @@ function EditFile(props) {
 
   const dispatch = useDispatch();
   const classes = useStyles();
+  const editData = useSelector(selectFileData);
   useEffect(() => {
     // console.log("***********************************weekly_FrequencyId")
     // console.log(frequencyOptions.weekly_FrequencyId)
@@ -395,6 +416,36 @@ function EditFile(props) {
       fileInformation: {
         ...addFileData.fileInformation,
         routeId: data.value
+      }
+    })
+  }
+
+  const handleASOChange = data => {
+    // dispatch(updateRoute(data));
+    // const hopeIdOptions = data.hopId.map(id => ({ "value": id, "label": id }))
+    setAddFileData({
+      ...addFileData,
+      fileInformation: {
+        ...addFileData.fileInformation,
+        aso: data.value
+      },
+      fileInfoWarning: {
+        ...addFileData.fileInfoWarning,
+        asoWarning: false
+      }
+    })
+  }
+
+  const handleAGroupChange = data => {
+    setAddFileData({
+      ...addFileData,
+      fileInformation: {
+        ...addFileData.fileInformation,
+        agroup: data.value
+      },
+      fileInfoWarning: {
+        ...addFileData.fileInfoWarning,
+        agroupWarning: false
       }
     })
   }
@@ -619,6 +670,9 @@ function EditFile(props) {
 
   function fieldWarning(tempAddFileData, warningType, type) {
     let fieldValue = warningType === undefined ? tempAddFileData[type] : warningType
+    if(type === "aso" || type === "agroup") {
+      fieldValue = tempAddFileData.addIncident? warningType : true
+    }
     if(fieldValue){
       tempAddFileData.fileInfoWarning[`${type}Warning`] = false;
     } else {
@@ -629,17 +683,18 @@ function EditFile(props) {
   const validateTheForm = () => {
     let frequencyValidation_error = onSubmitFrequencyBloackValidation()
 
-    const { sftAccountNameWarning, filePrefixWarning, fileSuffixWarning, dateMaskWarning, dateTimeMaskWarning, routeIdWarning, hopNameWarning, fileCountWarning } = addFileData.fileInfoWarning
+    const { sftAccountNameWarning, filePrefixWarning, fileSuffixWarning, dateMaskWarning, dateTimeMaskWarning, routeIdWarning, hopNameWarning, fileCountWarning, asoWarning, agroupWarning } = addFileData.fileInfoWarning
     let validation_error = false;
-    const { producerId, fileCount, occurence, hopName, hopId } = addFileData
-    const { sftAccountName, direction, fileMask, filePrefix, fileSuffix, dateMask, dateTimeMask, routeId } = addFileData.fileInformation
+    const { producerId, fileCount, occurence, hopName, hopId, addIncident } = addFileData
+    const { sftAccountName, direction, fileMask, filePrefix, fileSuffix, dateMask, dateTimeMask, routeId, aso, agroup  } = addFileData.fileInformation
     let tempAddFileData = { ...addFileData, fileInformation: {...addFileData.fileInformation}, fileInfoWarning: {...addFileData.fileInfoWarning}, frequency: [...addFileData.frequency]}
     // let fields = ['sftAccountName', 'filePrefix', 'fileSuffix', 'dateMask', 'dateTimeMask', 'routeId', 'hopName', 'fileCount', 'producerId', 'routeId', 'hopName', 'occurence']
     // below changes are only for update
-    let fields = ['hopName', 'fileCount', 'occurence']
+    let fields = ['hopName', 'fileCount', 'occurence','aso', 'agroup']
     fields.forEach(field => fieldWarning(tempAddFileData, addFileData.fileInformation[field], field))
 
-    validation_error = fileCount && occurence && hopName;
+    let addIncidentFieldsValidation = addIncident ? (aso && agroup) : true
+    validation_error = fileCount && occurence && hopName && addIncidentFieldsValidation
 
     let checkIFOverlapToShowErrorMessage = false;
     addFileData.frequency.forEach(fre => {
@@ -825,12 +880,34 @@ function EditFile(props) {
     })
   }
 
-  const editData = useSelector(selectFileData);
+  // const editData = useSelector(selectFileData);
   // console.log(editData)
   console.log(addFileData)
   const { producerName, sftAccountName, direction, fileMask, filePrefix, fileSuffix, dateMask, dateTimeMask, routeName, fileCount, hopName, relatedHopList } = editData // props.data;
   const hopNameOptions = relatedHopList.map((hop, i) => ({ "value": hop.hopId, "label": hop.hopName }))
   // console.log(routeOptions)
+
+  const handleIncedientChange = (event) => {
+    setAddFileData({
+      ...addFileData,
+      addIncident: event.target.checked
+    })
+  }
+  
+    console.log(addFileData)
+    // mock assigned support organization options
+    const asoOptions = [
+      {value: 'aso1', label: 'aso1', agroup: [ "aso1group1", "aso1group2", "aso1group3"]},
+      {value: 'aso2', label: 'aso2', agroup: [ "aso2group1", "aso2group2", "aso2group3"]},
+      {value: 'aso3', label: 'aso3', agroup: [ "aso3group1", "aso3group2", "aso3group3"]}
+    ]
+    let agroupOptions = []
+    asoOptions.forEach(r=> {
+      if(r.value === addFileData.fileInformation.aso){
+        agroupOptions = r.agroup.map(ag=> ({value: ag, label: ag}))
+      }
+    }) 
+    console.log(agroupOptions)
 
   // const producer = useSelector(selectProducer);
   // const producerOptions = useSelector(selectProducerOptions);
@@ -908,6 +985,63 @@ function EditFile(props) {
                       <span className={classes.readValue}>{routeName}</span>
                     </div>
                   </div>
+                  <div className={classes.switch_style}>
+                  <div className={classes.displayFlex}>
+                    <span className={classes.label}>Add Incident Ticket ?</span>
+                    <Tooltip placement="top" 
+                      title={<div style={{padding: "10px", width: "251px", fontSize: '12px'}}>This allows the user to configure a smart IT incident ticket to create when the file misses SLA.</div>} arrow>
+                      <InfoOutlinedIcon color="primary" style={{'padding-left' : "10px"}} fontSize="small"/>
+                    </Tooltip>
+                  </div>
+                  <FormControl variant="outlined"  error={addFileData.fileInfoWarning.routeIdWarning}>
+                  <FormControlLabel
+                    value={addFileData.addIncident ? "yes" : "no"}
+                    control={
+                        <Switch
+                        checked={addFileData.addIncident}
+                        // style={{color: 'green'}}
+                        onChange={handleIncedientChange}
+                        color="primary"
+                        name="checkedB"
+                        inputProps={{ 'aria-label': 'primary checkbox' }}
+                      />}
+                    label={addFileData.addIncident ? "Yes" : "No"}
+                    labelPlacement="start"
+                  />
+                  {/* {addFileData.fileInfoWarning.routeIdWarning && <FormHelperText>its a required Field</FormHelperText>} */}
+                  </FormControl>
+                </div>
+                {addFileData.addIncident && 
+                <>
+                <div className={classes.flex}>
+                  <span className={classes.label}>Assigned Support Organization</span>
+                  <FormControl variant="outlined"  error={addFileData.fileInfoWarning.asoWarning}>
+                  <Select
+                   name="aso"
+                   value={asoOptions.filter(r=> r.value === addFileData.fileInformation.aso)}
+                   options={asoOptions}
+                   onChange={handleASOChange}
+                   isLoading={!(asoOptions && asoOptions.length)}
+                  //  placeholder="Assigned Support Organization"
+                  />
+                  {addFileData.fileInfoWarning.asoWarning && <FormHelperText>its a required Field</FormHelperText>}
+                  </FormControl>
+                </div>
+                <div className={classes.flex}>
+                  <span className={classes.label}>Assignment Group</span>
+                  <FormControl variant="outlined"  error={addFileData.fileInfoWarning.agroupWarning}>
+                  <Select
+                   name="agroup"
+                   value={agroupOptions.filter(h=> h.label === addFileData.fileInformation.agroup)}
+                   options={agroupOptions}
+                   onChange={handleAGroupChange}
+                   isLoading={!(agroupOptions && agroupOptions.length)}
+                  //  placeholder="HopName"
+                  />
+                  {addFileData.fileInfoWarning.agroupWarning && <FormHelperText>its a required Field</FormHelperText>}
+                  </FormControl>
+                </div>
+                </>}
               </Grid>
             </div>
           </div>

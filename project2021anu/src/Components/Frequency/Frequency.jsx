@@ -9,6 +9,9 @@ import { faTrashAlt } from '@fortawesome/free-solid-svg-icons'
 // import { faFileExport } from "fa5-pro-light";
 import FormControl from '@material-ui/core/FormControl';
 import FormHelperText from '@material-ui/core/FormHelperText';
+import FormControlLabel from '@material-ui/core/FormControlLabel';
+import Switch from '@material-ui/core/Switch';
+import Select from '../Select'
 
 const useStyles = makeStyles((theme) => ({
   warningclass: {
@@ -118,10 +121,13 @@ function Frequency(props) {
     
   }
 
-  const {id, startTime, startTimeWarning, startTimeTextWarning, sla, slaWarning, endTime, endTimeWarning, days, daysWarning} = props.data
+  const {id, startTime, startTimeWarning, startTimeTextWarning, sla, slaWarning, endTime, endTimeWarning, days, daysWarning, addEmailAlert, emailRecipient, emailRecipientWarning} = props.data
   const weekdays = [ 'S','M', 'T', 'W', 'T', 'F','S'];
   console.log(days)
   const classes = useStyles();
+  // MOCK emailRecipientOptions 
+  const emailRecipientOptions = [{value: "email1", label: 'email1'}, {value: "email2", label: 'email2'}]
+
   return (
     <div>
       <div className={classes.frequency_box}>
@@ -185,7 +191,41 @@ function Frequency(props) {
                   helperText={endTimeWarning && "End time >= SLA"}
                   />  
               </div>
-            </Grid>
+              <div className={classes.flex}>
+                <span className={classes.label}>Add Email Alert?</span>
+                <FormControlLabel
+                    value={addEmailAlert ? "Yes" : "no"}
+                    control={
+                        <Switch
+                        checked={addEmailAlert}
+                        // style={{color: 'green'}}
+                        onChange={event => props.updateFrqStartTime("addEmailAlert", event.target.checked, id)}
+                        color="primary"
+                        name="checkedB"
+                        inputProps={{ 'aria-label': 'primary checkbox' }}
+                      />}
+                    label={addEmailAlert ? "Yes" : "No"}
+                    labelPlacement="start"
+                  /> 
+              </div>
+        </Grid>
+            {addEmailAlert && <Grid container>
+              <div className={classes.flex}>
+                <span className={classes.label}>Email Recipient</span>
+                <FormControl variant="outlined"  error={emailRecipientWarning}>
+                  <Select
+                   multiple
+                   name="emailRecipient"
+                   value={emailRecipientOptions.filter(r=> r.value === emailRecipient)}
+                   options={emailRecipientOptions}
+                  //  onChange={handleASOChange}
+                   isLoading={!(emailRecipientOptions && emailRecipientOptions.length)}
+                   placeholder="Email Recipient"
+                  />
+                  {emailRecipientWarning && <FormHelperText>its a required Field</FormHelperText>}
+                  </FormControl>
+              </div>
+            </Grid>}
             {/* {props.timeWarning && <span className={classes.warningclass}>END TIME GREATER THEN SLA TIME</span>} */}
         </div>
       </div>
