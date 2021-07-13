@@ -995,7 +995,7 @@ function EditFile(props) {
                   </div>
                   <FormControl variant="outlined"  error={addFileData.fileInfoWarning.routeIdWarning}>
                   <FormControlLabel
-                    value={addFileData.addIncident ? "yes" : "no"}
+                    value={addFileData.addIncident ? "Yes" : "No"}
                     control={
                         <Switch
                         checked={addFileData.addIncident}

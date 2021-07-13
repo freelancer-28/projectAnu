@@ -12,8 +12,55 @@ import FormHelperText from '@material-ui/core/FormHelperText';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Switch from '@material-ui/core/Switch';
 import Select from '../Select'
+import ListItemText from '@material-ui/core/ListItemText';
+// import Select from '@material-ui/core/Select';
+import Checkbox from '@material-ui/core/Checkbox';
+import MenuItem from '@material-ui/core/MenuItem';
+import Input from '@material-ui/core/Input';
+import { withStyles } from '@material-ui/core/styles';
+
+const CustomSwitch = withStyles({
+  switchBase: {
+    color: '#CAD6BB',
+    '&$checked': {
+      color: '#618535',
+    },
+    '&$checked + $track': {
+      backgroundColor: '#618535',
+    },
+  },
+  checked: {},
+  track: {},
+})(Switch);
+
+const GreenCheckbox = withStyles({
+  root: {
+    color: '#008392',
+    '&$checked': {
+      color: '#008392',
+    },
+  },
+  checked: {},
+})((props) => <Checkbox color="default" {...props} />);
 
 const useStyles = makeStyles((theme) => ({
+  optiondIV: {
+    display: 'flex',
+    borderBottom: '1px solid #D1D5D9',
+    alignItems: 'center'
+  },
+  multiOptions: {
+    display: 'flex',
+    flexDirection: 'column',
+    background: 'white',
+    zIndex: 999,
+    position: 'absolute',
+    width: '258px',
+    top: '41px',
+    border: '1px solid #D1D5D9',
+    height: '110px',
+    overflowY: 'auto'
+  },
   warningclass: {
     color: 'red',
     marginLeft: '410px'
@@ -121,13 +168,25 @@ function Frequency(props) {
     
   }
 
-  const {id, startTime, startTimeWarning, startTimeTextWarning, sla, slaWarning, endTime, endTimeWarning, days, daysWarning, addEmailAlert, emailRecipient, emailRecipientWarning} = props.data
+  const {id, startTime, startTimeWarning, startTimeTextWarning, sla, slaWarning, endTime, endTimeWarning, days, daysWarning, addEmailAlert, emailRecipientWarning} = props.data
   const weekdays = [ 'S','M', 'T', 'W', 'T', 'F','S'];
   console.log(days)
   const classes = useStyles();
   // MOCK emailRecipientOptions 
-  const emailRecipientOptions = [{value: "email1", label: 'email1'}, {value: "email2", label: 'email2'}]
+  // const emailRecipientOptions = [{value: "email1", label: 'email1'}, {value: "email2", label: 'email2'}]
+  const emailRecipientOptions = ["email1", "email2", "email3", "email4", "email5", "email6"]
+  const [emailRecipient, setEmailRecipient] = React.useState([]);
+  const [showERSuggestions, setShowERSuggestions] = React.useState(false);
 
+  const handleChange = (value) => {
+    let temp = [...emailRecipient]
+    if(temp.includes(value)){
+      temp = temp.filter(t=> t!==value)
+    }else {
+      temp.push(value)
+    }
+    setEmailRecipient([...temp]);
+  };
   return (
     <div>
       <div className={classes.frequency_box}>
@@ -194,13 +253,11 @@ function Frequency(props) {
               <div className={classes.flex}>
                 <span className={classes.label}>Add Email Alert?</span>
                 <FormControlLabel
-                    value={addEmailAlert ? "Yes" : "no"}
+                    value={addEmailAlert ? "Yes" : "No"}
                     control={
-                        <Switch
+                        <CustomSwitch
                         checked={addEmailAlert}
-                        // style={{color: 'green'}}
                         onChange={event => props.updateFrqStartTime("addEmailAlert", event.target.checked, id)}
-                        color="primary"
                         name="checkedB"
                         inputProps={{ 'aria-label': 'primary checkbox' }}
                       />}
@@ -213,15 +270,34 @@ function Frequency(props) {
               <div className={classes.flex}>
                 <span className={classes.label}>Email Recipient</span>
                 <FormControl variant="outlined"  error={emailRecipientWarning}>
-                  <Select
-                   multiple
+                <TextField className={classes.root} value={emailRecipient} label="" variant="outlined"
+                  // onBlur={(event)=>handleTimerValidation("endTime", event.target.value, id)}
+                  // onChange={(event)=>updateTimeInMinutes("endTime", event.target.value, id)}
+                  // error={endTimeWarning}
+                  // helperText={endTimeWarning && "End time >= SLA"}
+                  disable={true}
+                  onClick={()=>setShowERSuggestions(!showERSuggestions)}
+                  />  
+                  {showERSuggestions && 
+                  <div className={classes.multiOptions}>
+                    {emailRecipientOptions.map((opt) => (
+                      <div onClick={()=>handleChange(opt)} className={classes.optiondIV} key={opt}>
+                        <GreenCheckbox color="primary" checked={emailRecipient.indexOf(opt) > -1} />
+                        <ListItemText primary={opt} />
+                      </div>
+                    ))}
+                  </div>}
+                  {/* <Select
+                   isMulti= "true"
                    name="emailRecipient"
-                   value={emailRecipientOptions.filter(r=> r.value === emailRecipient)}
+                  //  value={emailRecipientOptions.filter(r=> r.value === emailRecipient)}
+                  value={emailRecipient.toString()}
                    options={emailRecipientOptions}
-                  //  onChange={handleASOChange}
+                  //  onChange={event => props.updateFrqStartTime("emailRecipient", event.target.checked, id)}
+                    onChange={handleChange}
                    isLoading={!(emailRecipientOptions && emailRecipientOptions.length)}
                    placeholder="Email Recipient"
-                  />
+                  /> */}
                   {emailRecipientWarning && <FormHelperText>its a required Field</FormHelperText>}
                   </FormControl>
               </div>
