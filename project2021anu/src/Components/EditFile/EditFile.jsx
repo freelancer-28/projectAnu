@@ -249,6 +249,7 @@ function EditFile(props) {
       firstFrequency.sfrequencyIdWarning = false;
       firstFrequency.exceptionDayWarning = false;
     } else {
+      // firstFrequency.days = [ 2,3,4,5,6]
       firstFrequency.frequencyId= frequencyId;
       firstFrequency.monthlyOn= monthlyOn;
       firstFrequency.monthlyOnWarning = monthlyOn ? false : true
@@ -260,10 +261,10 @@ function EditFile(props) {
       firstFrequency.startTimeWarning = startTime ? false : true
       firstFrequency.sla= sla;
       firstFrequency.slaWarning = sla ? false : true
-      const tempfrequencySpecifierIds = frequencySpecifierIds.map(day => day === 7 ? 0 : day)
-      firstFrequency.days= [...tempfrequencySpecifierIds]
+      // const tempfrequencySpecifierIds = frequencySpecifierIds.map(day => day === 7 ? 0 : day)
+      firstFrequency.days= [...frequencySpecifierIds]
       firstFrequency.exceptionDay= exceptionDay || null ;
-      firstFrequency.thirdrow = (exceptionDay === null && tempfrequencySpecifierIds.length  === 7) ? false : true
+      // firstFrequency.thirdrow = (exceptionDay === null && tempfrequencySpecifierIds.length  === 7) ? false : true
     }
     setAddFileData({
       ...addFileData,
@@ -642,7 +643,7 @@ function EditFile(props) {
                               monthlyFrequencySpecifierId: f.sfrequencyId,
                               monthlyOn: f.monthlyOn,
                               // exceptionDay: ""+f.exceptionDay
-                              exceptionDay: ""+f.exceptionDay === "0" ? '7' : ""+f.exceptionDay // this is the change
+                              exceptionDay: ""+f.exceptionDay === "0" ? '7' : (f.exceptionDay !== null ? ""+f.exceptionDay : f.exceptionDay) // this is the change
                             }
                     }
           })

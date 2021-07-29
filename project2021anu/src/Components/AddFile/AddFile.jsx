@@ -194,7 +194,7 @@ function AddFile(props) {
       // directionWarning: null, // select
       // fileMaskWarning: null, // read
       filePrefixWarning: null,
-      fileSuffixWarning: null,
+      // fileSuffixWarning: null,
       dateMaskWarning: null,
       dateTimeMaskWarning: null,
       routeIdWarning: null, // select
@@ -323,6 +323,9 @@ function AddFile(props) {
         fileMask =  (name === "filePrefix" ? value : addFileData.fileInformation.filePrefix||"" ) + 
                     (name === "fileSuffix" ? value : addFileData.fileInformation.fileSuffix||"")  +
                     (name === "dateTimeMask" ? value : addFileData.fileInformation.dateTimeMask||"")
+                    if(name === "fileSuffix"){
+                      return;
+                    }
       setAddFileData({
         ...addFileData,
         fileInformation: {
@@ -426,6 +429,7 @@ function AddFile(props) {
       firstFrequency.sfrequencyIdWarning= false;
       firstFrequency.exceptionDayWarning= false;
     } else {
+      firstFrequency.days = [ 2,3,4,5,6]
       firstFrequency.frequencyId= frequencyOptions.monthly_FrequencyId;
       firstFrequency.monthlyOn= null;
       firstFrequency.exceptionDayWarning= true;
@@ -609,7 +613,7 @@ function AddFile(props) {
                               frequencySpecifierId: [...tempfrequencySpecifierIds],
                               monthlyFrequencySpecifierId: f.sfrequencyId,
                               monthlyOn: f.monthlyOn,
-                              exceptionDay: ""+f.exceptionDay,
+                              exceptionDay: f.exceptionDay === null ? f.exceptionDay : ""+f.exceptionDay,
                               indicator: "M"
                             }
                     }
@@ -655,11 +659,11 @@ function AddFile(props) {
     const { producerId, fileCount, occurence, hopName, hopId, addIncident } = addFileData
     const { sftAccountName, direction, fileMask, filePrefix, fileSuffix, dateMask, dateTimeMask, routeId, aso, agroup } = addFileData.fileInformation
     let tempAddFileData = { ...addFileData, fileInformation: {...addFileData.fileInformation}, fileInfoWarning: {...addFileData.fileInfoWarning}, frequency: [...addFileData.frequency]}
-    let fields = ['sftAccountName', 'filePrefix', 'fileSuffix', 'dateMask', 'dateTimeMask', 'routeId', 'hopName', 'fileCount', 'producerId', 'routeId', 'hopName', 'occurence', 'aso', 'agroup']
+    let fields = ['sftAccountName', 'filePrefix', 'dateMask', 'dateTimeMask', 'routeId', 'hopName', 'fileCount', 'producerId', 'routeId', 'hopName', 'occurence', 'aso', 'agroup']
     fields.forEach(field => fieldWarning(tempAddFileData, addFileData.fileInformation[field], field))
 
     let addIncidentFieldsValidation = addIncident ? (aso && agroup) : true
-    validation_error = producerId && fileCount && occurence && hopName && hopId && sftAccountName  && fileMask && filePrefix && fileSuffix && dateMask && dateTimeMask && routeId && addIncidentFieldsValidation
+    validation_error = producerId && fileCount && occurence && hopName && hopId && sftAccountName  && fileMask && filePrefix && dateMask && dateTimeMask && routeId && addIncidentFieldsValidation
 
     let checkIFOverlapToShowErrorMessage = false;
     addFileData.frequency.forEach(fre => {

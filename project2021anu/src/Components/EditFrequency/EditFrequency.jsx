@@ -188,7 +188,8 @@ function Frequency(props) {
   }
   const {id, startTime, startTimeWarning, startTimeTextWarning, sla, slaWarning,  endTime, endTimeWarning, days, daysWarning, mdays, monthlyOn, monthlyOnWarning, sfrequencyId, sfrequencyIdWarning, exceptionDay, exceptionDayWarning, thirdrow} = props.data
   // console.log("sfrequencyIdsfrequencyIdsfrequencyIdsfrequencyId", sfrequencyId)
-  const weekdays = [ 'S','M', 'T', 'W', 'T', 'F','S'];
+  // const weekdays = [ 'S','M', 'T', 'W', 'T', 'F','S'];
+  const weekdays = { 1 : 'S', 2 : 'M', 3 : 'T', 4 : 'W', 5 : 'T', 6 : 'F', 7 : 'S' }
   console.log(days)
   console.log("thirdrow====================",thirdrow)
   const classes = useStyles();
@@ -248,10 +249,10 @@ function Frequency(props) {
             {/* <Button className={classes.weekdays_unselected_btn} variant="contained" color="primary">
                 S
             </Button> */}
-              {[0,1,2,3,4,5,6].map((day, i) =>
+              {[1,2,3,4,5,6,7].map((day, i) =>
                 <Button className={days.includes(day) ? classes.weekdays_btn : classes.weekdays_unselected_btn} variant="contained" color="primary"
                 onClick={()=>props.updateFrequencyDay(id, day)}>
-                {weekdays[i]}
+                {weekdays[day]}
               </Button>
               )}
             {/* <Button className={classes.weekdays_unselected_btn} variant="contained" color="primary">
@@ -267,10 +268,10 @@ function Frequency(props) {
                   {/* <Button className={classes.weekdays_unselected_btn} variant="contained" color="primary">
                       S
                   </Button> */}
-                    {[0,1,2,3,4,5,6].map((day, i) =>
+                    {[1,2,3,4,5,6,7].map((day, i) =>
                       <Button className={[exceptionDay].includes(day) ? classes.weekdays_btn : classes.weekdays_unselected_btn} variant="contained" color="primary"
-                      onClick={()=>handleExceptionDaySelection(i, id)}>
-                      {weekdays[i]}
+                      onClick={()=>handleExceptionDaySelection(day, id)}>
+                      {weekdays[day]}
                     </Button>
                     )}
                   {/* <Button className={classes.weekdays_unselected_btn} variant="contained" color="primary">
