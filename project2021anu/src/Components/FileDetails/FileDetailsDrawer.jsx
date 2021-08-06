@@ -138,7 +138,7 @@ const FileDetailsDrawer = (props) => {
             </div>
             <div className={classes.fileInfo_box}>
               <div className={classes.fileInfo_box_header}>Direction</div>
-              <div className={classes.fileInfoValue}>{details.direction}</div>
+              <div className={classes.fileInfoValue}>{details.direction && details.direction.charAt(0).toUpperCase() + details.direction.slice(1).toLowerCase()}</div>
             </div>
             <div className={classes.fileInfo_box}>
               <div className={classes.fileInfo_box_header}>File Mask</div>

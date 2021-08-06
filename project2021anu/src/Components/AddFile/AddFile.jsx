@@ -324,6 +324,17 @@ function AddFile(props) {
                     (name === "fileSuffix" ? value : addFileData.fileInformation.fileSuffix||"")  +
                     (name === "dateTimeMask" ? value : addFileData.fileInformation.dateTimeMask||"")
                     if(name === "fileSuffix"){
+                      setAddFileData({
+                        ...addFileData,
+                        fileInformation: {
+                          ...addFileData.fileInformation,
+                          [name]: value,
+                          fileMask: fileMask
+                        },
+                        fileInfoWarning: {
+                          ...addFileData.fileInfoWarning,
+                        }
+                      })
                       return;
                     }
       setAddFileData({
@@ -582,7 +593,10 @@ function AddFile(props) {
     if(validateTheForm()){
       let request = {
         producerId: addFileData.producerId,
-        fileInformation: addFileData.fileInformation,
+        fileInformation: {
+          ...addFileData.fileInformation,
+          direction: addFileData.fileInformation.direction.value.toUpperCase()
+        },
         frequency: [
           ...addFileData.frequency.map(f => {
             const tempfrequencySpecifierIds = f.days.map(day => day === 0 ? 7 : day) // before submit covert 0 to 7 
@@ -621,7 +635,7 @@ function AddFile(props) {
         ]
       }
       // delte direction key from request
-      delete request?.fileInformation?.direction
+      // delete request?.fileInformation?.direction
       const createFileConfigurationResponse = await addFileAPIs.addFile(request)
       // verify the response and then redirect to fileObserverAdmin page
       console.log(createFileConfigurationResponse)
@@ -696,6 +710,7 @@ function AddFile(props) {
       addFquency.sfrequencyIdWarning= false;
       addFquency.exceptionDayWarning= false;
     } else {
+      addFquency.days = [ 2,3,4,5,6]
       addFquency.frequencyId= frequencyOptions.monthly_FrequencyId;
       addFquency.monthlyOn= null;
       addFquency.exceptionDayWarning= true;

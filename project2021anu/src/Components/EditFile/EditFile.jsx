@@ -227,8 +227,8 @@ function EditFile(props) {
       filePrefix,
       fileSuffix,
       routeId,
-      sftAccountName
-      // direction
+      sftAccountName,
+      direction
     } = editData
     console.log('-----------------------')
     console.log(frequencyId)
@@ -283,7 +283,7 @@ function EditFile(props) {
         fileSuffix,
         routeId,
         sftAccountName,
-        // direction
+        direction
       },
       frequency:[
         // ...addFileData.frequency, if we change from 2 weekly to monthly then we have to clean the weekly
@@ -612,7 +612,10 @@ function EditFile(props) {
         producerFileId: addFileData.producerFileId,
         producerId: addFileData.producerId,
         producerName: addFileData.producerName,
-        fileInformation: addFileData.fileInformation,
+        fileInformation: {
+          ...addFileData.fileInformation,
+          direction: addFileData.fileInformation.direction.toUpperCase()
+        },
         frequency: [
           ...addFileData.frequency.map(f => {
             const tempfrequencySpecifierIds = f.days.map(day => day === 0 ? 7 : day) // before submit covert 0 to 7 
@@ -650,7 +653,7 @@ function EditFile(props) {
         ]
       }
       // delte direction key from request
-      delete request?.fileInformation?.direction
+      // delete request?.fileInformation?.direction
       const createFileConfigurationResponse = await updateFileAPIs.updateFile(request)
       // verify the response and then redirect to fileObserverAdmin page
       console.log(createFileConfigurationResponse)
