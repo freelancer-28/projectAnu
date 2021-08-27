@@ -218,7 +218,7 @@ function EditFile(props) {
   useEffect(() => {
     // console.log("***********************************weekly_FrequencyId")
     // console.log(frequencyOptions.weekly_FrequencyId)
-    const { frequencyId, endTime,startTime, monthlyOn, monthlyFrequencySpecierId, frequencySpecifierIds, exceptionDay, producerId, producerName, hopName, hopId, fileCount, producerFileId } = editData
+    const { multipleFrequencyDetails, frequencyId, endTime,startTime, monthlyOn, monthlyFrequencySpecierId, frequencySpecifierIds, exceptionDay, producerId, producerName, hopName, hopId, fileCount, producerFileId } = editData
     var { slaTime: sla } = editData;
     const {
       dateMask,
@@ -230,42 +230,81 @@ function EditFile(props) {
       sftAccountName,
       direction
     } = editData
-    console.log('-----------------------')
+    console.log('-----------------------multipleFrequencyDetails', multipleFrequencyDetails)
     console.log(frequencyId)
-    const occurence= frequencyId == frequencyOptions.weekly_FrequencyId ? 'DayOfWeekAndTime' : 'Monthly'
-    let firstFrequency = {...fqc}
-    if(occurence === "DayOfWeekAndTime") {
-      delete firstFrequency.mdays;
-      firstFrequency.frequencyId= frequencyId;
-      firstFrequency.endTime= endTime;
-      firstFrequency.endTimeWarning = endTime ? false : true
-      firstFrequency.startTime= startTime;
-      firstFrequency.startTimeWarning = startTime ? false : true
-      firstFrequency.sla= sla;
-      firstFrequency.slaWarning = sla ? false : true
-      const tempfrequencySpecifierIds = frequencySpecifierIds.map(day => day === 7 ? 0 : day)
-      firstFrequency.days= [...tempfrequencySpecifierIds]
-      firstFrequency.monthlyOnWarning = false;
-      firstFrequency.sfrequencyIdWarning = false;
-      firstFrequency.exceptionDayWarning = false;
-    } else {
-      // firstFrequency.days = [ 2,3,4,5,6]
-      firstFrequency.frequencyId= frequencyId;
-      firstFrequency.monthlyOn= monthlyOn;
-      firstFrequency.monthlyOnWarning = monthlyOn ? false : true
-      firstFrequency.sfrequencyId = ""+monthlyFrequencySpecierId;
-      firstFrequency.sfrequencyIdWarning = monthlyFrequencySpecierId ? false : true
-      firstFrequency.endTime= endTime;
-      firstFrequency.endTimeWarning = endTime ? false : true
-      firstFrequency.startTime= startTime;
-      firstFrequency.startTimeWarning = startTime ? false : true
-      firstFrequency.sla= sla;
-      firstFrequency.slaWarning = sla ? false : true
-      // const tempfrequencySpecifierIds = frequencySpecifierIds.map(day => day === 7 ? 0 : day)
-      firstFrequency.days= [...frequencySpecifierIds]
-      firstFrequency.exceptionDay= exceptionDay || null ;
-      // firstFrequency.thirdrow = (exceptionDay === null && tempfrequencySpecifierIds.length  === 7) ? false : true
-    }
+    // const occurence= frequencyId == frequencyOptions.weekly_FrequencyId ? 'DayOfWeekAndTime' : 'Monthly'
+    const occurence= multipleFrequencyDetails[0].frequencyId == frequencyOptions.weekly_FrequencyId ? 'DayOfWeekAndTime' : 'Monthly'
+    let multiFrequency = multipleFrequencyDetails.map((q,i) => {
+            let firstFrequency = {...fqc}
+            if(occurence === "DayOfWeekAndTime") {
+              delete firstFrequency.mdays;
+              firstFrequency.id= i+1;
+              firstFrequency.frequencyId= q.frequencyId;
+              firstFrequency.endTime= q.endTime;
+              firstFrequency.endTimeWarning = q.endTime ? false : true
+              firstFrequency.startTime= q.startTime;
+              firstFrequency.startTimeWarning = q.startTime ? false : true
+              firstFrequency.sla= q.sla;
+              firstFrequency.slaWarning = q.sla ? false : true
+              const tempfrequencySpecifierIds = q.producerFileFrequencySpecifierIds.map(day => day.frequencySpecifierId === 7 ? 0 : day.frequencySpecifierId)
+              firstFrequency.days= [...tempfrequencySpecifierIds]
+              firstFrequency.monthlyOnWarning = false;
+              firstFrequency.sfrequencyIdWarning = false;
+              firstFrequency.exceptionDayWarning = false;
+            } else {
+              // firstFrequency.days = [ 2,3,4,5,6]
+              firstFrequency.id= i+1;
+              firstFrequency.frequencyId= q.frequencyId;
+              firstFrequency.monthlyOn= q.monthlyOn;
+              firstFrequency.monthlyOnWarning = q.monthlyOn ? false : true
+              firstFrequency.sfrequencyId = ""+q.producerFileFrequencySpecifierIds[0].frequencySpecifierId;
+              firstFrequency.sfrequencyIdWarning = q.producerFileFrequencySpecifierIds[0].frequencySpecifierId ? false : true
+              firstFrequency.endTime= q.endTime;
+              firstFrequency.endTimeWarning = q.endTime ? false : true
+              firstFrequency.startTime= q.startTime;
+              firstFrequency.startTimeWarning = q.startTime ? false : true
+              firstFrequency.sla= q.sla;
+              firstFrequency.slaWarning = q.sla ? false : true
+              // const tempfrequencySpecifierIds = frequencySpecifierIds.map(day => day === 7 ? 0 : day)
+              firstFrequency.days= [...q.monthlyAllowedDays]
+              firstFrequency.exceptionDay= +q.exceptionDay || null ;
+              // firstFrequency.thirdrow = (exceptionDay === null && tempfrequencySpecifierIds.length  === 7) ? false : true
+            }
+            return firstFrequency;
+    })
+    // let // firstFrequency = {...fqc}
+    // if(occurence === "DayOfWeekAndTime") {
+    //   delete firstFrequency.mdays;
+    //   firstFrequency.frequencyId= frequencyId;
+    //   firstFrequency.endTime= endTime;
+    //   firstFrequency.endTimeWarning = endTime ? false : true
+    //   firstFrequency.startTime= startTime;
+    //   firstFrequency.startTimeWarning = startTime ? false : true
+    //   firstFrequency.sla= sla;
+    //   firstFrequency.slaWarning = sla ? false : true
+    //   const tempfrequencySpecifierIds = frequencySpecifierIds.map(day => day === 7 ? 0 : day)
+    //   firstFrequency.days= [...tempfrequencySpecifierIds]
+    //   firstFrequency.monthlyOnWarning = false;
+    //   firstFrequency.sfrequencyIdWarning = false;
+    //   firstFrequency.exceptionDayWarning = false;
+    // } else {
+    //   // firstFrequency.days = [ 2,3,4,5,6]
+    //   firstFrequency.frequencyId= frequencyId;
+    //   firstFrequency.monthlyOn= monthlyOn;
+    //   firstFrequency.monthlyOnWarning = monthlyOn ? false : true
+    //   firstFrequency.sfrequencyId = ""+monthlyFrequencySpecierId;
+    //   firstFrequency.sfrequencyIdWarning = monthlyFrequencySpecierId ? false : true
+    //   firstFrequency.endTime= endTime;
+    //   firstFrequency.endTimeWarning = endTime ? false : true
+    //   firstFrequency.startTime= startTime;
+    //   firstFrequency.startTimeWarning = startTime ? false : true
+    //   firstFrequency.sla= sla;
+    //   firstFrequency.slaWarning = sla ? false : true
+    //   // const tempfrequencySpecifierIds = frequencySpecifierIds.map(day => day === 7 ? 0 : day)
+    //   firstFrequency.days= [...frequencySpecifierIds]
+    //   firstFrequency.exceptionDay= exceptionDay || null ;
+    //   // firstFrequency.thirdrow = (exceptionDay === null && tempfrequencySpecifierIds.length  === 7) ? false : true
+    // }
     setAddFileData({
       ...addFileData,
       producerFileId,
@@ -285,10 +324,13 @@ function EditFile(props) {
         sftAccountName,
         direction
       },
-      frequency:[
-        // ...addFileData.frequency, if we change from 2 weekly to monthly then we have to clean the weekly
-        firstFrequency
+      frequency: [
+        ...multiFrequency
       ]
+      // frequency:[
+      //   // ...addFileData.frequency, if we change from 2 weekly to monthly then we have to clean the weekly
+      //   firstFrequency
+      // ]
     })
     console.log('-----------------------')
     // fetchProducerFiltersFromServer();
@@ -531,7 +573,12 @@ function EditFile(props) {
       // if(fre.startTimeTextWarning === null || fre.startTimeTextWarning){
         if(fre.id !== 1) {
           let frequencies  = {frequency : addFileData.frequency }
-          let flag = checkOverlap(frequencies);
+          let flag = undefined
+          if(addFileData.occurence === "Monthly"){
+            flag = checkOverlapMonthly(frequencies);
+          } else {
+            flag = checkOverlap(frequencies);
+          }
           console.log("overlapflag",flag)
           fre.startTimeTextWarning = flag != "Success";
         }
@@ -558,6 +605,21 @@ function EditFile(props) {
     return validationsErrors
   }
 
+  const checkOverlapMonthly = (frequencies) => {
+    let temp = []
+
+    for (var i = 0; i < frequencies.frequency.length; i++) {
+      // for (var j = 0; j < frequencies.frequency[i].days.length; j++) {
+        temp.push(frequencies.frequency[i].monthlyOn +""+frequencies.frequency[i].sfrequencyId)
+      // }
+    }
+    console.log(temp)
+    console.log("-----------------------------------------")
+    let set = new Set(temp);
+    let flag = set.size === temp.length ? "Success" : "Failure"
+    return flag
+  }
+  
   const checkOverlap = (frequencies) => {
     var resFrequencies = { frequency: [] }
 

@@ -223,7 +223,7 @@ function Frequency(props) {
               <div className={classes.lineStyleing}></div>
             </div>
             <div className={classes.edit_fre_days_first}>
-                <FormControl variant="outlined"  error={monthlyOnWarning}>
+                <FormControl variant="outlined"  error={monthlyOnWarning || startTimeTextWarning}>
                     <Select
                     value={{ value: monthlyOn, label: monthlyOn }}
                     options={editDysFrequency}
@@ -232,6 +232,7 @@ function Frequency(props) {
                     placeholder=""
                     />
                     {monthlyOnWarning && <FormHelperText>its a required Field</FormHelperText>}
+                    {startTimeTextWarning && <FormHelperText>Start Time should not overlap with previous frequency</FormHelperText>}
                 </FormControl>
                 <FormControl variant="outlined"  error={sfrequencyIdWarning}>
                   <div className={classes.paddingLeft50px}>
@@ -299,7 +300,7 @@ function Frequency(props) {
                 error={startTimeWarning}
                 helperText={startTimeWarning && "its a required Field"}
                 onChange={(event)=>props.updateFrqStartTime("startTime", event.target.value, id)}/>
-                {startTimeTextWarning && <FormHelperText>Start Time should not overlap with previous frequency</FormHelperText>}
+                {/* {startTimeTextWarning && <FormHelperText>Start Time should not overlap with previous frequency</FormHelperText>} */}
                 </FormControl>
               </div>
               <div className={classes.flex}>

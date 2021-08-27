@@ -511,7 +511,12 @@ function AddFile(props) {
       // if(fre.startTimeTextWarning === null || fre.startTimeTextWarning){
         if(fre.id !== 1) {
           let frequencies  = {frequency : addFileData.frequency }
-          let flag = checkOverlap(frequencies);
+          let flag = undefined
+          if(addFileData.occurence === "Monthly"){
+            flag = checkOverlapMonthly(frequencies);
+          } else {
+            flag = checkOverlap(frequencies);
+          }
           console.log("overlapflag",flag)
           fre.startTimeTextWarning = flag != "Success";
         }
@@ -538,6 +543,21 @@ function AddFile(props) {
     return validationsErrors
   }
 
+  const checkOverlapMonthly = (frequencies) => {
+    let temp = []
+
+    for (var i = 0; i < frequencies.frequency.length; i++) {
+      // for (var j = 0; j < frequencies.frequency[i].days.length; j++) {
+        temp.push(frequencies.frequency[i].monthlyOn +""+frequencies.frequency[i].sfrequencyId)
+      // }
+    }
+    console.log(temp)
+    console.log("-----------------------------------------")
+    let set = new Set(temp);
+    let flag = set.size === temp.length ? "Success" : "Failure"
+    return flag
+  }
+
   const checkOverlap = (frequencies) => {
     var resFrequencies = { frequency: [] }
 
@@ -552,7 +572,6 @@ function AddFile(props) {
           endTime: frequencies.frequency[i].endTime
         })
       }
-
     }
 
     const sortFrequencies = resFrequencies.frequency.sort(

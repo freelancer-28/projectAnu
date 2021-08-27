@@ -114,8 +114,15 @@ const FileDetailsDrawer = (props) => {
     // props.history.push('/fileObserverAdmin')
   }
   console.log(details)
+  console.log(frequencyOptions)
 
+  const printDays = (fdays) => {
+    let todisplay = fdays ? fdays.map(day=> days[day]) :[]
+    console.log(todisplay)
+    return todisplay.toString()
+  }
   let daysToPrint = details && details.frequencySpecifierIds ? details.frequencySpecifierIds.map(day=> days[day]) : []
+  let occurence = details.multipleFrequencyDetails && details.multipleFrequencyDetails[0].frequencyId == frequencyOptions.weekly_FrequencyId ? "Weekly" : "Monthly"
   console.log(daysToPrint)
   return (
     <>
@@ -171,7 +178,8 @@ const FileDetailsDrawer = (props) => {
           <div className={classes.fileInfoContainer}>
             <div className={classes.fileInfo_box}>
               <div className={classes.fileInfo_box_header}>Occurance</div>
-              <div>{details.frequencyId == frequencyOptions.weekly_FrequencyId ? "Weekly" : "Monthly"}</div>
+              <div>{occurence}</div>  
+              {/* <div>{details.frequencyId == frequencyOptions.weekly_FrequencyId ? "Weekly" : "Monthly"}</div> */}
             </div>
             <div className={classes.fileInfo_box}>
               <div className={classes.fileInfo_box_header}>Hop ID</div>
@@ -182,28 +190,31 @@ const FileDetailsDrawer = (props) => {
               <div>{details.fileCount}</div>
             </div>
           </div>
-          <div className={classes.frequncies}>
-            <div className={classes.frequnciesCount}>
-              <div>Frquency # 1</div>
-              {/* <div>Days M, T, W, T, F</div> */}
-              <div>Days {daysToPrint.toString()}</div>
+          {details.multipleFrequencyDetails && details.multipleFrequencyDetails.map((frequency, i) =>
+              <div className={classes.frequncies}>
+              <div className={classes.frequnciesCount}>
+                <div>Frquency # {i+1}</div>
+                {/* <div>Days M, T, W, T, F</div> */}
+                {/* <div>Days {daysToPrint.toString()}</div> */}
+                <div>Days {occurence === 'Weekly' ? printDays(frequency.producerFileFrequencySpecifierIds.map(pfs=>pfs.frequencySpecifierId)) : printDays(frequency.monthlyAllowedDays)}</div>
+              </div>
+              <div className={classes.frequencyInfoContainer}>
+                <div className={classes.fileInfo_box}>
+                  <div className={classes.fileInfo_box_header}>Start Time</div>
+                  <div>{frequency.startTime}</div>
+                </div>
+                <div className={classes.fileInfo_box}>
+                  <div className={classes.fileInfo_box_header}>SLA</div>
+                  <div>{frequency.sla}</div>
+                </div>
+                <div className={classes.fileInfo_box}>
+                  <div className={classes.fileInfo_box_header}>End Time</div>
+                  <div>{frequency.endTime}</div>
+                </div>
+              </div>
             </div>
-            <div className={classes.frequencyInfoContainer}>
-              <div className={classes.fileInfo_box}>
-                <div className={classes.fileInfo_box_header}>Start Time</div>
-                <div>{details.startTime}</div>
-              </div>
-              <div className={classes.fileInfo_box}>
-                <div className={classes.fileInfo_box_header}>SLA</div>
-                <div>{details.slaTime}</div>
-              </div>
-              <div className={classes.fileInfo_box}>
-                <div className={classes.fileInfo_box_header}>End Time</div>
-                <div>{details.endTime}</div>
-              </div>
-            </div>
-            
-          </div>
+            )}
+          
         </div>
     </div> :
     <div>no detrails</div>}

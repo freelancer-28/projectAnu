@@ -189,7 +189,7 @@ const FileDetails = (props) => {
           </div>
           <div className={classes.frequncies}>
             <div className={classes.frequnciesCount}>
-              <div>Frquency # 1</div>
+              <div>Frquency # 1111</div>
               {/* <div>Days M, T, W, T, F</div> */}
               <div>Days {daysToPrint.toString()}</div>
             </div>

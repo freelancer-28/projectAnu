@@ -168,13 +168,13 @@ const fetchProducerOptions = async () => {
         {
           "frequencySpecifierId": 21,
           "frequencySpecifier": "Begin",
-          "frequencyId": 2,
+          "frequencyId": 21,
           "frequency": "Monthly"
         },
         {
           "frequencySpecifierId": 22,
           "frequencySpecifier": "End",
-          "frequencyId": 2,
+          "frequencyId": 21,
           "frequency": "Monthly"
         }
       ],
