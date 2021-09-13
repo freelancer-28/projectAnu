@@ -201,16 +201,19 @@ const FileDetailsDrawer = (props) => {
             </div>
             <div className={classes.fileInfo_box}>
               <div className={classes.fileInfo_box_header}>Add Incident Ticket?</div>
-              <div className={classes.fileInfoValue}>Yes</div>
+              <div>{details.addIncidentTicket && details.addIncidentTicket.toUpperCase() === "Y" ? "Yes" : "No"}</div>
             </div>
-            <div className={classes.fileInfo_box}>
-              <div className={classes.fileInfo_box_header}>Assigned Support Organization</div>
-              <div className={classes.fileInfoValue}>IT-Enrollment and Billing Solution</div>
-            </div>
-            <div className={classes.fileInfo_box}>
-              <div className={classes.fileInfo_box_header}>Assignment Group</div>
-              <div className={classes.fileInfoValue}>EBIS - EB Integration Service</div>
-            </div>
+            {details.addIncidentTicket && details.addIncidentTicket.toUpperCase() === "Y" &&
+            <>
+              <div className={classes.fileInfo_box}>
+                <div className={classes.fileInfo_box_header}>Assigned Support Organization</div>
+                <div className={classes.fileInfoValue}>{details.supportOrg}</div>
+              </div>
+              <div className={classes.fileInfo_box}>
+                <div className={classes.fileInfo_box_header}>Assignment Group</div>
+                <div className={classes.fileInfoValue}>{details.supportGroup}</div>
+              </div>
+            </>}
           </div>
         </div>
         <div className={classes.fileInfo}>
@@ -218,20 +221,23 @@ const FileDetailsDrawer = (props) => {
             <div className={classes.fileInfoContainer, classes.ackblock}>
               <div className={classes.fileInfo_box, classes.fileInfo_box_small_w25}>
                 <div className={classes.fileInfo_box_header}>File Monitoring?</div>
-                <div>Yes</div>  
+                <div>{details.ackFileMontoring && details.ackFileMontoring.toUpperCase() === "Y" ? "Yes" : "No"}</div>
               </div>
-              <div className={classes.fileInfo_box, classes.fileInfo_box_small_w25}>
-                <div className={classes.fileInfo_box_header}>Suffix</div>
-                <div>Yes</div>
-              </div>
-              <div className={classes.fileInfo_box, classes.fileInfo_box_small_w25}>
-                <div className={classes.fileInfo_box_header}>SLA</div>
-                <div>Yes</div>
-              </div>
-              <div className={classes.fileInfo_box, classes.fileInfo_box_small_w25}>
-                <div className={classes.fileInfo_box_header}>EndTime</div>
-                <div>Yes</div>
-              </div>
+              {details.ackFileMontoring && details.ackFileMontoring.toUpperCase() === "Y" && 
+               <>
+                <div className={classes.fileInfo_box, classes.fileInfo_box_small_w25}>
+                  <div className={classes.fileInfo_box_header}>Suffix</div>
+                  <div>{details.ackSuffix}</div>
+                </div>
+                <div className={classes.fileInfo_box, classes.fileInfo_box_small_w25}>
+                  <div className={classes.fileInfo_box_header}>SLA</div>
+                  <div>{details.ackSlaTime}</div>
+                </div>
+                <div className={classes.fileInfo_box, classes.fileInfo_box_small_w25}>
+                  <div className={classes.fileInfo_box_header}>EndTime</div>
+                  <div>{details.ackEndTime}</div>
+                </div>
+              </>}
           </div>
         </div>
         <div className={classes.fileInfo}>
@@ -277,7 +283,7 @@ const FileDetailsDrawer = (props) => {
               <div className={classes.frequencyInfoContainer}>
                 <div className={classes.fileInfo_box_small, classes.fileInfo_box_small_w50}>
                   <div className={classes.fileInfo_box_header}>Add Email Alert?</div>
-                  <div>Yes</div>
+                  <div>{frequency.emailIndicator ? "Yes" : "No"}</div>
                 </div>
                 <div className={classes.fileInfo_box_small, classes.fileInfo_box_small_w50}>
                   <div className={classes.fileInfo_box_header}>Add SMS Messaging Alert?</div>
@@ -286,13 +292,10 @@ const FileDetailsDrawer = (props) => {
               </div>
               <div className={classes.seperator}></div>
               <div className={classes.frequencyInfoContainer}>
-                <div className={classes.fileInfo_box_small, classes.fileInfo_box_small_w50}>
+                {frequency.emailIndicator  && <div className={classes.fileInfo_box_small, classes.fileInfo_box_small_w50}>
                   <div className={classes.fileInfo_box_header}>Email Recipient</div>
-                  <div>Melanie DeWinters</div>
-                  <div>Melanie DeWinters</div>
-                  <div>Melanie DeWinters</div>
-                  <div>Melanie DeWinters</div>
-                </div>
+                  { frequency.emailRecipients && frequency.emailRecipients.map((er,i)=><div key={i}>{er.recipient_Name}</div>)}
+                </div>}
                 <div className={classes.fileInfo_box_small, classes.fileInfo_box_small_w50}>
                   <div className={classes.fileInfo_box_header}>SMS Messaging Recipient</div>
                   <div>(123) 123-1234</div>
