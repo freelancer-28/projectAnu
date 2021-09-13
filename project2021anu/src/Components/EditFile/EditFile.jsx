@@ -170,6 +170,7 @@ function EditFile(props) {
 
   const [addFileData, setAddFileData] = useState({
     addIncident: false,
+    fileMonitoring:false,
     producerFileId: null,
     thirdrow: null,
     validationFlag: false,
@@ -751,7 +752,7 @@ function EditFile(props) {
 
     const { sftAccountNameWarning, filePrefixWarning, fileSuffixWarning, dateMaskWarning, dateTimeMaskWarning, routeIdWarning, hopNameWarning, fileCountWarning, asoWarning, agroupWarning } = addFileData.fileInfoWarning
     let validation_error = false;
-    const { producerId, fileCount, occurence, hopName, hopId, addIncident } = addFileData
+    const { producerId, fileCount, occurence, hopName, hopId, addIncident, fileMonitoring } = addFileData
     const { sftAccountName, direction, fileMask, filePrefix, fileSuffix, dateMask, dateTimeMask, routeId, aso, agroup  } = addFileData.fileInformation
     let tempAddFileData = { ...addFileData, fileInformation: {...addFileData.fileInformation}, fileInfoWarning: {...addFileData.fileInfoWarning}, frequency: [...addFileData.frequency]}
     // let fields = ['sftAccountName', 'filePrefix', 'fileSuffix', 'dateMask', 'dateTimeMask', 'routeId', 'hopName', 'fileCount', 'producerId', 'routeId', 'hopName', 'occurence']
@@ -959,6 +960,13 @@ function EditFile(props) {
       addIncident: event.target.checked
     })
   }
+
+  const handleFileMonitoringChange = (event) => {
+    setAddFileData({
+      ...addFileData,
+      fileMonitoring: event.target.checked
+    })
+  }
   
     console.log(addFileData)
     // mock assigned support organization options
@@ -1109,6 +1117,72 @@ function EditFile(props) {
                 </div>
                 </>}
               </Grid>
+            </div>
+          </div>
+          <div className={classes.content}>
+            <div className={classes.subheader}>Acknowledgment File</div>
+            <div className={classes.display}>
+              <Grid container>
+                <div className={classes.switch_style}>
+                  <div className={classes.displayFlex}>
+                    <span className={classes.label}>File Monitoring ?</span>
+                  </div>
+                  <FormControl variant="outlined" error={addFileData.fileInfoWarning.routeIdWarning}>
+                    <FormControlLabel
+                      value={addFileData.fileMonitoring ? "Yes" : "No"}
+                      control={
+                        <Switch
+                          checked={addFileData.fileMonitoring}
+                          // style={{color: 'green'}}
+                          onChange={handleFileMonitoringChange}
+                          color="primary"
+                          name="checkedB"
+                          inputProps={{ 'aria-label': 'primary checkbox' }}
+                        />}
+                      label={addFileData.fileMonitoring ? "Yes" : "No"}
+                      labelPlacement="start"
+                    />
+                    {/* {addFileData.fileInfoWarning.routeIdWarning && <FormHelperText>its a required Field</FormHelperText>} */}
+                  </FormControl>
+                </div>
+                {addFileData.fileMonitoring && <>
+                  <div className={classes.flex}>
+                    <span className={classes.label}>Suffix</span>
+                    <TextField name="acck_Suffix"
+                    // onChange={handleInputChange} 
+                    // disabled={true}
+                    // value={addFileData.fileInformation.sftAccountName}
+                    // error={addFileData.fileInfoWarning.sftAccountNameWarning}
+                    // helperText={addFileData.fileInfoWarning.sftAccountNameWarning && "its a required Field"} 
+                    />
+                  </div>
+                  <div className={classes.flex}>
+                    <span className={classes.label}>SLA</span>
+                    <FormControl>
+                      <TextField name="acck_SLA"
+                      // onChange={handleInputChange} 
+                      // disabled={true}
+                      // value={addFileData.fileInformation.sftAccountName}
+                      // error={addFileData.fileInfoWarning.sftAccountNameWarning}
+                      // helperText={addFileData.fileInfoWarning.sftAccountNameWarning && "its a required Field"} 
+                      />
+                    </FormControl>
+                  </div>
+                  <div className={classes.flex}>
+                    <span className={classes.label}>End Time</span>
+                    <FormControl>
+                      <TextField name="acck_endtime"
+                      // onChange={handleInputChange} 
+                      // disabled={true}
+                      // value={addFileData.fileInformation.sftAccountName}
+                      // error={addFileData.fileInfoWarning.sftAccountNameWarning}
+                      // helperText={addFileData.fileInfoWarning.sftAccountNameWarning && "its a required Field"} 
+                      />
+                    </FormControl>
+                  </div>
+                </>}
+              </Grid>
+
             </div>
           </div>
           <div className={classes.subcontent}>

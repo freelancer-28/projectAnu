@@ -5,6 +5,16 @@ import { makeStyles } from '@material-ui/core/styles';
 import { selectProducer, selectProducerOptions, selectFrequencyIdsOptions } from "../../reducers/producer";
 
 const useStyles = makeStyles((theme) => ({
+  ackblock: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    marginTop: '10px',
+    marginBottom: '10px'
+  },
+  seperator : {
+    margin: '10px',
+    borderTop:  '1px solid lightgray'
+  },
   cursorpointer: {
     cursor: 'pointer'
   },
@@ -36,7 +46,7 @@ const useStyles = makeStyles((theme) => ({
   right_contaner: {
     width: '500px',
     border: '1px solid lightgray',
-    height: '100%'
+    // height: '100%'
   },
   fileInfo: {
     margin: '32px',
@@ -60,6 +70,22 @@ const useStyles = makeStyles((theme) => ({
     letterSpacing: '0.16px',
     color: '#263238',
     opacity: 1
+  },
+  fileInfo_box_small: {
+    width: '33%',
+    paddingTop: '2px',
+    paddingBottom: '2px',
+    textAlign: 'left',
+    font: 'normal normal normal 14px/16px Arial',
+    letterSpacing: '0.16px',
+    color: '#263238',
+    opacity: 1
+  },
+  fileInfo_box_small_w50: {
+    width: '50%',
+  },
+  fileInfo_box_small_w25: {
+    width: 'unset',
   },
   fileInfo_box_header: {
     color: '#687681',
@@ -96,7 +122,8 @@ const FileDetailsDrawer = (props) => {
 
   const frequencyOptions = useSelector(selectFrequencyIdsOptions);
   const [details, setDetails] = useState({})
-  const days = { 1 : 'S', 2 : 'M', 3 : 'T', 4 : 'W', 5 : 'T', 6 : 'F', 7 : 'S'}
+  const monthlydays = { 1 : 'S', 2 : 'M', 3 : 'T', 4 : 'W', 5 : 'T', 6 : 'F', 7 : 'S'}
+  const weeklydays = { 7 : 'S', 1 : 'M', 2 : 'T', 3 : 'W', 4 : 'T', 5 : 'F', 6 : 'S'}
   const data = useSelector(selectAdminRawData);
   useEffect(() => {
     // let temp = window.location.pathname.split('/')
@@ -116,14 +143,15 @@ const FileDetailsDrawer = (props) => {
   console.log(details)
   console.log(frequencyOptions)
 
-  const printDays = (fdays) => {
-    let todisplay = fdays ? fdays.map(day=> days[day]) :[]
+  const printDays = (fdays, type) => {
+    let daysfre = type === 'w' ? weeklydays : monthlydays
+    let todisplay = fdays ? fdays.map(day=> daysfre[day]) :[]
     console.log(todisplay)
     return todisplay.toString()
   }
-  let daysToPrint = details && details.frequencySpecifierIds ? details.frequencySpecifierIds.map(day=> days[day]) : []
+  // let daysToPrint = details && details.frequencySpecifierIds ? details.frequencySpecifierIds.map(day=> days[day]) : []
   let occurence = details.multipleFrequencyDetails && details.multipleFrequencyDetails[0].frequencyId == frequencyOptions.weekly_FrequencyId ? "Weekly" : "Monthly"
-  console.log(daysToPrint)
+  // console.log(daysToPrint)
   return (
     <>
     { details ?
@@ -171,6 +199,39 @@ const FileDetailsDrawer = (props) => {
               <div className={classes.fileInfo_box_header}>Route</div>
               <div className={classes.fileInfoValue}>{details.routeName}</div>
             </div>
+            <div className={classes.fileInfo_box}>
+              <div className={classes.fileInfo_box_header}>Add Incident Ticket?</div>
+              <div className={classes.fileInfoValue}>Yes</div>
+            </div>
+            <div className={classes.fileInfo_box}>
+              <div className={classes.fileInfo_box_header}>Assigned Support Organization</div>
+              <div className={classes.fileInfoValue}>IT-Enrollment and Billing Solution</div>
+            </div>
+            <div className={classes.fileInfo_box}>
+              <div className={classes.fileInfo_box_header}>Assignment Group</div>
+              <div className={classes.fileInfoValue}>EBIS - EB Integration Service</div>
+            </div>
+          </div>
+        </div>
+        <div className={classes.fileInfo}>
+            <div className={classes.fileInfo_header}>Acknowledgment File</div>
+            <div className={classes.fileInfoContainer, classes.ackblock}>
+              <div className={classes.fileInfo_box, classes.fileInfo_box_small_w25}>
+                <div className={classes.fileInfo_box_header}>File Monitoring?</div>
+                <div>Yes</div>  
+              </div>
+              <div className={classes.fileInfo_box, classes.fileInfo_box_small_w25}>
+                <div className={classes.fileInfo_box_header}>Suffix</div>
+                <div>Yes</div>
+              </div>
+              <div className={classes.fileInfo_box, classes.fileInfo_box_small_w25}>
+                <div className={classes.fileInfo_box_header}>SLA</div>
+                <div>Yes</div>
+              </div>
+              <div className={classes.fileInfo_box, classes.fileInfo_box_small_w25}>
+                <div className={classes.fileInfo_box_header}>EndTime</div>
+                <div>Yes</div>
+              </div>
           </div>
         </div>
         <div className={classes.fileInfo}>
@@ -196,20 +257,48 @@ const FileDetailsDrawer = (props) => {
                 <div>Frquency # {i+1}</div>
                 {/* <div>Days M, T, W, T, F</div> */}
                 {/* <div>Days {daysToPrint.toString()}</div> */}
-                <div>Days {occurence === 'Weekly' ? printDays(frequency.producerFileFrequencySpecifierIds.map(pfs=>pfs.frequencySpecifierId)) : printDays(frequency.monthlyAllowedDays)}</div>
+                <div>Days {occurence === 'Weekly' ? printDays(frequency.producerFileFrequencySpecifierIds.map(pfs=>pfs.frequencySpecifierId), 'w') : printDays(frequency.monthlyAllowedDays, 'm')}</div>
               </div>
               <div className={classes.frequencyInfoContainer}>
-                <div className={classes.fileInfo_box}>
+                <div className={classes.fileInfo_box_small}>
                   <div className={classes.fileInfo_box_header}>Start Time</div>
                   <div>{frequency.startTime}</div>
                 </div>
-                <div className={classes.fileInfo_box}>
+                <div className={classes.fileInfo_box_small}>
                   <div className={classes.fileInfo_box_header}>SLA</div>
                   <div>{frequency.sla}</div>
                 </div>
-                <div className={classes.fileInfo_box}>
+                <div className={classes.fileInfo_box_small}>
                   <div className={classes.fileInfo_box_header}>End Time</div>
                   <div>{frequency.endTime}</div>
+                </div>
+              </div>
+              <div className={classes.seperator}></div>
+              <div className={classes.frequencyInfoContainer}>
+                <div className={classes.fileInfo_box_small, classes.fileInfo_box_small_w50}>
+                  <div className={classes.fileInfo_box_header}>Add Email Alert?</div>
+                  <div>Yes</div>
+                </div>
+                <div className={classes.fileInfo_box_small, classes.fileInfo_box_small_w50}>
+                  <div className={classes.fileInfo_box_header}>Add SMS Messaging Alert?</div>
+                  <div>Yes</div>
+                </div>
+              </div>
+              <div className={classes.seperator}></div>
+              <div className={classes.frequencyInfoContainer}>
+                <div className={classes.fileInfo_box_small, classes.fileInfo_box_small_w50}>
+                  <div className={classes.fileInfo_box_header}>Email Recipient</div>
+                  <div>Melanie DeWinters</div>
+                  <div>Melanie DeWinters</div>
+                  <div>Melanie DeWinters</div>
+                  <div>Melanie DeWinters</div>
+                </div>
+                <div className={classes.fileInfo_box_small, classes.fileInfo_box_small_w50}>
+                  <div className={classes.fileInfo_box_header}>SMS Messaging Recipient</div>
+                  <div>(123) 123-1234</div>
+                  <div>(123) 123-1234</div>
+                  <div>(123) 123-1234</div>
+                  <div>(123) 123-1234</div>
                 </div>
               </div>
             </div>

@@ -14,8 +14,53 @@ import Select from '../Select'
 import { red } from '@material-ui/core/colors';
 import FormControl from '@material-ui/core/FormControl';
 import FormHelperText from '@material-ui/core/FormHelperText';
+import Switch from '@material-ui/core/Switch';
+import { withStyles } from '@material-ui/core/styles';
+import Checkbox from '@material-ui/core/Checkbox';
+import ListItemText from '@material-ui/core/ListItemText';
+
+const GreenCheckbox = withStyles({
+  root: {
+    color: '#008392',
+    '&$checked': {
+      color: '#008392',
+    },
+  },
+  checked: {},
+})((props) => <Checkbox color="default" {...props} />);
+
+const CustomSwitch = withStyles({
+  switchBase: {
+    color: '#CAD6BB',
+    '&$checked': {
+      color: '#618535',
+    },
+    '&$checked + $track': {
+      backgroundColor: '#618535',
+    },
+  },
+  checked: {},
+  track: {},
+})(Switch);
 
 const useStyles = makeStyles((theme) => ({
+  multiOptions: {
+    display: 'flex',
+    flexDirection: 'column',
+    background: 'white',
+    zIndex: 999,
+    position: 'absolute',
+    width: '258px',
+    top: '41px',
+    border: '1px solid #D1D5D9',
+    height: '110px',
+    overflowY: 'auto'
+  },
+  optiondIV: {
+    display: 'flex',
+    borderBottom: '1px solid #D1D5D9',
+    alignItems: 'center'
+  },
   marginWarningLeft: {
     marginLeft: '210px'
   },
@@ -186,7 +231,7 @@ function Frequency(props) {
   const handleFrequencyId = (event) => {
     props.updateFrqStartTime("sfrequencyId", event.target.value, id)
   }
-  const {id, startTime, startTimeWarning, startTimeTextWarning, sla, slaWarning,  endTime, endTimeWarning, days, daysWarning, mdays, monthlyOn, monthlyOnWarning, sfrequencyId, sfrequencyIdWarning, exceptionDay, exceptionDayWarning, thirdrow} = props.data
+  const {id, startTime, startTimeWarning, startTimeTextWarning, sla, slaWarning,  endTime, endTimeWarning, days, daysWarning, mdays, monthlyOn, monthlyOnWarning, sfrequencyId, sfrequencyIdWarning, exceptionDay, exceptionDayWarning, thirdrow, addEmailAlert, emailRecipientWarning} = props.data
   // console.log("sfrequencyIdsfrequencyIdsfrequencyIdsfrequencyId", sfrequencyId)
   // const weekdays = [ 'S','M', 'T', 'W', 'T', 'F','S'];
   const weekdays = { 1 : 'S', 2 : 'M', 3 : 'T', 4 : 'W', 5 : 'T', 6 : 'F', 7 : 'S' }
@@ -195,6 +240,20 @@ function Frequency(props) {
   const classes = useStyles();
   const editDysFrequency =  getDaysInMonth()
   const exceptionDayRadio = sfrequencyId == props.frequencyOptions.begin_frequencySpecifier ? "next" : (sfrequencyId == props.frequencyOptions.end_frequencySpecifier ? "previous" : null)
+
+  const emailRecipientOptions = ["email1", "email2", "email3", "email4", "email5", "email6"]
+  const [emailRecipient, setEmailRecipient] = React.useState([]);
+  const [showERSuggestions, setShowERSuggestions] = React.useState(false);
+  const handleChange = (value) => {
+    let temp = [...emailRecipient]
+    if(temp.includes(value)){
+      temp = temp.filter(t=> t!==value)
+    }else {
+      temp.push(value)
+    }
+    setEmailRecipient([...temp]);
+  };
+
   return (
     <div>
       <div className={classes.frequency_box}>
@@ -321,7 +380,58 @@ function Frequency(props) {
                   helperText={endTimeWarning && "End time >= SLA"}
                   />  
               </div>
+              <div className={classes.flex}>
+                <span className={classes.label}>Add Email Alert?</span>
+                <FormControlLabel
+                    value={addEmailAlert ? "Yes" : "No"}
+                    control={
+                        <CustomSwitch
+                        checked={addEmailAlert}
+                        onChange={event => props.updateFrqStartTime("addEmailAlert", event.target.checked, id)}
+                        name="checkedB"
+                        inputProps={{ 'aria-label': 'primary checkbox' }}
+                      />}
+                    label={addEmailAlert ? "Yes" : "No"}
+                    labelPlacement="start"
+                  /> 
+              </div>
             </Grid>
+            {addEmailAlert && <Grid container>
+              <div className={classes.flex}>
+                <span className={classes.label}>Email Recipient</span>
+                <FormControl variant="outlined"  error={emailRecipientWarning}>
+                <TextField className={classes.root} value={emailRecipient} label="" variant="outlined"
+                  // onBlur={(event)=>handleTimerValidation("endTime", event.target.value, id)}
+                  // onChange={(event)=>updateTimeInMinutes("endTime", event.target.value, id)}
+                  // error={endTimeWarning}
+                  // helperText={endTimeWarning && "End time >= SLA"}
+                  disable={true}
+                  onClick={()=>setShowERSuggestions(!showERSuggestions)}
+                  />  
+                  {showERSuggestions && 
+                  <div className={classes.multiOptions}>
+                    {emailRecipientOptions.map((opt) => (
+                      <div onClick={()=>handleChange(opt)} className={classes.optiondIV} key={opt}>
+                        <GreenCheckbox color="primary" checked={emailRecipient.indexOf(opt) > -1} />
+                        <ListItemText primary={opt} />
+                      </div>
+                    ))}
+                  </div>}
+                  {/* <Select
+                   isMulti= "true"
+                   name="emailRecipient"
+                  //  value={emailRecipientOptions.filter(r=> r.value === emailRecipient)}
+                  value={emailRecipient.toString()}
+                   options={emailRecipientOptions}
+                  //  onChange={event => props.updateFrqStartTime("emailRecipient", event.target.checked, id)}
+                    onChange={handleChange}
+                   isLoading={!(emailRecipientOptions && emailRecipientOptions.length)}
+                   placeholder="Email Recipient"
+                  /> */}
+                  {emailRecipientWarning && <FormHelperText>its a required Field</FormHelperText>}
+                  </FormControl>
+              </div>
+            </Grid>}
             {/* {props.timeWarning && <span className={classes.warningclass}>END TIME GREATER THEN SLA TIME</span>} */}
         </div>
       </div>
