@@ -150,6 +150,8 @@ const directionOptions = [
 const fqc = {
   id: 1,
   addEmailAlert: false,
+  emailRecipient: null,
+  emailRecipientWarning: null,
   days: [1,2,3,4,5],
   mdays: [1,2,3,4,5],
   startTime: null,
@@ -177,7 +179,6 @@ function AddFile(props) {
   const [ validationWarnings, setValidationWarnings ] = useState([])
   const [addFileData, setAddFileData] = useState({
     addIncident: false,
-    fileMonitoring: false,
     thirdrow: null,
     validationFlag: false,
     validationMessage: "",
@@ -187,7 +188,11 @@ function AddFile(props) {
     hopId: null,
     hopName: null,
     fileCount: null,
+    fileMonitoring: false,
     fileInfoWarning: {
+      ack_suffixWarning: null,
+      ack_slaWarning: null,
+      ack_endtimeWarning: null,
       asoWarning: null,
       agroupWarning: null,
       producerIdWarning: null, // select
@@ -204,6 +209,9 @@ function AddFile(props) {
       fileCountWarning: null,
     },
     fileInformation: {
+      ack_suffix: null,
+      ack_sla: null,
+      ack_endtime: null,
       aso: null,
       agroup: null,
       dateMask: null,
@@ -316,6 +324,40 @@ function AddFile(props) {
       }
     })
   };
+
+  const handleInputAckChange = (name, value) => {
+    let tempAFD = {
+      ...addFileData
+    }
+    if(["ack_sla", "ack_endtime"].includes(name)){
+      
+      if(name === "ack_sla" && (value <= addFileData.fileInformation.ack_endtime) && value !== ""){
+        tempAFD.fileInfoWarning[`${name}Warning`] = false
+        tempAFD.fileInfoWarning.ack_endtimeWarning = false
+      }else if(name === "ack_sla"){
+        tempAFD.fileInfoWarning[`${name}Warning`] = true
+        tempAFD.fileInfoWarning.ack_endtimeWarning = true
+      }
+      if(name === "ack_endtime" && addFileData.fileInformation.ack_sla && (value >= addFileData.fileInformation.ack_sla)){
+        tempAFD.fileInfoWarning[`${name}Warning`] = false
+        tempAFD.fileInfoWarning.ack_slaWarning = false
+      }else if(name === "ack_endtime"){
+        tempAFD.fileInfoWarning[`${name}Warning`] = true
+        tempAFD.fileInfoWarning.ack_slaWarning = true
+      }
+    }
+      setAddFileData({
+        ...addFileData,
+        fileInformation: {
+          ...addFileData.fileInformation,
+          [name]: value
+        },
+        fileInfoWarning: {
+          ...addFileData.fileInfoWarning,
+          ...tempAFD.fileInfoWarning
+        }
+      })
+  }
 
   const handleInputChange = event => {
     const {name, value} =  event.target
@@ -509,6 +551,9 @@ function AddFile(props) {
       if(fre.startTimeWarning === null || fre.startTimeWarning){
         fre.startTimeWarning = true;
       }
+      if(fre.addEmailAlert && (fre.emailRecipientWarning === null || fre.emailRecipientWarning)){
+        fre.emailRecipientWarning = true;
+      }
       // if(fre.startTimeTextWarning === null || fre.startTimeTextWarning){
         if(fre.id !== 1) {
           let frequencies  = {frequency : addFileData.frequency }
@@ -677,7 +722,10 @@ function AddFile(props) {
   function fieldWarning(tempAddFileData, warningType, type) {
     let fieldValue = warningType === undefined ? tempAddFileData[type] : warningType
     if(type === "aso" || type === "agroup") {
-      fieldValue = tempAddFileData.addIncident? warningType : true
+      fieldValue = tempAddFileData.addIncident ? warningType : true
+    }
+    if(type === "ack_sla" || type === "ack_suffix" || type === "ack_endtime") {
+      fieldValue = tempAddFileData.fileMonitoring? warningType : true
     }
     if(fieldValue){
       tempAddFileData.fileInfoWarning[`${type}Warning`] = false;
@@ -691,13 +739,14 @@ function AddFile(props) {
     const { sftAccountNameWarning, filePrefixWarning, fileSuffixWarning, dateMaskWarning, dateTimeMaskWarning, routeIdWarning, hopNameWarning, fileCountWarning, asoWarning, agroupWarning } = addFileData.fileInfoWarning
     let validation_error = false;
     const { producerId, fileCount, occurence, hopName, hopId, addIncident, fileMonitoring } = addFileData
-    const { sftAccountName, direction, fileMask, filePrefix, fileSuffix, dateMask, dateTimeMask, routeId, aso, agroup } = addFileData.fileInformation
+    const { sftAccountName, direction, fileMask, filePrefix, fileSuffix, dateMask, dateTimeMask, routeId, aso, agroup, ack_sla, ack_suffix, ack_endtime } = addFileData.fileInformation
     let tempAddFileData = { ...addFileData, fileInformation: {...addFileData.fileInformation}, fileInfoWarning: {...addFileData.fileInfoWarning}, frequency: [...addFileData.frequency]}
-    let fields = ['sftAccountName', 'filePrefix', 'dateMask', 'dateTimeMask', 'routeId', 'hopName', 'fileCount', 'producerId', 'routeId', 'hopName', 'occurence', 'aso', 'agroup']
+    let fields = ['sftAccountName', 'filePrefix', 'dateMask', 'dateTimeMask', 'routeId', 'hopName', 'fileCount', 'producerId', 'routeId', 'hopName', 'occurence', 'aso', 'agroup', 'ack_sla', 'ack_suffix', 'ack_endtime']
     fields.forEach(field => fieldWarning(tempAddFileData, addFileData.fileInformation[field], field))
 
     let addIncidentFieldsValidation = addIncident ? (aso && agroup) : true
-    validation_error = producerId && fileCount && occurence && hopName && hopId && sftAccountName  && fileMask && filePrefix && dateMask && dateTimeMask && routeId && addIncidentFieldsValidation
+    let addFileMonitoringvalidation = fileMonitoring ? (ack_suffix && ack_sla && ack_endtime) : true
+    validation_error = producerId && fileCount && occurence && hopName && hopId && sftAccountName  && fileMask && filePrefix && dateMask && dateTimeMask && routeId && addIncidentFieldsValidation && addFileMonitoringvalidation
 
     let checkIFOverlapToShowErrorMessage = false;
     addFileData.frequency.forEach(fre => {
@@ -777,6 +826,8 @@ function AddFile(props) {
           } else {
             fre[`${type}TextWarning`] = false
           }
+        } else if(fre.addEmailAlert && type === "emailRecipient"){
+          fre[`${type}Warning`] = !Boolean(value)
         } else if(type === "monthlyOn"){
           fre[`${type}Warning`] = !Boolean(value)
         } else if(type === "sfrequencyId"){
@@ -889,6 +940,20 @@ const handleFileMonitoringChange = (event) => {
     ...addFileData,
     fileMonitoring: event.target.checked
   })
+}
+
+const updateTimeInMinutes = (event) => {
+  const {name, value} =  event.target
+  let nonNegative = value >= 0 || value === ''
+  let valuetemp = Number(value)
+  if(nonNegative && !Number.isNaN(valuetemp)){
+    handleInputAckChange(name, valuetemp)
+    // props.updateFrqStartTime(type, value, id)
+  } else {
+    handleInputAckChange(name, "")
+    // props.updateFrqStartTime(type, "", id)      
+  }
+  
 }
 
   console.log(addFileData)
@@ -1087,7 +1152,7 @@ const handleFileMonitoringChange = (event) => {
                         <Switch
                         checked={addFileData.fileMonitoring}
                         // style={{color: 'green'}}
-                        onChange={handleIncedientChange}
+                        onChange={handleFileMonitoringChange}
                         color="primary"
                         name="checkedB"
                         inputProps={{ 'aria-label': 'primary checkbox' }}
@@ -1101,35 +1166,35 @@ const handleFileMonitoringChange = (event) => {
                 {addFileData.fileMonitoring && <>
                 <div className={classes.flex}>
                   <span className={classes.label}>Suffix</span>
-                  <TextField name="acck_Suffix" 
-                    // onChange={handleInputChange} 
+                  <TextField name="ack_suffix" 
+                    onChange={handleInputChange} 
                     // disabled={true}
-                    // value={addFileData.fileInformation.sftAccountName}
-                    // error={addFileData.fileInfoWarning.sftAccountNameWarning}
-                    // helperText={addFileData.fileInfoWarning.sftAccountNameWarning && "its a required Field"} 
+                    value={addFileData.fileInformation.ack_suffix}
+                    error={addFileData.fileInfoWarning.ack_suffixWarning}
+                    helperText={addFileData.fileInfoWarning.ack_suffixWarning && "its a required Field"} 
                     />
                 </div>
                 <div className={classes.flex}>
                   <span className={classes.label}>SLA</span>
                   <FormControl>
-                  <TextField name="acck_SLA" 
-                    // onChange={handleInputChange} 
+                  <TextField name="ack_sla" 
+                    onChange={updateTimeInMinutes} 
                     // disabled={true}
-                    // value={addFileData.fileInformation.sftAccountName}
-                    // error={addFileData.fileInfoWarning.sftAccountNameWarning}
-                    // helperText={addFileData.fileInfoWarning.sftAccountNameWarning && "its a required Field"} 
+                    value={addFileData.fileInformation.ack_sla}
+                    error={addFileData.fileInfoWarning.ack_slaWarning}
+                    helperText={addFileData.fileInfoWarning.ack_slaWarning && "SLA <= End time"} 
                     />
                   </FormControl>
                 </div>
                 <div className={classes.flex}>
                   <span className={classes.label}>End Time</span>
                   <FormControl>
-                  <TextField name="acck_endtime" 
-                    // onChange={handleInputChange} 
+                  <TextField name="ack_endtime" 
+                    onChange={updateTimeInMinutes} 
                     // disabled={true}
-                    // value={addFileData.fileInformation.sftAccountName}
-                    // error={addFileData.fileInfoWarning.sftAccountNameWarning}
-                    // helperText={addFileData.fileInfoWarning.sftAccountNameWarning && "its a required Field"} 
+                    value={addFileData.fileInformation.ack_endtime}
+                    error={addFileData.fileInfoWarning.ack_endtimeWarning}
+                    helperText={addFileData.fileInfoWarning.ack_endtimeWarning && "End time >= SLA"} 
                     />
                   </FormControl>
                 </div>

@@ -178,7 +178,7 @@ function Frequency(props) {
   const [emailRecipient, setEmailRecipient] = React.useState([]);
   const [showERSuggestions, setShowERSuggestions] = React.useState(false);
 
-  const handleChange = (value) => {
+  const handleChange = (value, id) => {
     let temp = [...emailRecipient]
     if(temp.includes(value)){
       temp = temp.filter(t=> t!==value)
@@ -186,6 +186,7 @@ function Frequency(props) {
       temp.push(value)
     }
     setEmailRecipient([...temp]);
+     props.updateFrqStartTime("emailRecipient", temp.length, id)
   };
   return (
     <div>
@@ -281,7 +282,7 @@ function Frequency(props) {
                   {showERSuggestions && 
                   <div className={classes.multiOptions}>
                     {emailRecipientOptions.map((opt) => (
-                      <div onClick={()=>handleChange(opt)} className={classes.optiondIV} key={opt}>
+                      <div onClick={()=>handleChange(opt, id)} className={classes.optiondIV} key={opt}>
                         <GreenCheckbox color="primary" checked={emailRecipient.indexOf(opt) > -1} />
                         <ListItemText primary={opt} />
                       </div>
