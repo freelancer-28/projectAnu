@@ -241,18 +241,18 @@ function Frequency(props) {
   const editDysFrequency =  getDaysInMonth()
   const exceptionDayRadio = sfrequencyId == props.frequencyOptions.begin_frequencySpecifier ? "next" : (sfrequencyId == props.frequencyOptions.end_frequencySpecifier ? "previous" : null)
 
-  const emailRecipientOptions = ["email1", "email2", "email3", "email4", "email5", "email6"]
+  // const emailRecipientOptions = ["email1", "email2", "email3", "email4", "email5", "email6"]
   const [emailRecipient, setEmailRecipient] = React.useState([]);
   const [showERSuggestions, setShowERSuggestions] = React.useState(false);
-  const handleChange = (value, id) => {
+  const handleChange = (value, label, id) => {
     let temp = [...emailRecipient]
-    if(temp.includes(value)){
-      temp = temp.filter(t=> t!==value)
+    if(temp.find(r=> r.recipient_Id === value)){
+      temp = temp.filter(t=> t.recipient_Id!==value)
     }else {
-      temp.push(value)
+      temp.push({ recipient_Id: value ,recipient_Name: label})
     }
     setEmailRecipient([...temp]);
-     props.updateFrqStartTime("emailRecipient", temp.length, id)
+     props.updateFrqStartTime("emailRecipient", [...temp] , id)
   };
 
   return (
@@ -401,7 +401,7 @@ function Frequency(props) {
               <div className={classes.flex}>
                 <span className={classes.label}>Email Recipient</span>
                 <FormControl variant="outlined"  error={emailRecipientWarning}>
-                <TextField className={classes.root} value={emailRecipient} label="" variant="outlined"
+                <TextField className={classes.root} value={emailRecipient.map(er=>er.recipient_Name).toString()} label="" variant="outlined"
                   // onBlur={(event)=>handleTimerValidation("endTime", event.target.value, id)}
                   // onChange={(event)=>updateTimeInMinutes("endTime", event.target.value, id)}
                   // error={endTimeWarning}
@@ -411,10 +411,14 @@ function Frequency(props) {
                   />  
                   {showERSuggestions && 
                   <div className={classes.multiOptions}>
-                    {emailRecipientOptions.map((opt) => (
-                      <div onClick={()=>handleChange(opt, id)} className={classes.optiondIV} key={opt}>
-                        <GreenCheckbox color="primary" checked={emailRecipient.indexOf(opt) > -1} />
-                        <ListItemText primary={opt} />
+                    {props.emailRecipientOptions.map((opt) => (
+                      <div onClick={()=>handleChange(opt.recipient_Id, opt.recipient_Name, id)} className={classes.optiondIV} key={opt}>
+                        <GreenCheckbox color="primary" 
+                        checked = {emailRecipient && emailRecipient.find(ero => ero.recipient_Id === opt.recipient_Id)}
+                        // checked = {props.emailRecipientOptions.find(ero => ero.recipient_Id === emailRecipient.recipient_Id)}
+                        // checked={emailRecipient.indexOf(opt) > -1} 
+                        />
+                        <ListItemText primary={opt.recipient_Name} />
                       </div>
                     ))}
                   </div>}

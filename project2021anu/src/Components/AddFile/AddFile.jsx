@@ -175,7 +175,8 @@ function AddFile(props) {
 
   const [ warning, setWarning ] = useState(false)
   const [ timeWarning, setTimeWarning ] = useState(false)
-
+  const [ fileTicketOrgGroups, setFileTicketOrgGroups ] = useState([])
+  const [ emailRecipientOptions, setEmailRecipientOptions ] = useState([])
   const [ validationWarnings, setValidationWarnings ] = useState([])
   const [addFileData, setAddFileData] = useState({
     addIncident: false,
@@ -190,9 +191,9 @@ function AddFile(props) {
     fileCount: null,
     fileMonitoring: false,
     fileInfoWarning: {
-      ack_suffixWarning: null,
-      ack_slaWarning: null,
-      ack_endtimeWarning: null,
+      ackSuffixWarning: null,
+      ackSlaTimeWarning: null,
+      ackEndTimeWarning: null,
       asoWarning: null,
       agroupWarning: null,
       producerIdWarning: null, // select
@@ -209,9 +210,9 @@ function AddFile(props) {
       fileCountWarning: null,
     },
     fileInformation: {
-      ack_suffix: null,
-      ack_sla: null,
-      ack_endtime: null,
+      ackSuffix: null,
+      ackSlaTime: null,
+      ackEndTime: null,
       aso: null,
       agroup: null,
       dateMask: null,
@@ -295,6 +296,9 @@ function AddFile(props) {
     dispatch(updateProducerOptions(producerOptions));
     dispatch(updateRouteOptions(routeOptions))
     dispatch(updateFrequencyIdsOptions(freqIds))
+
+    setFileTicketOrgGroups(data.fileTicketOrgGroups)
+    setEmailRecipientOptions(data.recipients)
   };
 
   // const producer = useSelector(selectProducer);
@@ -329,21 +333,21 @@ function AddFile(props) {
     let tempAFD = {
       ...addFileData
     }
-    if(["ack_sla", "ack_endtime"].includes(name)){
+    if(["ackSlaTime", "ackEndTime"].includes(name)){
       
-      if(name === "ack_sla" && (value <= addFileData.fileInformation.ack_endtime) && value !== ""){
+      if(name === "ackSlaTime" && (value <= addFileData.fileInformation.ackEndTime) && value !== ""){
         tempAFD.fileInfoWarning[`${name}Warning`] = false
-        tempAFD.fileInfoWarning.ack_endtimeWarning = false
-      }else if(name === "ack_sla"){
+        tempAFD.fileInfoWarning.ackEndTimeWarning = false
+      }else if(name === "ackSlaTime"){
         tempAFD.fileInfoWarning[`${name}Warning`] = true
-        tempAFD.fileInfoWarning.ack_endtimeWarning = true
+        tempAFD.fileInfoWarning.ackEndTimeWarning = true
       }
-      if(name === "ack_endtime" && addFileData.fileInformation.ack_sla && (value >= addFileData.fileInformation.ack_sla)){
+      if(name === "ackEndTime" && addFileData.fileInformation.ackSlaTime && (value >= addFileData.fileInformation.ackSlaTime)){
         tempAFD.fileInfoWarning[`${name}Warning`] = false
-        tempAFD.fileInfoWarning.ack_slaWarning = false
-      }else if(name === "ack_endtime"){
+        tempAFD.fileInfoWarning.ackSlaTimeWarning = false
+      }else if(name === "ackEndTime"){
         tempAFD.fileInfoWarning[`${name}Warning`] = true
-        tempAFD.fileInfoWarning.ack_slaWarning = true
+        tempAFD.fileInfoWarning.ackSlaTimeWarning = true
       }
     }
       setAddFileData({
@@ -584,7 +588,7 @@ function AddFile(props) {
         ...updatedFreqs
       ]
     })
-    let index = updatedFreqs.findIndex(fre => (fre.daysWarning || fre.startTimeWarning || fre.startTimeTextWarning || fre.slaWarning || fre.endTimeWarning || fre.monthlyOnWarning || fre.sfrequencyIdWarning || fre.exceptionDayWarning))
+    let index = updatedFreqs.findIndex(fre => (fre.daysWarning || fre.startTimeWarning || fre.startTimeTextWarning || fre.slaWarning || fre.endTimeWarning || fre.monthlyOnWarning || fre.sfrequencyIdWarning || fre.exceptionDayWarning || fre.emailRecipientWarning))
     validationsErrors = index !== -1
     return validationsErrors
   }
@@ -655,11 +659,15 @@ function AddFile(props) {
     // dispatch(submitFile(addFileData));
     // for the request for createFileConfiguration
     // if(true){
+    let tempfileTicketOrgGroups = fileTicketOrgGroups.filter(a=> a.supportOrg === addFileData.fileInformation.aso && a.supportGroup === addFileData.fileInformation.agroup)
+    let tempfileTicketOrgGroupId = tempfileTicketOrgGroups && tempfileTicketOrgGroups.length ? tempfileTicketOrgGroups[0].fileTicketOrgGroupId : undefined
     if(validateTheForm()){
       let request = {
         producerId: addFileData.producerId,
         fileInformation: {
           ...addFileData.fileInformation,
+          ackFileMontoring: addFileData.fileMonitoring ? "Y" : "N",
+          fileTicketOrgGroupId: tempfileTicketOrgGroupId,
           direction: addFileData.fileInformation.direction.value.toUpperCase()
         },
         frequency: [
@@ -678,6 +686,8 @@ function AddFile(props) {
                     monthlyFrequencySpecifierId: null,
                     monthlyOn: null,
                     exceptionDay: null,
+                    emailIndicator: f.addEmailAlert,
+                    recipients: f.emailRecipient,
                     indicator: "W"
                   }
             } else if (addFileData.occurence === "Monthly"){
@@ -693,6 +703,8 @@ function AddFile(props) {
                               monthlyFrequencySpecifierId: f.sfrequencyId,
                               monthlyOn: f.monthlyOn,
                               exceptionDay: f.exceptionDay === null ? f.exceptionDay : ""+f.exceptionDay,
+                              emailIndicator: f.addEmailAlert,
+                              recipients: f.emailRecipient,
                               indicator: "M"
                             }
                     }
@@ -724,7 +736,7 @@ function AddFile(props) {
     if(type === "aso" || type === "agroup") {
       fieldValue = tempAddFileData.addIncident ? warningType : true
     }
-    if(type === "ack_sla" || type === "ack_suffix" || type === "ack_endtime") {
+    if(type === "ackSlaTime" || type === "ackSuffix" || type === "ackEndTime") {
       fieldValue = tempAddFileData.fileMonitoring? warningType : true
     }
     if(fieldValue){
@@ -739,13 +751,13 @@ function AddFile(props) {
     const { sftAccountNameWarning, filePrefixWarning, fileSuffixWarning, dateMaskWarning, dateTimeMaskWarning, routeIdWarning, hopNameWarning, fileCountWarning, asoWarning, agroupWarning } = addFileData.fileInfoWarning
     let validation_error = false;
     const { producerId, fileCount, occurence, hopName, hopId, addIncident, fileMonitoring } = addFileData
-    const { sftAccountName, direction, fileMask, filePrefix, fileSuffix, dateMask, dateTimeMask, routeId, aso, agroup, ack_sla, ack_suffix, ack_endtime } = addFileData.fileInformation
+    const { sftAccountName, direction, fileMask, filePrefix, fileSuffix, dateMask, dateTimeMask, routeId, aso, agroup, ackSlaTime, ackSuffix, ackEndTime } = addFileData.fileInformation
     let tempAddFileData = { ...addFileData, fileInformation: {...addFileData.fileInformation}, fileInfoWarning: {...addFileData.fileInfoWarning}, frequency: [...addFileData.frequency]}
-    let fields = ['sftAccountName', 'filePrefix', 'dateMask', 'dateTimeMask', 'routeId', 'hopName', 'fileCount', 'producerId', 'routeId', 'hopName', 'occurence', 'aso', 'agroup', 'ack_sla', 'ack_suffix', 'ack_endtime']
+    let fields = ['sftAccountName', 'filePrefix', 'dateMask', 'dateTimeMask', 'routeId', 'hopName', 'fileCount', 'producerId', 'routeId', 'hopName', 'occurence', 'aso', 'agroup', 'ackSlaTime', 'ackSuffix', 'ackEndTime']
     fields.forEach(field => fieldWarning(tempAddFileData, addFileData.fileInformation[field], field))
 
     let addIncidentFieldsValidation = addIncident ? (aso && agroup) : true
-    let addFileMonitoringvalidation = fileMonitoring ? (ack_suffix && ack_sla && ack_endtime) : true
+    let addFileMonitoringvalidation = fileMonitoring ? (ackSuffix && ackSlaTime && ackEndTime) : true
     validation_error = producerId && fileCount && occurence && hopName && hopId && sftAccountName  && fileMask && filePrefix && dateMask && dateTimeMask && routeId && addIncidentFieldsValidation && addFileMonitoringvalidation
 
     let checkIFOverlapToShowErrorMessage = false;
@@ -827,7 +839,7 @@ function AddFile(props) {
             fre[`${type}TextWarning`] = false
           }
         } else if(fre.addEmailAlert && type === "emailRecipient"){
-          fre[`${type}Warning`] = !Boolean(value)
+          fre[`${type}Warning`] = !Boolean(value && value.length)
         } else if(type === "monthlyOn"){
           fre[`${type}Warning`] = !Boolean(value)
         } else if(type === "sfrequencyId"){
@@ -957,12 +969,32 @@ const updateTimeInMinutes = (event) => {
 }
 
   console.log(addFileData)
+  console.log(fileTicketOrgGroups)
+  let asoOptions = []
+  fileTicketOrgGroups.map(fog => {
+    if(asoOptions.find(o=> o.value === fog.supportOrg)) {
+      console.log("ALREADY PRESENT")
+    } else {
+      let tempFog = {
+        value: fog.supportOrg,
+        label: fog.supportOrg,
+        agroup: []
+      }
+      fileTicketOrgGroups.forEach(f => {
+        if(f.supportOrg === tempFog.value){
+          tempFog.agroup.push(f.supportGroup)
+        }
+      })
+      asoOptions.push(tempFog)
+    }
+  })
+  console.log(asoOptions)
   // mock assigned support organization options
-  const asoOptions = [
-    {value: 'aso1', label: 'aso1', agroup: [ "aso1group1", "aso1group2", "aso1group3"]},
-    {value: 'aso2', label: 'aso2', agroup: [ "aso2group1", "aso2group2", "aso2group3"]},
-    {value: 'aso3', label: 'aso3', agroup: [ "aso3group1", "aso3group2", "aso3group3"]}
-  ]
+  // const asoOptions = [
+  //   {value: 'aso1', label: 'aso1', agroup: [ "aso1group1", "aso1group2", "aso1group3"]},
+  //   {value: 'aso2', label: 'aso2', agroup: [ "aso2group1", "aso2group2", "aso2group3"]},
+  //   {value: 'aso3', label: 'aso3', agroup: [ "aso3group1", "aso3group2", "aso3group3"]}
+  // ]
   let agroupOptions = []
   asoOptions.forEach(r=> {
     if(r.value === addFileData.fileInformation.aso){
@@ -1166,35 +1198,35 @@ const updateTimeInMinutes = (event) => {
                 {addFileData.fileMonitoring && <>
                 <div className={classes.flex}>
                   <span className={classes.label}>Suffix</span>
-                  <TextField name="ack_suffix" 
+                  <TextField name="ackSuffix" 
                     onChange={handleInputChange} 
                     // disabled={true}
-                    value={addFileData.fileInformation.ack_suffix}
-                    error={addFileData.fileInfoWarning.ack_suffixWarning}
-                    helperText={addFileData.fileInfoWarning.ack_suffixWarning && "its a required Field"} 
+                    value={addFileData.fileInformation.ackSuffix}
+                    error={addFileData.fileInfoWarning.ackSuffixWarning}
+                    helperText={addFileData.fileInfoWarning.ackSuffixWarning && "its a required Field"} 
                     />
                 </div>
                 <div className={classes.flex}>
                   <span className={classes.label}>SLA</span>
                   <FormControl>
-                  <TextField name="ack_sla" 
+                  <TextField name="ackSlaTime" 
                     onChange={updateTimeInMinutes} 
                     // disabled={true}
-                    value={addFileData.fileInformation.ack_sla}
-                    error={addFileData.fileInfoWarning.ack_slaWarning}
-                    helperText={addFileData.fileInfoWarning.ack_slaWarning && "SLA <= End time"} 
+                    value={addFileData.fileInformation.ackSlaTime}
+                    error={addFileData.fileInfoWarning.ackSlaTimeWarning}
+                    helperText={addFileData.fileInfoWarning.ackSlaTimeWarning && "SLA <= End time"} 
                     />
                   </FormControl>
                 </div>
                 <div className={classes.flex}>
                   <span className={classes.label}>End Time</span>
                   <FormControl>
-                  <TextField name="ack_endtime" 
+                  <TextField name="ackEndTime" 
                     onChange={updateTimeInMinutes} 
                     // disabled={true}
-                    value={addFileData.fileInformation.ack_endtime}
-                    error={addFileData.fileInfoWarning.ack_endtimeWarning}
-                    helperText={addFileData.fileInfoWarning.ack_endtimeWarning && "End time >= SLA"} 
+                    value={addFileData.fileInformation.ackEndTime}
+                    error={addFileData.fileInfoWarning.ackEndTimeWarning}
+                    helperText={addFileData.fileInfoWarning.ackEndTimeWarning && "End time >= SLA"} 
                     />
                   </FormControl>
                 </div>
@@ -1252,6 +1284,7 @@ const updateTimeInMinutes = (event) => {
               timeWarning={timeWarning}
               setValidationWarnings={setValidationWarnings}
               validationWarnings={validationWarnings}
+              emailRecipientOptions={emailRecipientOptions}
               />)
             }
             {addFileData.occurence === "Monthly" && 
@@ -1266,6 +1299,7 @@ const updateTimeInMinutes = (event) => {
               setValidationWarnings={setValidationWarnings}
               validationWarnings={validationWarnings}
               frequencyOptions={frequencyOptions}
+              emailRecipientOptions={emailRecipientOptions}
               />)
             }
             {addFileData.occurence && <Button className={classes.form_btn_space} variant="outlined" onClick={addFrequency}>+ Add Frequency</Button>}

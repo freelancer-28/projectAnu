@@ -169,7 +169,8 @@ function EditFile(props) {
   const frequencyOptions = useSelector(selectFrequencyIdsOptions);
   const [ warning, setWarning ] = useState(false)
   const [ timeWarning, setTimeWarning ] = useState(false)
-
+  const [ fileTicketOrgGroups, setFileTicketOrgGroups ] = useState([])
+  const [ emailRecipientOptions, setEmailRecipientOptions ] = useState([])
   const [addFileData, setAddFileData] = useState({
     addIncident: false,
     producerFileId: null,
@@ -185,9 +186,9 @@ function EditFile(props) {
     fileCount: null,
     fileMonitoring:false,
     fileInfoWarning: {
-      ack_suffixWarning: null,
-      ack_slaWarning: null,
-      ack_endtimeWarning: null,
+      ackSuffixWarning: null,
+      ackSlaTimeWarning: null,
+      ackEndTimeWarning: null,
       asoWarning: null,
       agroupWarning: null,
       producerIdWarning: null, // select
@@ -204,9 +205,9 @@ function EditFile(props) {
       fileCountWarning: null,
     },
     fileInformation: {
-      ack_suffix: null,
-      ack_sla: null,
-      ack_endtime: null,
+      ackSuffix: null,
+      ackSlaTime: null,
+      ackEndTime: null,
       aso: null,
       agroup: null,
       dateMask: null,
@@ -281,39 +282,7 @@ function EditFile(props) {
             }
             return firstFrequency;
     })
-    // let // firstFrequency = {...fqc}
-    // if(occurence === "DayOfWeekAndTime") {
-    //   delete firstFrequency.mdays;
-    //   firstFrequency.frequencyId= frequencyId;
-    //   firstFrequency.endTime= endTime;
-    //   firstFrequency.endTimeWarning = endTime ? false : true
-    //   firstFrequency.startTime= startTime;
-    //   firstFrequency.startTimeWarning = startTime ? false : true
-    //   firstFrequency.sla= sla;
-    //   firstFrequency.slaWarning = sla ? false : true
-    //   const tempfrequencySpecifierIds = frequencySpecifierIds.map(day => day === 7 ? 0 : day)
-    //   firstFrequency.days= [...tempfrequencySpecifierIds]
-    //   firstFrequency.monthlyOnWarning = false;
-    //   firstFrequency.sfrequencyIdWarning = false;
-    //   firstFrequency.exceptionDayWarning = false;
-    // } else {
-    //   // firstFrequency.days = [ 2,3,4,5,6]
-    //   firstFrequency.frequencyId= frequencyId;
-    //   firstFrequency.monthlyOn= monthlyOn;
-    //   firstFrequency.monthlyOnWarning = monthlyOn ? false : true
-    //   firstFrequency.sfrequencyId = ""+monthlyFrequencySpecierId;
-    //   firstFrequency.sfrequencyIdWarning = monthlyFrequencySpecierId ? false : true
-    //   firstFrequency.endTime= endTime;
-    //   firstFrequency.endTimeWarning = endTime ? false : true
-    //   firstFrequency.startTime= startTime;
-    //   firstFrequency.startTimeWarning = startTime ? false : true
-    //   firstFrequency.sla= sla;
-    //   firstFrequency.slaWarning = sla ? false : true
-    //   // const tempfrequencySpecifierIds = frequencySpecifierIds.map(day => day === 7 ? 0 : day)
-    //   firstFrequency.days= [...frequencySpecifierIds]
-    //   firstFrequency.exceptionDay= exceptionDay || null ;
-    //   // firstFrequency.thirdrow = (exceptionDay === null && tempfrequencySpecifierIds.length  === 7) ? false : true
-    // }
+
     setAddFileData({
       ...addFileData,
       producerFileId,
@@ -342,72 +311,14 @@ function EditFile(props) {
       // ]
     })
     console.log('-----------------------')
-    // fetchProducerFiltersFromServer();
-    // return () => { console.log('useEffectProps', props) }
+    fetchProducerFiltersFromServer();
+    return () => { console.log('useEffectProps', props) }
   }, []);
 
   const fetchProducerFiltersFromServer = async () => {
-    // dispatch(updateProducerOptions([]))
-    // dispatch(updateRouteOptions([]));
     const data = await filtersAPIs.fetchProducerOptions();
-    ///////////////////////
-    // collect frequency id
-    let freqIds = {}
-    data.frequencySpecifierNames.forEach(obj => {
-      if(obj.frequency === "DayOfWeekAndTime"){
-        freqIds["weekly_FrequencyId"] = obj.frequencyId
-      }
-      if(obj.frequency === "Monthly"){
-        freqIds["monthly_FrequencyId"] = obj.frequencyId
-        if(obj.frequencySpecifier === "Begin"){
-          freqIds["begin_frequencySpecifier"] = obj.frequencySpecifierId
-        }
-        if(obj.frequencySpecifier === "End"){
-          freqIds["end_frequencySpecifier"] = obj.frequencySpecifierId
-        }
-      }
-    })
-    
-    ///////////////////////
-    // const producerOptions = data.producerNames.map(d=>({
-    //     value: d.producerId,
-    //     label: d.producerName,
-    //     sftAccountName:  d.sftAccountName
-    //   }))
-    // // console.log(producerOptions)
-    // let routeOptions = data.route.reduce((result,d) => {
-    //   let updated = false;
-    //     result.map(route => {
-    //       if(route.value === d.routeId){
-    //         route.hopId= [...route.hopId, d.hopId];
-    //         route.hopName= [...route.hopName, d.hopName]
-    //         updated = true;
-    //       }
-    //       return route
-    //     })
-    //     if(!updated){
-    //       result.push({
-    //         value: d.routeId,
-    //         label: d.routeName,
-    //         hopId: [d.hopId],
-    //         hopName: [d.hopName]
-    //       })
-    //     }     
-    //     return result
-    //   }, [])
-    //   // console.log(routeOptions)
-      
-    // // const routeOptions = data.route.map(d=>({
-    // //   value: d.routeId,
-    // //   label: d.routeName,
-    // //   hopId: d.hopId,
-    // //   hopName: d.hopName
-    // // }))
-    // // console.log(routeOptions)
-
-    // dispatch(updateProducerOptions(producerOptions));
-    // dispatch(updateRouteOptions(routeOptions))
-    dispatch(updateFrequencyIdsOptions(freqIds))
+    setFileTicketOrgGroups(data.fileTicketOrgGroups)
+    setEmailRecipientOptions(data.recipients)
   };
 
   const handleProducerChange = (data) => {
@@ -428,21 +339,21 @@ function EditFile(props) {
     let tempAFD = {
       ...addFileData
     }
-    if(["ack_sla", "ack_endtime"].includes(name)){
+    if(["ackSlaTime", "ackEndTime"].includes(name)){
       
-      if(name === "ack_sla" && (value <= addFileData.fileInformation.ack_endtime) && value !== ""){
+      if(name === "ackSlaTime" && (value <= addFileData.fileInformation.ackEndTime) && value !== ""){
         tempAFD.fileInfoWarning[`${name}Warning`] = false
-        tempAFD.fileInfoWarning.ack_endtimeWarning = false
-      }else if(name === "ack_sla"){
+        tempAFD.fileInfoWarning.ackEndTimeWarning = false
+      }else if(name === "ackSlaTime"){
         tempAFD.fileInfoWarning[`${name}Warning`] = true
-        tempAFD.fileInfoWarning.ack_endtimeWarning = true
+        tempAFD.fileInfoWarning.ackEndTimeWarning = true
       }
-      if(name === "ack_endtime" && addFileData.fileInformation.ack_sla && (value >= addFileData.fileInformation.ack_sla)){
+      if(name === "ackEndTime" && addFileData.fileInformation.ackSlaTime && (value >= addFileData.fileInformation.ackSlaTime)){
         tempAFD.fileInfoWarning[`${name}Warning`] = false
-        tempAFD.fileInfoWarning.ack_slaWarning = false
-      }else if(name === "ack_endtime"){
+        tempAFD.fileInfoWarning.ackSlaTimeWarning = false
+      }else if(name === "ackEndTime"){
         tempAFD.fileInfoWarning[`${name}Warning`] = true
-        tempAFD.fileInfoWarning.ack_slaWarning = true
+        tempAFD.fileInfoWarning.ackSlaTimeWarning = true
       }
     }
       setAddFileData({
@@ -635,7 +546,7 @@ function EditFile(props) {
         ...updatedFreqs
       ]
     })
-    let index = updatedFreqs.findIndex(fre => (fre.daysWarning || fre.startTimeWarning || fre.startTimeTextWarning || fre.slaWarning || fre.endTimeWarning || fre.monthlyOnWarning || fre.sfrequencyIdWarning || fre.exceptionDayWarning))
+    let index = updatedFreqs.findIndex(fre => (fre.daysWarning || fre.startTimeWarning || fre.startTimeTextWarning || fre.slaWarning || fre.endTimeWarning || fre.monthlyOnWarning || fre.sfrequencyIdWarning || fre.exceptionDayWarning || fre.emailRecipientWarning))
     validationsErrors = index !== -1
     return validationsErrors
   }
@@ -704,6 +615,8 @@ function EditFile(props) {
     // dispatch(submitFile(addFileData));
     // for the request for createFileConfiguration
     // if(true){
+    let tempfileTicketOrgGroups = fileTicketOrgGroups.filter(a=> a.supportOrg === addFileData.fileInformation.aso && a.supportGroup === addFileData.fileInformation.agroup)
+    let tempfileTicketOrgGroupId = tempfileTicketOrgGroups && tempfileTicketOrgGroups.length ? tempfileTicketOrgGroups[0].fileTicketOrgGroupId : undefined
     if(validateTheForm()){
       let request = {
         producerFileId: addFileData.producerFileId,
@@ -711,7 +624,9 @@ function EditFile(props) {
         producerName: addFileData.producerName,
         fileInformation: {
           ...addFileData.fileInformation,
-          direction: addFileData.fileInformation.direction.toUpperCase()
+          ackFileMontoring: addFileData.fileMonitoring ? "Y" : "N",
+          fileTicketOrgGroupId: tempfileTicketOrgGroupId,
+          direction: addFileData.fileInformation.direction && addFileData.fileInformation.direction.toUpperCase()
         },
         frequency: [
           ...addFileData.frequency.map(f => {
@@ -728,7 +643,9 @@ function EditFile(props) {
                     frequencySpecifierId: [...tempfrequencySpecifierIds],
                     monthlyFrequencySpecifierId: null,
                     monthlyOn: null,
-                    exceptionDay: null
+                    exceptionDay: null,
+                    emailIndicator: f.addEmailAlert,
+                    recipients: f.emailRecipient
                   }
             } else if (addFileData.occurence === "Monthly"){
                       return {
@@ -743,7 +660,9 @@ function EditFile(props) {
                               monthlyFrequencySpecifierId: f.sfrequencyId,
                               monthlyOn: f.monthlyOn,
                               // exceptionDay: ""+f.exceptionDay
-                              exceptionDay: ""+f.exceptionDay === "0" ? '7' : (f.exceptionDay !== null ? ""+f.exceptionDay : f.exceptionDay) // this is the change
+                              exceptionDay: ""+f.exceptionDay === "0" ? '7' : (f.exceptionDay !== null ? ""+f.exceptionDay : f.exceptionDay), // this is the change
+                              emailIndicator: f.addEmailAlert,
+                              recipients: f.emailRecipient
                             }
                     }
           })
@@ -774,7 +693,7 @@ function EditFile(props) {
     if(type === "aso" || type === "agroup") {
       fieldValue = tempAddFileData.addIncident ? warningType : true
     }
-    if(type === "ack_sla" || type === "ack_suffix" || type === "ack_endtime") {
+    if(type === "ackSlaTime" || type === "ackSuffix" || type === "ackEndTime") {
       fieldValue = tempAddFileData.fileMonitoring? warningType : true
     }
     if(fieldValue){
@@ -790,15 +709,15 @@ function EditFile(props) {
     const { sftAccountNameWarning, filePrefixWarning, fileSuffixWarning, dateMaskWarning, dateTimeMaskWarning, routeIdWarning, hopNameWarning, fileCountWarning, asoWarning, agroupWarning } = addFileData.fileInfoWarning
     let validation_error = false;
     const { producerId, fileCount, occurence, hopName, hopId, addIncident, fileMonitoring } = addFileData
-    const { sftAccountName, direction, fileMask, filePrefix, fileSuffix, dateMask, dateTimeMask, routeId, aso, agroup, ack_sla, ack_suffix, ack_endtime  } = addFileData.fileInformation
+    const { sftAccountName, direction, fileMask, filePrefix, fileSuffix, dateMask, dateTimeMask, routeId, aso, agroup, ackSlaTime, ackSuffix, ackEndTime  } = addFileData.fileInformation
     let tempAddFileData = { ...addFileData, fileInformation: {...addFileData.fileInformation}, fileInfoWarning: {...addFileData.fileInfoWarning}, frequency: [...addFileData.frequency]}
     // let fields = ['sftAccountName', 'filePrefix', 'fileSuffix', 'dateMask', 'dateTimeMask', 'routeId', 'hopName', 'fileCount', 'producerId', 'routeId', 'hopName', 'occurence']
     // below changes are only for update
-    let fields = ['hopName', 'fileCount', 'occurence','aso', 'agroup', 'ack_sla', 'ack_suffix', 'ack_endtime']
+    let fields = ['hopName', 'fileCount', 'occurence','aso', 'agroup', 'ackSlaTime', 'ackSuffix', 'ackEndTime']
     fields.forEach(field => fieldWarning(tempAddFileData, addFileData.fileInformation[field], field))
 
     let addIncidentFieldsValidation = addIncident ? (aso && agroup) : true
-    let addFileMonitoringvalidation = fileMonitoring ? (ack_suffix && ack_sla && ack_endtime) : true
+    let addFileMonitoringvalidation = fileMonitoring ? (ackSuffix && ackSlaTime && ackEndTime) : true
     validation_error = fileCount && occurence && hopName && addIncidentFieldsValidation && addFileMonitoringvalidation
 
     let checkIFOverlapToShowErrorMessage = false;
@@ -886,7 +805,7 @@ function EditFile(props) {
             fre[`${type}TextWarning`] = false
           }
         } else if(fre.addEmailAlert && type === "emailRecipient"){
-          fre[`${type}Warning`] = !Boolean(value)
+          fre[`${type}Warning`] = !Boolean(value && value.length)
         } else if(type === "monthlyOn"){
           fre[`${type}Warning`] = !Boolean(value)
         } else if(type === "sfrequencyId"){
@@ -1023,12 +942,32 @@ function EditFile(props) {
   }
 
     console.log(addFileData)
+    console.log(fileTicketOrgGroups)
+    let asoOptions = []
+    fileTicketOrgGroups.map(fog => {
+      if(asoOptions.find(o=> o.value === fog.supportOrg)) {
+        console.log("ALREADY PRESENT")
+      } else {
+        let tempFog = {
+          value: fog.supportOrg,
+          label: fog.supportOrg,
+          agroup: []
+        }
+        fileTicketOrgGroups.forEach(f => {
+          if(f.supportOrg === tempFog.value){
+            tempFog.agroup.push(f.supportGroup)
+          }
+        })
+        asoOptions.push(tempFog)
+      }
+    })
+    console.log(asoOptions)
     // mock assigned support organization options
-    const asoOptions = [
-      {value: 'aso1', label: 'aso1', agroup: [ "aso1group1", "aso1group2", "aso1group3"]},
-      {value: 'aso2', label: 'aso2', agroup: [ "aso2group1", "aso2group2", "aso2group3"]},
-      {value: 'aso3', label: 'aso3', agroup: [ "aso3group1", "aso3group2", "aso3group3"]}
-    ]
+    // const asoOptions = [
+    //   {value: 'aso1', label: 'aso1', agroup: [ "aso1group1", "aso1group2", "aso1group3"]},
+    //   {value: 'aso2', label: 'aso2', agroup: [ "aso2group1", "aso2group2", "aso2group3"]},
+    //   {value: 'aso3', label: 'aso3', agroup: [ "aso3group1", "aso3group2", "aso3group3"]}
+    // ]
     let agroupOptions = []
     asoOptions.forEach(r=> {
       if(r.value === addFileData.fileInformation.aso){
@@ -1202,35 +1141,35 @@ function EditFile(props) {
                 {addFileData.fileMonitoring && <>
                   <div className={classes.flex}>
                     <span className={classes.label}>Suffix</span>
-                    <TextField name="ack_suffix"
+                    <TextField name="ackSuffix"
                     onChange={handleInputChange} 
                     // disabled={true}
-                    value={addFileData.fileInformation.ack_suffix}
-                    error={addFileData.fileInfoWarning.ack_suffixWarning}
-                    helperText={addFileData.fileInfoWarning.ack_suffixWarning && "its a required Field"} 
+                    value={addFileData.fileInformation.ackSuffix}
+                    error={addFileData.fileInfoWarning.ackSuffixWarning}
+                    helperText={addFileData.fileInfoWarning.ackSuffixWarning && "its a required Field"} 
                     />
                   </div>
                   <div className={classes.flex}>
                     <span className={classes.label}>SLA</span>
                     <FormControl>
-                      <TextField name="ack_sla"
+                      <TextField name="ackSlaTime"
                       onChange={updateTimeInMinutes} 
                       // disabled={true}
-                      value={addFileData.fileInformation.ack_sla}
-                      error={addFileData.fileInfoWarning.ack_slaWarning}
-                      helperText={addFileData.fileInfoWarning.ack_slaWarning && "SLA <= End time"} 
+                      value={addFileData.fileInformation.ackSlaTime}
+                      error={addFileData.fileInfoWarning.ackSlaTimeWarning}
+                      helperText={addFileData.fileInfoWarning.ackSlaTimeWarning && "SLA <= End time"} 
                       />
                     </FormControl>
                   </div>
                   <div className={classes.flex}>
                     <span className={classes.label}>End Time</span>
                     <FormControl>
-                      <TextField name="ack_endtime"
+                      <TextField name="ackEndTime"
                       onChange={updateTimeInMinutes} 
                       // disabled={true}
-                      value={addFileData.fileInformation.ack_endtime}
-                      error={addFileData.fileInfoWarning.ack_endtimeWarning}
-                      helperText={addFileData.fileInfoWarning.ack_endtimeWarning && "End time >= SLA"} 
+                      value={addFileData.fileInformation.ackEndTime}
+                      error={addFileData.fileInfoWarning.ackEndTimeWarning}
+                      helperText={addFileData.fileInfoWarning.ackEndTimeWarning && "End time >= SLA"} 
                       />
                     </FormControl>
                   </div>
@@ -1298,6 +1237,7 @@ function EditFile(props) {
               setTimeWarning={setTimeWarning}
               warning={warning}
               timeWarning={timeWarning}
+              emailRecipientOptions={emailRecipientOptions}
               />)
             }
             {addFileData.occurence === "Monthly" && 
@@ -1310,6 +1250,7 @@ function EditFile(props) {
               warning={warning}
               timeWarning={timeWarning}
               frequencyOptions={frequencyOptions}
+              emailRecipientOptions={emailRecipientOptions}
               />)
             }
             {addFileData.occurence && <Button className={classes.form_btn_space} variant="outlined" onClick={addFrequency}>+ Add Frequency</Button>}

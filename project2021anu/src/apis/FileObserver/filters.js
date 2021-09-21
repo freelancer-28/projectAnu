@@ -90,6 +90,23 @@ const fetchProducerOptions = async () => {
           "hopName": null
         }
       ],
+      "recipients": [
+        {
+          "action": null,
+          "recipient_Id": 10,
+          "recipient_Name": "Hulya Etrych"
+        },
+        {
+          "action": null,
+          "recipient_Id": 11,
+          "recipient_Name": "Michael Hsieh"
+        },
+        {
+          "action": null,
+          "recipient_Id": 12,
+          "recipient_Name": "Jay Madraham"
+        }
+      ],
       "producerNames": [
         {
           "producerId": 1,
@@ -176,6 +193,38 @@ const fetchProducerOptions = async () => {
           "frequencySpecifier": "End",
           "frequencyId": 21,
           "frequency": "Monthly"
+        }
+      ],
+      "fileTicketOrgGroups": [
+        {
+          "supportOrg": "alerts@bcbs.com",
+          "fileTicketOrgGroupId": 1,
+          "supportGroup": "supportkts1@bcbs.com"
+        },
+        {
+          "supportOrg": "alerts@bcbs.com",
+          "fileTicketOrgGroupId": 2,
+          "supportGroup": "supportkts2@bcbsfl.com"
+        },
+        {
+          "supportOrg": "alerts@bcbs.com",
+          "fileTicketOrgGroupId": 3,
+          "supportGroup": "supportkts3@bcbsfl.com"
+        },
+        {
+          "supportOrg": "alertsbcbs.com",
+          "fileTicketOrgGroupId": 4,
+          "supportGroup": "supp@bcbsfl"
+        },
+        {
+          "supportOrg": "alertsbcbs.com",
+          "fileTicketOrgGroupId": 5,
+          "supportGroup": "supp2@bcbsfl"
+        },
+        {
+          "supportOrg": "alerts2@bcbs.com",
+          "fileTicketOrgGroupId": 6,
+          "supportGroup": "support23@bcbsfl.com"
         }
       ],
       "status": "Success"
