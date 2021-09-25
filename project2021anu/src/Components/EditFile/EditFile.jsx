@@ -626,6 +626,7 @@ function EditFile(props) {
           ...addFileData.fileInformation,
           ackFileMontoring: addFileData.fileMonitoring ? "Y" : "N",
           fileTicketOrgGroupId: tempfileTicketOrgGroupId,
+          enableSmartITTicket: addFileData.addIncident ? "Y" : "N",
           direction: addFileData.fileInformation.direction && addFileData.fileInformation.direction.toUpperCase()
         },
         frequency: [

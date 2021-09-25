@@ -668,6 +668,7 @@ function AddFile(props) {
           ...addFileData.fileInformation,
           ackFileMontoring: addFileData.fileMonitoring ? "Y" : "N",
           fileTicketOrgGroupId: tempfileTicketOrgGroupId,
+          enableSmartITTicket: addFileData.addIncident ? "Y" : "N",
           direction: addFileData.fileInformation.direction.value.toUpperCase()
         },
         frequency: [
