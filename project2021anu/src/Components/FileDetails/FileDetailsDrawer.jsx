@@ -214,6 +214,10 @@ const FileDetailsDrawer = (props) => {
                 <div className={classes.fileInfoValue}>{details.supportGroup}</div>
               </div>
             </>}
+            <div className={classes.fileInfo_box}>
+              <div className={classes.fileInfo_box_header}>Track EDI Gateway Rejection ?</div>
+              <div className={classes.fileInfoValue}>Yes</div>
+            </div>
           </div>
         </div>
         <div className={classes.fileInfo}>

@@ -190,6 +190,7 @@ function AddFile(props) {
     hopName: null,
     fileCount: null,
     fileMonitoring: false,
+    ediRejectMonitoring: false,
     fileInfoWarning: {
       ackSuffixWarning: null,
       ackSlaTimeWarning: null,
@@ -948,6 +949,13 @@ const handleIncedientChange = (event) => {
   })
 }
 
+const handleEdiRejectingMonitoringChange = (event) => {
+  setAddFileData({
+    ...addFileData,
+    ediRejectMonitoring: event.target.checked
+  })
+}
+
 const handleFileMonitoringChange = (event) => {
   setAddFileData({
     ...addFileData,
@@ -1167,6 +1175,30 @@ const updateTimeInMinutes = (event) => {
                    placeholder="HopName"
                   />
                 </div> */}
+              </Grid>
+              <Grid container>
+                <div className={classes.switch_style}>
+                  <div className={classes.displayFlex}>
+                    <span className={classes.label}>Track EDI Gateway Rejection ?</span>
+                  </div>
+                  <FormControl variant="outlined"  error={false}>
+                  <FormControlLabel
+                    value={addFileData.ediRejectMonitoring ? "Yes" : "No"}
+                    control={
+                        <Switch
+                        checked={addFileData.ediRejectMonitoring}
+                        // style={{color: 'green'}}
+                        onChange={handleEdiRejectingMonitoringChange}
+                        color="primary"
+                        name="checkedB"
+                        inputProps={{ 'aria-label': 'primary checkbox' }}
+                      />}
+                    label={addFileData.ediRejectMonitoring ? "Yes" : "No"}
+                    labelPlacement="start"
+                  />
+                  {/* {addFileData.fileInfoWarning.routeIdWarning && <FormHelperText>its a required Field</FormHelperText>} */}
+                  </FormControl>
+                </div>
               </Grid>
             </div>
           </div>

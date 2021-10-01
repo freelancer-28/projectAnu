@@ -185,6 +185,7 @@ function EditFile(props) {
     hopName: null,
     fileCount: null,
     fileMonitoring:false,
+    ediRejectMonitoring: false,
     fileInfoWarning: {
       ackSuffixWarning: null,
       ackSlaTimeWarning: null,
@@ -228,7 +229,7 @@ function EditFile(props) {
   useEffect(() => {
     // console.log("***********************************weekly_FrequencyId")
     // console.log(frequencyOptions.weekly_FrequencyId)
-    const { multipleFrequencyDetails, frequencyId, endTime,startTime, monthlyOn, monthlyFrequencySpecierId, frequencySpecifierIds, exceptionDay, producerId, producerName, hopName, hopId, fileCount, producerFileId } = editData
+    const { multipleFrequencyDetails, frequencyId, endTime,startTime, monthlyOn, monthlyFrequencySpecierId, frequencySpecifierIds, exceptionDay, producerId, producerName, hopName, hopId, fileCount, producerFileId, ackFileMontoring, ackSuffix, ackSlaTime, ackEndTime, ediRejectMonitoring } = editData
     var { slaTime: sla } = editData;
     const {
       dateMask,
@@ -292,7 +293,12 @@ function EditFile(props) {
       hopId,
       occurence,
       fileCount,
+      fileMonitoring: ackFileMontoring === "Y" ? true : false,
+      ediRejectMonitoring: ediRejectMonitoring === "Y" ? true : false,
       fileInformation: {
+        ackSuffix,
+        ackSlaTime,
+        ackEndTime,
         dateMask,
         dateTimeMask,
         fileMask,
@@ -921,6 +927,13 @@ function EditFile(props) {
     })
   }
 
+  const handleEdiRejectingMonitoringChange = (event) => {
+    setAddFileData({
+      ...addFileData,
+      ediRejectMonitoring: event.target.checked
+    })
+  }
+
   const handleFileMonitoringChange = (event) => {
     setAddFileData({
       ...addFileData,
@@ -1110,6 +1123,30 @@ function EditFile(props) {
                   </FormControl>
                 </div>
                 </>}
+              </Grid>
+              <Grid container>
+                <div className={classes.switch_style}>
+                  <div className={classes.displayFlex}>
+                    <span className={classes.label}>Track EDI Gateway Rejection ?</span>
+                  </div>
+                  <FormControl variant="outlined"  error={false}>
+                  <FormControlLabel
+                    value={addFileData.ediRejectMonitoring ? "Yes" : "No"}
+                    control={
+                        <Switch
+                        checked={addFileData.ediRejectMonitoring}
+                        // style={{color: 'green'}}
+                        onChange={handleEdiRejectingMonitoringChange}
+                        color="primary"
+                        name="checkedB"
+                        inputProps={{ 'aria-label': 'primary checkbox' }}
+                      />}
+                    label={addFileData.ediRejectMonitoring ? "Yes" : "No"}
+                    labelPlacement="start"
+                  />
+                  {/* {addFileData.fileInfoWarning.routeIdWarning && <FormHelperText>its a required Field</FormHelperText>} */}
+                  </FormControl>
+                </div>
               </Grid>
             </div>
           </div>
