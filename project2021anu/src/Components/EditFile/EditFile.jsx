@@ -239,7 +239,10 @@ function EditFile(props) {
       fileSuffix,
       routeId,
       sftAccountName,
-      direction
+      direction,
+      fileTicketOrgGroupId,
+      supportOrg,
+      supportGroup
     } = editData
     console.log('-----------------------multipleFrequencyDetails', multipleFrequencyDetails)
     console.log(frequencyId)
@@ -299,7 +302,10 @@ function EditFile(props) {
       fileCount,
       fileMonitoring: ackFileMontoring === "Y" ? true : false,
       ediRejectMonitoring: ediRejectMonitoring === "Y" ? true : false,
+      addIncident: fileTicketOrgGroupId ? true : false,
       fileInformation: {
+        aso: supportOrg,
+        agroup: supportGroup,
         ackSuffix,
         ackSlaTime,
         ackEndTime,
