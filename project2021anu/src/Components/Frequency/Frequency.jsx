@@ -168,25 +168,32 @@ function Frequency(props) {
     
   }
 
-  const {id, startTime, startTimeWarning, startTimeTextWarning, sla, slaWarning, endTime, endTimeWarning, days, daysWarning, addEmailAlert, emailRecipientWarning} = props.data
+  const {id, startTime, startTimeWarning, startTimeTextWarning, sla, slaWarning, endTime, endTimeWarning, days, daysWarning, emailIndicator, emailRecipientsWarning} = props.data
   const weekdays = [ 'S','M', 'T', 'W', 'T', 'F','S'];
   console.log(days)
   const classes = useStyles();
-  // MOCK emailRecipientOptions 
-  // const emailRecipientOptions = [{value: "email1", label: 'email1'}, {value: "email2", label: 'email2'}]
-  // const emailRecipientOptions = ["email1", "email2", "email3", "email4", "email5", "email6"]
-  const [emailRecipient, setEmailRecipient] = React.useState([]);
+  // MOCK emailRecipientsOptions 
+  // const emailRecipientsOptions = [{value: "email1", label: 'email1'}, {value: "email2", label: 'email2'}]
+  // const emailRecipientsOptions = ["email1", "email2", "email3", "email4", "email5", "email6"]
+  const eRecipients = props.data.emailRecipients ? props.data.emailRecipients : []
+  const [emailRecipients, setEmailRecipients] = React.useState([...eRecipients]);
   const [showERSuggestions, setShowERSuggestions] = React.useState(false);
 
   const handleChange = (value, label, id) => {
-    let temp = [...emailRecipient]
+    let temp = [...emailRecipients]
     if(temp.find(r=> r.recipient_Id === value)){
-      temp = temp.filter(t=> t.recipient_Id!==value)
+      temp = temp.map(t=>{
+        if(t.recipient_Id === value){
+          t.action = "delete"
+        }
+        return t
+      })
+      // temp = temp.filter(t=> t.recipient_Id!==value)
     }else {
-      temp.push({ recipient_Id: value ,recipient_Name: label})
+      temp.push({ recipient_Id: value ,recipient_Name: label, action: 'add'})
     }
-    setEmailRecipient([...temp]);
-     props.updateFrqStartTime("emailRecipient", [...temp] , id)
+    setEmailRecipients([...temp]);
+     props.updateFrqStartTime("emailRecipients", [...temp] , id)
   };
   return (
     <div>
@@ -254,24 +261,24 @@ function Frequency(props) {
               <div className={classes.flex}>
                 <span className={classes.label}>Add Email Alert?</span>
                 <FormControlLabel
-                    value={addEmailAlert ? "Yes" : "No"}
+                    value={emailIndicator ? "Yes" : "No"}
                     control={
                         <CustomSwitch
-                        checked={addEmailAlert}
-                        onChange={event => props.updateFrqStartTime("addEmailAlert", event.target.checked, id)}
+                        checked={emailIndicator}
+                        onChange={event => props.updateFrqStartTime("emailIndicator", event.target.checked, id)}
                         name="checkedB"
                         inputProps={{ 'aria-label': 'primary checkbox' }}
                       />}
-                    label={addEmailAlert ? "Yes" : "No"}
+                    label={emailIndicator ? "Yes" : "No"}
                     labelPlacement="start"
                   /> 
               </div>
         </Grid>
-            {addEmailAlert && <Grid container>
+            {emailIndicator && <Grid container>
               <div className={classes.flex}>
                 <span className={classes.label}>Email Recipient</span>
-                <FormControl variant="outlined"  error={emailRecipientWarning}>
-                <TextField className={classes.root} value={emailRecipient.map(er=>er.recipient_Name).toString()} label="" variant="outlined"
+                <FormControl variant="outlined"  error={emailRecipientsWarning}>
+                <TextField className={classes.root} value={emailRecipients.map(er=> (er.action === null || er.action === "add" ) ? er.recipient_Name : '').toString().replace(",", "")} label="" variant="outlined"
                   // onBlur={(event)=>handleTimerValidation("endTime", event.target.value, id)}
                   // onChange={(event)=>updateTimeInMinutes("endTime", event.target.value, id)}
                   // error={endTimeWarning}
@@ -281,10 +288,11 @@ function Frequency(props) {
                   />  
                   {showERSuggestions && 
                   <div className={classes.multiOptions}>
-                    {props.emailRecipientOptions.map((opt) => (
+                    {props.emailRecipientsOptions.map((opt) => (
                       <div onClick={()=>handleChange(opt.recipient_Id, opt.recipient_Name, id)} className={classes.optiondIV} key={opt}>
-                        <GreenCheckbox color="primary" checked = {emailRecipient && emailRecipient.find(ero => ero.recipient_Id === opt.recipient_Id)}
-                        // checked={emailRecipient.indexOf(opt) > -1} 
+                        <GreenCheckbox color="primary"
+                        checked = {emailRecipients && emailRecipients.find(ero => ((ero.recipient_Id === opt.recipient_Id) && (ero.action === null || ero.action === "add" )))}
+                        // checked={emailRecipients.indexOf(opt) > -1} 
                         />
                         <ListItemText primary={opt.recipient_Name} />
                       </div>
@@ -292,16 +300,16 @@ function Frequency(props) {
                   </div>}
                   {/* <Select
                    isMulti= "true"
-                   name="emailRecipient"
-                  //  value={emailRecipientOptions.filter(r=> r.value === emailRecipient)}
-                  value={emailRecipient.toString()}
-                   options={emailRecipientOptions}
-                  //  onChange={event => props.updateFrqStartTime("emailRecipient", event.target.checked, id)}
+                   name="emailRecipients"
+                  //  value={emailRecipientsOptions.filter(r=> r.value === emailRecipients)}
+                  value={emailRecipients.toString()}
+                   options={emailRecipientsOptions}
+                  //  onChange={event => props.updateFrqStartTime("emailRecipients", event.target.checked, id)}
                     onChange={handleChange}
-                   isLoading={!(emailRecipientOptions && emailRecipientOptions.length)}
+                   isLoading={!(emailRecipientsOptions && emailRecipientsOptions.length)}
                    placeholder="Email Recipient"
                   /> */}
-                  {emailRecipientWarning && <FormHelperText>its a required Field</FormHelperText>}
+                  {emailRecipientsWarning && <FormHelperText>its a required Field</FormHelperText>}
                   </FormControl>
               </div>
             </Grid>}

@@ -142,9 +142,9 @@ const directionOptions = [
 
 const fqc = {
   id: 1,
-  addEmailAlert: false,
-  emailRecipient: null,
-  emailRecipientWarning: null,
+  emailIndicator: false,
+  emailRecipients: null,
+  emailRecipientsWarning: null,
   days: [1,2,3,4,5],
   mdays: [1,2,3,4,5],
   startTime: null,
@@ -170,7 +170,7 @@ function EditFile(props) {
   const [ warning, setWarning ] = useState(false)
   const [ timeWarning, setTimeWarning ] = useState(false)
   const [ fileTicketOrgGroups, setFileTicketOrgGroups ] = useState([])
-  const [ emailRecipientOptions, setEmailRecipientOptions ] = useState([])
+  const [ emailRecipientsOptions, setEmailRecipientsOptions ] = useState([])
   const [addFileData, setAddFileData] = useState({
     addIncident: false,
     producerFileId: null,
@@ -262,6 +262,8 @@ function EditFile(props) {
               firstFrequency.monthlyOnWarning = false;
               firstFrequency.sfrequencyIdWarning = false;
               firstFrequency.exceptionDayWarning = false;
+              firstFrequency.emailIndicator = q.emailIndicator;
+              firstFrequency.emailRecipients = q.emailRecipients;
             } else {
               // firstFrequency.days = [ 2,3,4,5,6]
               firstFrequency.id= i+1;
@@ -279,6 +281,8 @@ function EditFile(props) {
               // const tempfrequencySpecifierIds = frequencySpecifierIds.map(day => day === 7 ? 0 : day)
               firstFrequency.days= [...q.monthlyAllowedDays]
               firstFrequency.exceptionDay= +q.exceptionDay || null ;
+              firstFrequency.emailIndicator = q.emailIndicator;
+              firstFrequency.emailRecipients = q.emailRecipients;
               // firstFrequency.thirdrow = (exceptionDay === null && tempfrequencySpecifierIds.length  === 7) ? false : true
             }
             return firstFrequency;
@@ -324,7 +328,7 @@ function EditFile(props) {
   const fetchProducerFiltersFromServer = async () => {
     const data = await filtersAPIs.fetchProducerOptions();
     setFileTicketOrgGroups(data.fileTicketOrgGroups)
-    setEmailRecipientOptions(data.recipients)
+    setEmailRecipientsOptions(data.recipients)
   };
 
   const handleProducerChange = (data) => {
@@ -519,8 +523,8 @@ function EditFile(props) {
       if(fre.startTimeWarning === null || fre.startTimeWarning){
         fre.startTimeWarning = true;
       }
-      if(fre.addEmailAlert && (fre.emailRecipientWarning === null || fre.emailRecipientWarning)){
-        fre.emailRecipientWarning = true;
+      if(fre.emailIndicator && (fre.emailRecipientsWarning === null || fre.emailRecipientsWarning)){
+        fre.emailRecipientsWarning = true;
       }
       // if(fre.startTimeTextWarning === null || fre.startTimeTextWarning){
         if(fre.id !== 1) {
@@ -552,7 +556,7 @@ function EditFile(props) {
         ...updatedFreqs
       ]
     })
-    let index = updatedFreqs.findIndex(fre => (fre.daysWarning || fre.startTimeWarning || fre.startTimeTextWarning || fre.slaWarning || fre.endTimeWarning || fre.monthlyOnWarning || fre.sfrequencyIdWarning || fre.exceptionDayWarning || fre.emailRecipientWarning))
+    let index = updatedFreqs.findIndex(fre => (fre.daysWarning || fre.startTimeWarning || fre.startTimeTextWarning || fre.slaWarning || fre.endTimeWarning || fre.monthlyOnWarning || fre.sfrequencyIdWarning || fre.exceptionDayWarning || fre.emailRecipientsWarning))
     validationsErrors = index !== -1
     return validationsErrors
   }
@@ -651,8 +655,8 @@ function EditFile(props) {
                     monthlyFrequencySpecifierId: null,
                     monthlyOn: null,
                     exceptionDay: null,
-                    emailIndicator: f.addEmailAlert,
-                    recipients: f.emailRecipient
+                    emailIndicator: f.emailIndicator,
+                    recipients: f.emailRecipients
                   }
             } else if (addFileData.occurence === "Monthly"){
                       return {
@@ -668,8 +672,8 @@ function EditFile(props) {
                               monthlyOn: f.monthlyOn,
                               // exceptionDay: ""+f.exceptionDay
                               exceptionDay: ""+f.exceptionDay === "0" ? '7' : (f.exceptionDay !== null ? ""+f.exceptionDay : f.exceptionDay), // this is the change
-                              emailIndicator: f.addEmailAlert,
-                              recipients: f.emailRecipient
+                              emailIndicator: f.emailIndicator,
+                              recipients: f.emailRecipients
                             }
                     }
           })
@@ -811,7 +815,7 @@ function EditFile(props) {
           } else {
             fre[`${type}TextWarning`] = false
           }
-        } else if(fre.addEmailAlert && type === "emailRecipient"){
+        } else if(fre.emailIndicator && type === "emailRecipients"){
           fre[`${type}Warning`] = !Boolean(value && value.length)
         } else if(type === "monthlyOn"){
           fre[`${type}Warning`] = !Boolean(value)
@@ -1275,7 +1279,7 @@ function EditFile(props) {
               setTimeWarning={setTimeWarning}
               warning={warning}
               timeWarning={timeWarning}
-              emailRecipientOptions={emailRecipientOptions}
+              emailRecipientsOptions={emailRecipientsOptions}
               />)
             }
             {addFileData.occurence === "Monthly" && 
@@ -1288,7 +1292,7 @@ function EditFile(props) {
               warning={warning}
               timeWarning={timeWarning}
               frequencyOptions={frequencyOptions}
-              emailRecipientOptions={emailRecipientOptions}
+              emailRecipientsOptions={emailRecipientsOptions}
               />)
             }
             {addFileData.occurence && <Button className={classes.form_btn_space} variant="outlined" onClick={addFrequency}>+ Add Frequency</Button>}
