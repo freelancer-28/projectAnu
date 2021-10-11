@@ -6,10 +6,10 @@ import { selectAdminRawData } from "../../reducers/adminRawData";
 import { selectAddFile } from "../../reducers/addFile";
 import { LinkContainer, Box, Button, ButtonContainer } from "./styles";
 import Table from "../../Components/Table";
-import fileAPIs from "../../apis/AdminTools";
+import fileAPIs from "../../apis/AdminTool";
 import {updateProducerOptions,  updateFrequencyIdsOptions, updateRouteOptions, updateAdminFileData, updateFileData, submitFile, updateAdminRawData } from "../../actions";
-import AddFile from "../AddFile/AddFile";
-import EditFile from "../EditFile/EditFile";
+import AddFile from "../AddFile";
+import EditFile from "../EditFile";
 import CustomErrorDialog from '../CustomErrorDialog/index'
 import filtersAPIs from "../../apis/FileObserver/filters";
 import Drawer from '@material-ui/core/Drawer';

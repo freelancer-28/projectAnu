@@ -9,8 +9,8 @@ import Typography from "@material-ui/core/Typography";
 import HomeMenu from './Components/HomeMenu';
 // import FileObserver from './Components/FileObserver'
 import AdminTool from './Components/AdminTool'
-import EditFile from './Components/EditFile/EditFile'
-import AddFile from './Components/AddFile/AddFile'
+import EditFile from './Components/EditFile'
+import AddFile from './Components/AddFile'
 import FileDetails from './Components/FileDetails/FileDetails';
 
 const Main = () => {

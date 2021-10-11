@@ -1,6 +1,6 @@
 import { makeStyles } from '@material-ui/core/styles';
-import AddFile from './AddFile/AddFile.jsx'
-import EditFile from './EditFile/EditFile.jsx'
+import AddFile from './AddFile'
+import EditFile from './EditFile'
 import Button from '@material-ui/core/Button';
 import FileDetails from './FileDetails/FileDetails';
 import AdminTool from '../Components/AdminTool'
