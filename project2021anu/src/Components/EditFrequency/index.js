@@ -301,7 +301,7 @@ useEffect(() => {
           {/* and checks if the producer file has one frequncy set */}
           {addPage ? <div onClick={()=>props.deleteFrequency(id)}>
                      <FontAwesomeIcon icon={faTrashAlt} />
-                     </div> : (props.frequncyArray.length !== 1) 
+                     </div> : (props.frequncyArray.filter(f => f.action !== "DELETE").length !== 1) 
                       ? <div onClick={()=>props.deleteFrequency(id)}>
                         <FontAwesomeIcon icon={faTrashAlt} />
                         </div> 
