@@ -296,7 +296,7 @@ useEffect(() => {
     <div>
       <div className={classes.frequency_box}>
         <div className={classes.frequency_header}>
-          <div>Frequency#{id}</div>
+          <div>Frequency#{props.index+1}</div>
           {/* checks if locattion is /addfile */}
           {/* and checks if the producer file has one frequncy set */}
           {addPage ? <div onClick={()=>props.deleteFrequency(id)}>

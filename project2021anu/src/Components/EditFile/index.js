@@ -361,7 +361,9 @@ function EditFile(props) {
         // change monthlyAllowedDays to just allowedDays array for monthyly
         firstFrequency.days = [...q.monthlyAllowedDays];
         firstFrequency.exceptionDay = +q.exceptionDay || null;
-        // firstFrequency.thirdrow = (exceptionDay === null && tempfrequencySpecifierIds.length  === 7) ? false : true
+        let thirdRowTemp = (q.exceptionDay === null && q.monthlyAllowedDays.length  === 7) ? false : true
+        firstFrequency.thirdrow = thirdRowTemp
+        firstFrequency.exceptionDayWarning = thirdRowTemp === true && q.exceptionDay === null
       }
       return firstFrequency;
       // frequencySetDayObject.map((el) =>)
@@ -1010,43 +1012,43 @@ function EditFile(props) {
         } else if (fre.emailIndicator && type === "emailRecipient") {
           fre[`${type}Warning`] = !Boolean(value && value.length)
           if(!(fre[`${type}Warning`])){
-            fre = { ...fre, action: "UPDATE" }
+            fre = { ...fre, action: fre.action !== "ADD" ? "UPDATE" : "ADD" }
           }
         }
         else if (fre.emailIndicator && type === "emailIndicator") {
           fre[`${type}Warning`] = !Boolean(value && value.length)
-          fre = { ...fre, action: "UPDATE" }
+          fre = { ...fre, action: fre.action !== "ADD" ? "UPDATE" : "ADD" }
         }
         else if (type === "monthlyOn") {
           fre[`${type}Warning`] = !Boolean(value)
           if(!(fre[`${type}Warning`])){
-            fre = { ...fre, action: "UPDATE" }
+            fre = { ...fre, action: fre.action !== "ADD" ? "UPDATE" : "ADD" }
           }
         } else if (type === "sfrequencyId") {
           fre[`${type}Warning`] = !Boolean(value)
-          fre = { ...fre, action: "UPDATE" }
+          fre = { ...fre, action: fre.action !== "ADD" ? "UPDATE" : "ADD" }
         } else {
           if (type === "sla" && (value <= fre.endTime) && value !== "") {
             fre[`${type}Warning`] = false
             fre.endTimeWarning = false
-            fre = { ...fre, action: "UPDATE" }
+            fre = { ...fre, action: fre.action !== "ADD" ? "UPDATE" : "ADD" }
           } else if (type === "sla") {
             fre[`${type}Warning`] = true
             fre.endTimeWarning = true
-            // fre = {...fre, action: "UPDATE"} //<-- submit will be blocked so no need to add update
+            // fre = {...fre, action: fre.action !== "ADD" ? "UPDATE" : "ADD"} //<-- submit will be blocked so no need to add update
           }
           if (type === "endTime" && fre.sla && (value >= fre.sla)) {
             fre[`${type}Warning`] = false
             fre.slaWarning = false
-            fre = { ...fre, action: "UPDATE" }
+            fre = { ...fre, action: fre.action !== "ADD" ? "UPDATE" : "ADD" }
           } else if (type === "endTime") {
             fre[`${type}Warning`] = true
             fre.slaWarning = true
-            // fre = {...fre, action: "UPDATE"} //<-- submit will be blocked so no need to add update
+            // fre = {...fre, action: fre.action !== "ADD" ? "UPDATE" : "ADD"} //<-- submit will be blocked so no need to add update
           }
           if (type === "exceptionDay") {
             fre[`${type}Warning`] = false
-            fre = { ...fre, action: "UPDATE" }
+            fre = { ...fre, action: fre.action !== "ADD" ? "UPDATE" : "ADD" }
           }
         }
       }
@@ -1068,7 +1070,7 @@ function EditFile(props) {
     const tempfrequencySpecifierIds = JSON.parse(JSON.stringify(day))
     let freqs = addFileData.frequency.map(f => {
       if (f.id === id) {
-        return { ...f, action: "UPDATE", frequencySpecifierIds: [...tempfrequencySpecifierIds] };
+        return { ...f, action: f.action !== "ADD" ? "UPDATE" : "ADD", frequencySpecifierIds: [...tempfrequencySpecifierIds] };
       }
       return { ...f };
     })
@@ -1212,6 +1214,7 @@ function EditFile(props) {
   const { tittle, edit } = props
 
   console.log(props) */
+  console.log(addFileData)
   return (
     <div className={classes.container}>
       <div className={classes.container}>
@@ -1490,9 +1493,8 @@ function EditFile(props) {
               {/* {JSON.stringify(addFileData.frequency)} */}
             </div>
             {addFileData.occurence === "DayOfWeekAndTime" &&
-              addFileData.frequency.map((freq, i) => {
+              addFileData.frequency.filter(ff => ff.action !== "DELETE").map((freq, index) => {
                 // // console.log('coming fro parent', freq)
-                if (freq.action !== "DELETE") {
                   return <Frequency data={freq} deleteFrequency={deleteFrequency}
                     frequncyArray={addFileData.frequency}
                     updateFrqStartTime={updateFrqStartTime}
@@ -1501,18 +1503,17 @@ function EditFile(props) {
                     setWarning={setWarning}
                     setTimeWarning={setTimeWarning}
                     warning={warning}
-                    key={i}
+                    index={index}
+                    key={index}
                     timeWarning={timeWarning}
                     emailRecipientOptions={emailRecipientOptions}
                   // tempFSDays={tempFSDays}
                   // setTempFSDays={setTempFSDays}
                   />
                 }
-              }
               )}
             {addFileData.occurence === "Monthly" &&
-              addFileData.frequency.map((freq, i) => {
-                if (freq.action !== "DELETE") {
+              addFileData.frequency.filter(ff => ff.action !== "DELETE").map((freq, index) => {
                   return <EditFrequency data={freq} deleteFrequency={deleteFrequency}
                     frequncyArray={addFileData.frequency}
                     updateFrqStartTime={updateFrqStartTime}
@@ -1521,12 +1522,12 @@ function EditFile(props) {
                     setWarning={setWarning}
                     setTimeWarning={setTimeWarning}
                     warning={warning}
+                    index={index}
                     timeWarning={timeWarning}
                     frequencyOptions={frequencyOptions}
                     emailRecipientOptions={emailRecipientOptions}
                   />
                 }
-              }
               )}
             {addFileData.occurence && <Button className={classes.form_btn_space} variant="outlined" onClick={addFrequency}>+ Add Frequency</Button>}
           </div>
