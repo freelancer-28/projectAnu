@@ -210,7 +210,7 @@ function AddFile(props) {
       routeIdWarning: null, // select
       occurenceWarning: null, // radio
       hopNameWarning: null, // select
-      fileCountWarning: null,
+      fileCountWarning: null
     },
     fileInformation: {
       ackSuffix: null,
@@ -225,7 +225,9 @@ function AddFile(props) {
       fileSuffix: null,
       routeId: null,
       sftAccountName: null,
-      direction: directionOptions[0]
+      direction: directionOptions[0],
+      maxSize: null,
+      minSize: null
     },
     frequency:[]
   })
@@ -524,6 +526,23 @@ function AddFile(props) {
     }
   }
 
+  const handleMinMaxChange = (event) => {
+    const {name, value} =  event.target
+      setAddFileData({
+        ...addFileData,
+        fileInformation: {
+          ...addFileData.fileInformation,
+          [name]: value,
+        }
+      })
+  }
+
+  const handleMinMaxChange1 = event => {
+    const {name, value} =  event.target
+    var k = event.which;
+    if (k < 48 || k >= 58) {event.preventDefault()}
+  }
+
   const handleHopIdChange = data => {
     setAddFileData({
       ...addFileData,
@@ -669,6 +688,8 @@ function AddFile(props) {
         producerId: addFileData.producerId,
         fileInformation: {
           ...addFileData.fileInformation,
+          minSize: +addFileData.fileInformation.minSize,
+          maxSize: +addFileData.fileInformation.maxSize,
           ackFileMontoring: addFileData.fileMonitoring ? "Y" : "N",
           fileTicketOrgGroupId: tempfileTicketOrgGroupId,
           enableSmartITTicket: addFileData.addIncident ? "Y" : "N",
@@ -765,13 +786,14 @@ function AddFile(props) {
     const { sftAccountNameWarning, filePrefixWarning, fileSuffixWarning, dateMaskWarning, dateTimeMaskWarning, routeIdWarning, hopNameWarning, fileCountWarning, asoWarning, agroupWarning } = addFileData.fileInfoWarning
     let validation_error = false;
     const { producerId, fileCount, occurence, hopName, hopId, addIncident, fileMonitoring } = addFileData
-    const { sftAccountName, direction, fileMask, filePrefix, fileSuffix, dateMask, dateTimeMask, routeId, aso, agroup, ackSlaTime, ackSuffix, ackEndTime } = addFileData.fileInformation
+    const { sftAccountName, direction, fileMask, filePrefix, fileSuffix, dateMask, dateTimeMask, routeId, aso, agroup, ackSlaTime, ackSuffix, ackEndTime, minSize, maxSize } = addFileData.fileInformation
     let tempAddFileData = { ...addFileData, fileInformation: {...addFileData.fileInformation}, fileInfoWarning: {...addFileData.fileInfoWarning}, frequency: [...addFileData.frequency]}
     let fields = ['sftAccountName', 'filePrefix', 'dateMask', 'dateTimeMask', 'routeId', 'hopName', 'fileCount', 'producerId', 'routeId', 'hopName', 'occurence', 'aso', 'agroup', 'ackSlaTime', 'ackSuffix', 'ackEndTime']
     fields.forEach(field => fieldWarning(tempAddFileData, addFileData.fileInformation[field], field))
     let addIncidentFieldsValidation = addIncident ? (aso && agroup) : true
+    let minMaxValidation = (minSize === null && maxSize === null) || (minSize === "" && maxSize === "") || (minSize && maxSize)
     let addFileMonitoringvalidation = fileMonitoring ? (ackSuffix && ackSlaTime && ackEndTime) : true
-    validation_error = producerId && fileCount && occurence && hopName && hopId && sftAccountName  && fileMask && filePrefix && dateMask && dateTimeMask && routeId && addIncidentFieldsValidation && addFileMonitoringvalidation;
+    validation_error = producerId && fileCount && occurence && hopName && hopId && sftAccountName  && fileMask && filePrefix && dateMask && dateTimeMask && routeId && addIncidentFieldsValidation && addFileMonitoringvalidation && minMaxValidation;
 
     let checkIFOverlapToShowErrorMessage = false;
     addFileData.frequency.forEach(fre => {
@@ -1087,7 +1109,7 @@ function AddFile(props) {
                   </div>
               </Grid>
               <Grid container>
-              <div className={classes.flex}>
+                <div className={classes.flex}>
                   <span className={classes.label}>Prefix</span>
                   <TextField name="filePrefix" onChange={handleInputChange} value={addFileData.fileInformation.filePrefix}
                   error={addFileData.fileInfoWarning.filePrefixWarning}
@@ -1210,6 +1232,24 @@ function AddFile(props) {
                   {/* {addFileData.fileInfoWarning.routeIdWarning && <FormHelperText>its a required Field</FormHelperText>} */}
                   </FormControl>
                   </div>
+                </div>
+                <div className={classes.flex}>
+                  <span className={classes.label}>Minimum File Size <i>optional</i></span>
+                  <TextField name="minSize" onChange={handleMinMaxChange} 
+                    onKeyPress={handleMinMaxChange1}
+                   value={addFileData.fileInformation.minSize}
+                  // error={addFileData.fileInfoWarning.filePrefixWarning}
+                  // helperText={addFileData.fileInfoWarning.filePrefixWarning && "its a required Field"}
+                   />
+                </div>
+                <div className={classes.flex}>
+                  <span className={classes.label}>Maximum File Size <i>optional</i></span>
+                  <TextField name="maxSize" onChange={handleMinMaxChange}
+                    onKeyPress={handleMinMaxChange1}
+                    value={addFileData.fileInformation.maxSize}
+                  // error={addFileData.fileInfoWarning.fileSuffixWarning}
+                  // helperText={addFileData.fileInfoWarning.fileSuffixWarning && "its a required Field"} 
+                  />
                 </div>
               </Grid>
             </div>
