@@ -26,6 +26,8 @@ import {
 
 const Table = (props) => {
 
+  console.log(props.selectableRows)
+  let selectableRowsOption = props.selectableRows !== undefined ? props.selectableRows : true
   const columnWithSortIcon = (columnMeta, handleToggleColumn, sortOrder) => {
     let icon = faSort;
     if (columnMeta.name === sortOrder.name) {
@@ -77,7 +79,7 @@ const Table = (props) => {
     filter: true,
     viewColumns: true,
     // sort: true,
-    selectableRows: true,
+    selectableRows: selectableRowsOption,
     onFilterChange: () => {
       paginationRef.current && paginationRef.current.refreshPagination();
     },
@@ -236,7 +238,8 @@ const Table = (props) => {
   //   // dispatch(updateProducerOptions(producerOptions));
   // };
 
-
+console.log("----------------")
+console.log(props.data)
 
   return (
     <MuiThemeProvider theme={getMuiTheme()}>
