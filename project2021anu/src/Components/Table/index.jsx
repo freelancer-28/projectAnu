@@ -23,6 +23,8 @@ import {
   TableIconCell,
   IconContainer,
 } from "./styles";
+import TextField from "../TextField";
+import Select from "../Select";
 
 const Table = (props) => {
 
@@ -49,15 +51,44 @@ const Table = (props) => {
     );
   };
   
-  const customWidthCellContent = ({ width, value }) => <div style={{ width, overflowWrap: 'anywhere' }}>{value}</div>
+  const customWidthCellContent = ({ width, value }) => {
+    console.log(value.name)
+    if(typeof value === "function") {
+      if(value.name === "applicationname"){
+        const appNamesOptions = [
+          {
+            "value": "PSP",
+            "label": "PSP"
+          },
+          {
+            "value": "Saphire",
+            "label": "Saphire"
+          }
+        ]
+        return (
+          <Select
+              // value={appNamesOptions[0]}
+              options={appNamesOptions}
+              onChange={value}
+              isLoading={!(appNamesOptions && appNamesOptions.length)}
+              placeholder="Application Name"
+            />
+        )
+      }
+      return <TextField onChange={value}></TextField>
+    } else {
+      return <div style={{ width, overflowWrap: 'anywhere' }}>{value}</div>
+    }
+  }
   
   // const onEditRow = (rowIndex) => {
   //   console.log(rowIndex)
   // }
   
   const columnWithEndIcon = (columnMeta, handleToggleColumn, sortOrder) => {
+    console.log(columnMeta)
     return (
-      <TableIconCell key={columnMeta.index} style={{ cursor: "pointer" }}>
+      columnMeta && <TableIconCell key={columnMeta.index} style={{ cursor: "pointer" }}>
         <IconContainer onClick={()=>props.onEditRow(handleToggleColumn.rowIndex)} icon={faEdit} />
       </TableIconCell>
     );
@@ -207,11 +238,14 @@ const Table = (props) => {
         options,
       };
     });
+    console.log('********')
+    // console.log(temp[0].options.customBodyRender)
+    console.log('********')
     temp.push({
       name: "",
       options: {
         filter: true,
-        customBodyRender: columnWithEndIcon,
+        customBodyRender: (value, tableMeta, updateValue) => columnWithEndIcon(value),
       },
     });
     return temp;
@@ -222,6 +256,14 @@ const Table = (props) => {
   const columns = parseColumns(props.columns);
 
   const tableData = (props.data || []).map((row) => [...row, "icon-right"]);
+  console.log(tableData)
+  tableData.map(x=> {
+    if(x.length && typeof x[0] === "function"){
+      x[4]=null
+    }
+    return x
+  })
+  console.log(tableData)
 
   // // useEffect(() => {}, []);
 

@@ -5,7 +5,7 @@ import { selectAdminFileData } from "../../reducers/adminFileData";
 import { selectJobData } from '../../reducers/jobData'
 import { selectAdminRawData } from "../../reducers/adminRawData";
 import { selectAddFile } from "../../reducers/addFile";
-import { LinkContainer, Box, Button, ButtonContainer, TextField, IconContainer } from "./styles";
+import { LinkContainer, Box, Button, SaveButton, ButtonContainer, TextField, IconContainer } from "./styles";
 import Table from "../Table";
 import fileAPIs from "../../apis/AdminTool";
 import jobAPIs from "../../apis/JobTool"
@@ -44,6 +44,12 @@ const columns = [
 
 const AdminTool = (props) => {
 
+  const [status,setStatus] = useState(undefined)
+  const [message,setMessage] = useState(undefined)
+  const [jid,setJid] = useState(null)
+  const [jname,setJname] = useState(null)
+  const [japplicationName,setJApplicationName] = useState(null)
+  const [addJob, setAddJob] = useState(false)
   const [searchText, setSearchText] = useState('')
   const [rowID, setRowID] = useState(null)
   const [showDetails, setShowDetails] = useState(false)
@@ -70,8 +76,20 @@ const AdminTool = (props) => {
     console.log(event.target.searchText.value)
   }
 
+  const handleSaveNewJOB = () => {
+    setMessage(jid)
+    setAddJob(!addJob)
+    setStatus("Success")
+  }
   const ViewDetailsLink = (id, rowdata) => {
-     return <IconContainer onClick={()=>{}} icon={faTrashAlt} />
+    if(id === 0 && addJob){
+      return (
+      <SaveButton variant="contained" onClick={handleSaveNewJOB} style={{'backgroundColor': 'red !important'}} color="primary" disableElevation>
+        Save
+      </SaveButton>)
+    } else {
+      return <IconContainer onClick={()=>{}} icon={faTrashAlt} />
+    }
   };
 
   const processAdminData = (data) => {
@@ -96,6 +114,22 @@ const AdminTool = (props) => {
     console.log(data)
     data = data && data.filter(obj=>obj.jobid.includes(searchText))
     console.log("******************************")
+    console.log("addJob : ", addJob)
+    if(addJob){
+      data.unshift({
+        jobid: event => setJid(event.target.value),
+        jobname: event => setJname(event.target.value),
+        applicationname: event => setJApplicationName(event.value),
+      })
+    }
+    if(addJob === false && (jid || jname || japplicationName)){
+      data.unshift({
+        jobid: jid,
+        jobname: jname,
+        applicationname: japplicationName,
+      })
+    } 
+
     dispatch(updateJobData(processAdminData(data)));
     setTimeout(() => {
       setIsDataLoading(false);
@@ -104,20 +138,23 @@ const AdminTool = (props) => {
 
   useEffect(() => {
     fetchJobDataFromServer()
-  }, [searchText]);
+  }, [searchText, addJob]);
 
   const handleErrorClose = () => {
-    dispatch(submitFile({message: '', status: ''}));
+    setStatus("failed")
   }
 
-  console.log(props)
+  const handleAddNewJob = () => {
+    setAddJob(true)
+  }
+
+  console.log(data)
   const addFile = useSelector(selectAddFile);
   console.log(addFile)
-  const { status, message } = addFile || {}
 
  return (
   <Box>
-    <CustomErrorDialog open={status === "Success"} onClose={()=>handleErrorClose()} severity={status} message={message}/>
+    <CustomErrorDialog open={status === "Success"} onClose={()=>handleErrorClose()} severity={status} message={"You successfully added "+ `${jid}.`}/>
     <ButtonContainer>
     <form onSubmit={onSearchSubmit}>
       <TextField id="searchText" variant="outlined" 
@@ -135,7 +172,7 @@ const AdminTool = (props) => {
           )
         }}/>
       </form>
-      <Button variant="contained" onClick={()=>{}} color="primary" disableElevation>
+      <Button variant="contained" onClick={handleAddNewJob} color="primary" disableElevation>
         Add
       </Button>
     </ButtonContainer>

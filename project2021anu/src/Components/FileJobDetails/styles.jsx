@@ -29,6 +29,14 @@ const Button = styled(MuiButton)({
   background: "#fff !important",
 });
 
+const SaveButton = styled(MuiButton)({
+  width: 100,
+  color: "#fff",
+  border: "1px solid #027784",
+  marginLeft: 10,
+  background: "#027784 !important",
+});
+
 const TextField = styled(MuiTextField)({
   width: 394,
   color: "#027784",
@@ -39,4 +47,4 @@ const IconContainer = styled(FontAwesomeIcon)({
   color: '#027784'
 });
 
-export { LinkContainer, Box, Button, ButtonContainer, TextField, IconContainer };
+export { LinkContainer, Box, Button, SaveButton, ButtonContainer, TextField, IconContainer };
