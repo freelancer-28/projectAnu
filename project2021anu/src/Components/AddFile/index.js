@@ -210,7 +210,9 @@ function AddFile(props) {
       routeIdWarning: null, // select
       occurenceWarning: null, // radio
       hopNameWarning: null, // select
-      fileCountWarning: null
+      fileCountWarning: null,
+      minSizeWarning: null,
+      maxSizeWarning: null
     },
     fileInformation: {
       ackSuffix: null,
@@ -527,12 +529,37 @@ function AddFile(props) {
   }
 
   const handleMinMaxChange = (event) => {
-    const {name, value} =  event.target
+    let {name, value} =  event.target
+    value = value === "" ? value : +value
+    let tempAddFileData = {...addFileData}
+      if(name === "minSize" && (value < tempAddFileData.fileInformation.maxSize) && value !== ""){
+        tempAddFileData.fileInfoWarning[`${name}Warning`] = false
+        tempAddFileData.fileInfoWarning.maxSizeWarning = false
+      }else if(name === "minSize"){
+        tempAddFileData.fileInfoWarning[`${name}Warning`] = true
+        tempAddFileData.fileInfoWarning.maxSizeWarning = true
+      }
+      if(name === "maxSize"&& value && tempAddFileData.fileInformation.minSize >=0 && (value > tempAddFileData.fileInformation.minSize)){
+        tempAddFileData.fileInfoWarning[`${name}Warning`] = false
+        tempAddFileData.fileInfoWarning.minSizeWarning = false
+      }else if(name === "maxSize"){
+        tempAddFileData.fileInfoWarning[`${name}Warning`] = true
+        tempAddFileData.fileInfoWarning.minSizeWarning = true
+      }
+      if((name === "minSize" || name === "maxSize") && value === "" && ((tempAddFileData.fileInformation[name === "minSize" ? "maxSize" : "minSize"] === "") || (tempAddFileData.fileInformation[name === "minSize" ? "maxSize" : "minSize"] === null))){
+        tempAddFileData.fileInfoWarning.maxSizeWarning = false
+        tempAddFileData.fileInfoWarning.minSizeWarning = false
+      }
       setAddFileData({
         ...addFileData,
-        fileInformation: {
+        fileInformation:{
           ...addFileData.fileInformation,
           [name]: value,
+        },
+        fileInfoWarning: {
+          ...addFileData.fileInfoWarning,
+          minSizeWarning: tempAddFileData.fileInfoWarning.minSizeWarning,
+          maxSizeWarning: tempAddFileData.fileInfoWarning.maxSizeWarning,
         }
       })
   }
@@ -688,8 +715,8 @@ function AddFile(props) {
         producerId: addFileData.producerId,
         fileInformation: {
           ...addFileData.fileInformation,
-          minSize: +addFileData.fileInformation.minSize,
-          maxSize: +addFileData.fileInformation.maxSize,
+          minSize: +addFileData.fileInformation.minSize || null,
+          maxSize: +addFileData.fileInformation.maxSize || null,
           ackFileMontoring: addFileData.fileMonitoring ? "Y" : "N",
           fileTicketOrgGroupId: tempfileTicketOrgGroupId,
           enableSmartITTicket: addFileData.addIncident ? "Y" : "N",
@@ -1238,8 +1265,8 @@ function AddFile(props) {
                   <TextField name="minSize" onChange={handleMinMaxChange} 
                     onKeyPress={handleMinMaxChange1}
                    value={addFileData.fileInformation.minSize}
-                  // error={addFileData.fileInfoWarning.filePrefixWarning}
-                  // helperText={addFileData.fileInfoWarning.filePrefixWarning && "its a required Field"}
+                  error={addFileData.fileInfoWarning.minSizeWarning}
+                  helperText={addFileData.fileInfoWarning.minSizeWarning && "minSize <= maxSize"}
                    />
                 </div>
                 <div className={classes.flex}>
@@ -1247,8 +1274,8 @@ function AddFile(props) {
                   <TextField name="maxSize" onChange={handleMinMaxChange}
                     onKeyPress={handleMinMaxChange1}
                     value={addFileData.fileInformation.maxSize}
-                  // error={addFileData.fileInfoWarning.fileSuffixWarning}
-                  // helperText={addFileData.fileInfoWarning.fileSuffixWarning && "its a required Field"} 
+                  error={addFileData.fileInfoWarning.maxSizeWarning}
+                  helperText={addFileData.fileInfoWarning.maxSizeWarning && "maxSize <= minSize"} 
                   />
                 </div>
               </Grid>

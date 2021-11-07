@@ -52,7 +52,7 @@ const Table = (props) => {
   };
   
   const customWidthCellContent = ({ width, value }) => {
-    console.log(value.name)
+    // console.log(value.name)
     if(typeof value === "function") {
       if(value.name === "applicationname"){
         const appNamesOptions = [
