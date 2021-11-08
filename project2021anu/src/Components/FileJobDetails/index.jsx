@@ -3,6 +3,7 @@ import Container from "@material-ui/core/Container";
 import { useSelector, useDispatch } from "react-redux";
 import { selectAdminFileData } from "../../reducers/adminFileData";
 import { selectJobData } from '../../reducers/jobData'
+import { selectJobApplications } from '../../reducers/jobApplications'
 import { selectAdminRawData } from "../../reducers/adminRawData";
 import { selectAddFile } from "../../reducers/addFile";
 import { LinkContainer, Box, Button, SaveButton, ButtonContainer, TextField, IconContainer } from "./styles";
@@ -28,6 +29,7 @@ import {
   faSortDown,
   faTrashAlt
 } from "@fortawesome/free-solid-svg-icons";
+import { updatejobApplications } from "../../actions/jobApplications";
 
 const getColumnWidth = (i) => {
   if (i == 1) return 10;
@@ -35,9 +37,9 @@ const getColumnWidth = (i) => {
 }
 
 const columns = [
-{ name: "Job ID", id: "jobid", sort: true, width:"7em"},
-  { name: "Job Name", id: "jobname", sort: true, width:"30em" },
-  { name: "Application Name", id: "applicationname", sort: true, width:"7em"},
+{ name: "Job ID", id: "jobId", sort: true, width:"7em"},
+  { name: "Job Name", id: "jobName", sort: true, width:"30em" },
+  { name: "Application Name", id: "jobsApplicationName", sort: true, width:"7em"},
   { name: "", id: "", width:"7em"},
   // { name: "", id: "", width:"7em"}
 ]
@@ -59,6 +61,7 @@ const AdminTool = (props) => {
   const dispatch = useDispatch();
   // const data = useSelector(selectAdminFileData);
   const data = useSelector(selectJobData);
+  const jobApplicationsOptions = useSelector(selectJobApplications);
   const rawData = useSelector(selectAdminRawData)
 
   const onEditRow = (rowIndex) => {
@@ -106,31 +109,42 @@ const AdminTool = (props) => {
     });
   };
 
+  const processJobApplications = applications => {
+    return applications.map(app => ({
+      "value": app.applicationId,
+      "label": app.applicationName
+    }))
+  }
+
   const fetchJobDataFromServer = async () => {
     setIsDataLoading(true);
     let data = await jobAPIs.fetchJobData();
-    data = data.fileJobConfigurationRequests || []
+    let jobApps = await jobAPIs.fetchJobApplications();
+    data = data.jobNames || []
+    jobApps = jobApps.applications || []
     console.log("******************************")
+    console.log(jobApps)
     console.log(data)
-    data = data && data.filter(obj=>obj.jobid.includes(searchText))
+    data = data && data.filter(obj=>obj.jobId.includes(searchText))
     console.log("******************************")
     console.log("addJob : ", addJob)
     if(addJob){
       data.unshift({
-        jobid: event => setJid(event.target.value),
-        jobname: event => setJname(event.target.value),
-        applicationname: event => setJApplicationName(event.value),
+        jobId: event => setJid(event.target.value),
+        jobName: event => setJname(event.target.value),
+        jobsApplicationName: event => setJApplicationName(event.value),
       })
     }
     if(addJob === false && (jid || jname || japplicationName)){
       data.unshift({
-        jobid: jid,
-        jobname: jname,
-        applicationname: japplicationName,
+        jobId: jid,
+        jobName: jname,
+        jobsApplicationName: japplicationName,
       })
     } 
 
     dispatch(updateJobData(processAdminData(data)));
+    dispatch(updatejobApplications(processJobApplications(jobApps)));
     setTimeout(() => {
       setIsDataLoading(false);
     }, 600);
@@ -151,6 +165,7 @@ const AdminTool = (props) => {
   console.log(data)
   const addFile = useSelector(selectAddFile);
   console.log(addFile)
+  console.log(jobApplicationsOptions)
 
  return (
   <Box>
@@ -176,7 +191,7 @@ const AdminTool = (props) => {
         Add
       </Button>
     </ButtonContainer>
-    <Table data={data} columns={columns} onEditRow={onEditRow} selectableRows={false}></Table>
+    <Table data={data} columns={columns} onEditRow={onEditRow} selectableRows={false} jobApplicationsOptions={jobApplicationsOptions}></Table>
   </Box>
 );
 }

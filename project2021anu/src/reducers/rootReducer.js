@@ -6,6 +6,7 @@ import { fileData } from "./fileData";
 import { combineReducers } from "redux";
 import { adminFileData } from "./adminFileData";
 import { jobData } from "./jobData"
+import { jobApplications  } from "./jobApplications";
 import { adminRawData } from "./adminRawData";
 import { addFile } from "./addFile";
 
@@ -19,6 +20,7 @@ const rootReducer = combineReducers({
   fileData,
   adminFileData,
   jobData,
+  jobApplications,
   adminRawData,
   addFile,
   route,

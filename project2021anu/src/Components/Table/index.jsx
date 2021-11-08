@@ -54,17 +54,18 @@ const Table = (props) => {
   const customWidthCellContent = ({ width, value }) => {
     // console.log(value.name)
     if(typeof value === "function") {
-      if(value.name === "applicationname"){
-        const appNamesOptions = [
-          {
-            "value": "PSP",
-            "label": "PSP"
-          },
-          {
-            "value": "Saphire",
-            "label": "Saphire"
-          }
-        ]
+      if(value.name === "jobsApplicationName"){
+        // const appNamesOptions = [
+        //   {
+        //     "value": "PSP",
+        //     "label": "PSP"
+        //   },
+        //   {
+        //     "value": "Saphire",
+        //     "label": "Saphire"
+        //   }
+        // ]
+        const appNamesOptions = props.jobApplicationsOptions
         return (
           <Select
               // value={appNamesOptions[0]}
